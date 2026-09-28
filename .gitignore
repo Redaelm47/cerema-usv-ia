@@ -1,0 +1,31 @@
+# Système
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Fichiers lourds : ne pas versionner (indiquer où les trouver dans le README du dossier)
+datasets/
+data/
+runs/
+*.pt
+*.onnx
+*.tflite
+*.mp4
+*.avi
+*.mov
+*.zip
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
