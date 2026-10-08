@@ -1,0 +1,48 @@
+-si la Raspberry pi n'a pas d'accès réseau (celui rentré à son initialisation)
+- brancher en ethernet dessus depuis son pc portable et l'alimenter
+-ouvrir terminal 
+>>> ncpa.cpl
+autoriser le partage de réseau wifi par ethernet
+>>> arp -a
+permet de trouver son adresse IP 192.168.137.200
+>>>ping 192.168.137.200
+rpi : cerema-pi l’identifiant : pi et le mdp : cerema
+>>>ssh pi@192.168.137.200
+>>>yes
+>>>cerema (mdp)
+-> connecter à la Raspberry pi !!!
+>>> ls -> voir ce qu'il y a dedans
+>>> ls -l -> les fichiers dedans
+>>> cd Desktop
+>>> mkdir Yolo_test
+
+>>>python3 -m venv --system-site-packages yolo_env
+>>>source yolo_env/bin/activate
+>>>pip install --upgrade pip
+>>>pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+>>>pip install ultralytics --no-deps
+>>>pip install opencv-python
+
+>>>python -c "from ultralytics import YOLO; model = YOLO('yolo11n.pt')"
+>>>nano yolo_detect_rasp.py
+-> copier / coller le script
+
+
+
+>>>python yolo_detect_rasp.py --model yolo11n.pt --source picamera0 --resolution 640x480 --no-display -> pour lancer et prendre une image
+-> lance le script pour le modèle yolo11n
+
+
+pour télécharger l'image sur pc : 
+allé dans le dossier ou l'on veut l'image dans un nouveau terminal puis
+>>> scp pi@192.168.137.200:/home/pi/Desktop/Yolo_test/out_last.jpg .
+
+
+pour vidéo : 
+>>> python yolo_detect_rasp.py --model yolo11n.pt --source picamera0 --resolution 640x480 --record --no-display
+depuis le terminal du pc 
+>>> scp pi@192.168.137.200:/home/pi/Desktop/Yolo_test/demo1.avi . 
+-> vidéo en accélérer 
+
+
+-> reste 5.6 giga de place
