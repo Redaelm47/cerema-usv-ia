@@ -1,0 +1,211 @@
+%*****************************************************************************************************             
+%                       INSTITUT MINES-TELECOM, IMT Atlantique             
+%                   Département Mathematical & Electrical Engineering           
+%                                Technopôle de Brest-Iroise                   
+%                                 CS 83818 - 29238 BREST Cedex 3                                                       
+%                                     **  Tous droits réservés **                                     
+%
+% NOM DU PROJET : Document de cadrage - Projet S7 2026-2027 (IMT Atlantique)
+%***********************************************************************************************
+
+\documentclass[11pt,a4paper,french]{article}
+
+\usepackage{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{newtxtext} % Police pour texte
+\usepackage{newtxmath} % Police pour formules
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+
+\usepackage{framed}   % Permet de surligner les résultats importants
+\usepackage{tabularx} % Tableaux du document de cadrage
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{eurosym}
+\usepackage{float}
+% \newcommand{\sectionbreak}{\clearpage} % désactivé : faisait dépasser la limite de 15 pages
+
+% L'option "copyright" affiche la licence Creative Common en 4eme de couverture
+\usepackage[copyright]{../sty/imta} 
+\usepackage{tikz}     % Diagrammes (contexte, pieuvre, organigramme des lots)
+\usetikzlibrary{positioning,calc,fit,shapes.geometric}
+\usepackage{pgfgantt} % Diagramme de Gantt
+\usepackage{colortbl}  % Cellules colorées (tableau des risques)
+% Couleurs communes aux schémas
+\definecolor{lotA}{HTML}{2E75B6}% intégration du bateau
+\definecolor{lotB}{HTML}{3A9D5D}% vision embarquée
+\definecolor{lotC}{HTML}{C0504D}% intégration vision et bateau
+\definecolor{lotD}{HTML}{7F7F7F}% gestion de projet
+\definecolor{critiqueHigh}{RGB}{250,190,190}% criticité élevée
+\definecolor{critiqueMed}{RGB}{255,235,175}% criticité moyenne
+\definecolor{critiqueLow}{RGB}{210,245,215}% criticité faible
+
+% Signets et hyperliens (à charger en dernier)
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue,citecolor=IMTAbleu]{hyperref}
+% Mise en évidence de textes par icônes et barre verticale
+\usepackage{../sty/awesomebox}
+
+%----------------- Métadonnées du PDF ---------------------------------------------------------
+\hypersetup{
+    pdfinfo = {
+        Author = {Reda El Mekkaoui; Adam-Sabri Hlaoua; Guillaume Leroy; Ewen Gourmelen; Selma Ben-Abdelkader; Rana Brini},
+        Title = {Intégration d'une plateforme USV et d'une chaîne de détection temps réel assistée par intelligence artificielle pour l'aide à la navigation autonome},
+        Keywords = {USV; Intelligence Artificielle; Navigation autonome; Cerema}
+    }
+}
+
+%--------------------------- Définition du contenu du pied de page ----------------------------
+\IMTAfooter{\thereportnumber}
+
+%-------------------- Informations de copyright pour quatrième de couverture ------------------
+\IMTCopyright{[Choisir une licence Creative Commons\\\URLcclicence\\
+             et l’apposer ici à la place de cette phrase en enlevant les crochets]}
+
+%----------------- Définitions d'ensembles et d'opérateurs mathématiques ----------------------
+\def\Cset{\mathbb{C}} % complexes
+\def\Hset{\mathbb{H}} % hilbert
+\def\Nset{\mathbb{N}} % entiers naturels
+\def\Qset{\mathbb{Q}} % rationnels
+\def\Rset{\mathbb{R}} % reels
+\def\Zset{\mathbb{Z}} % entiers relatifs
+\def\Dset{\mathbb{D}} % disque unite ouvert
+\def\Eset{\mathbb{E}} % esperance mathematique
+
+%---------------------- Commandes du document de cadrage --------------------------------------
+\newif\ifconsignes
+\consignesfalse
+\newcommand{\consigne}[1]{\ifconsignes{\color{gray}\itshape #1\par}\fi}
+
+\providecommand{\todo}[1]{\textcolor{red}{[\textbf{À compléter :} #1]}}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+% Flèche de dépendance fin -> début entre deux barres nommées du Gantt.
+% L'argument optionnel est la hauteur du segment horizontal au-dessus de la barre d'arrivée
+% (0.275cm = un demi-rang pour des barres sur des rangs voisins).
+\newcommand{\ganttdep}[3][0.275cm]{%
+  \draw[-latex, thick, gray!70!black, rounded corners=1pt]
+    (#2.east) -- ++(0.18cm,0) |- ([xshift=-0.18cm, yshift=#1]#3.west) |- (#3.west);}
+\addto\captionsfrench{\renewcommand{\tablename}{Tableau}}
+
+%-------------------------------------- FIN DES DEFINITIONS ----------------------------------
+
+\begin{document}
+
+%---------------------------------------------------------------------------------------------
+%                                   PAGE DE TITRE
+%---------------------------------------------------------------------------------------------
+
+\entity{
+    \textbf{\large{IMT Atlantique}}\\
+    Projet Commande Entreprise\\
+    S7 2026-2027 \\
+    Campus de Brest
+}
+
+\MentionSpeciale{\textbf{\Large Document de synthèse -- Projet numéro 20}}
+\title{Intégration d'une plateforme USV et d'une chaîne de détection temps réel assistée par intelligence artificielle pour l'aide à la navigation autonome.}
+
+\author{\vspace{1cm}\textit{%
+    Reda El Mekkaoui \and
+    Adam-Sabri Hlaoua \and
+    Guillaume Leroy \and
+    Ewen Gourmelen \and
+    Selma Ben-Abdelkader \and
+    Rana Brini%
+}%
+}
+
+\contributors{%
+    \vspace{0.4cm}% Petit espace vertical pour aérer sous les auteurs
+    \begin{flushleft}
+        Encadré par : \textit{Matthieu Arzel} (IMT Atlantique) \\
+        Clients : \textit{Antoine Douchin} (Cerema) \\
+        Destinataires : Antoine Douchin (Cerema), Matthieu Arzel (IMT Atlantique)
+    \end{flushleft}%
+}
+
+\version{2}
+
+\maketitle
+
+% --- HISTORIQUE DES RÉVISIONS ---
+\begin{table}[h]
+    \centering
+    \caption*{\large \textbf{Historique des révisions du document}}
+    \small
+    \begin{tabularx}{\textwidth}{@{}ccp{2.2cm}Lp{2.8cm}@{}}
+        \toprule
+        \textbf{Version} & \textbf{Révision} & \textbf{Date} & \textbf{Description des changements} & \textbf{Auteur} \\
+        \midrule
+        1 & 0 & 02/10/2026 & Version initiale, envoyée au client et au tuteur école & Tout le groupe \\
+        2 & 0 & 04/10/2026 & Prise en compte de la réunion du 02/10/2026 : scénario d'usage cible, fonction FS2, pilotage par gouverne, périmètre, réunions client toutes les deux semaines & Tout le groupe \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+% --- RELECTEURS ---
+\begin{table}[h]
+    \centering
+    \caption*{\large \textbf{Rédacteur et relecteur par partie}}
+    \small
+    Chaque partie a un rédacteur référent, à contacter pour toute question sur son contenu.\par\vspace{0.2cm}
+    \begin{tabularx}{\textwidth}{@{}Lp{3.4cm}p{4.6cm}@{}}
+        \toprule
+        \textbf{Partie du document} & \textbf{Rédacteur référent} & \textbf{Contact} \\
+        \midrule
+        Page de garde, introduction, présentation du projet (section~\ref{sec:presentation}) & Reda El Mekkaoui & reda.el-mekkaoui@imt-atlantique.net \\
+        Cahier des charges fonctionnel (section~\ref{sec:cdcf}) & Ewen Gourmelen & ewen.gourmelen@imt-atlantique.net \\
+        Plan de travail (section~\ref{sec:plan-travail}) & Rana Brini & rana.brini@imt-atlantique.net \\
+        Organisation : équipe, parties prenantes, lots, planification, communication (section~\ref{sec:organisation}) & Guillaume Leroy & guillaume.leroy@imt-atlantique.net \\
+        Organisation : analyse des risques (section~\ref{sec:risques}) & Adam-Sabri Hlaoua & adam-sabri.hlaoua@imt-atlantique.net \\
+        Validation du projet et conclusion (sections~\ref{sec:validation-projet} et~\ref{sec:conclusion}) & Selma Ben-Abdelkader & selma.ben-abdelkader@imt-atlantique.net \\
+        Références bibliographiques et annexes & Tout le groupe & -- \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\newpage
+
+%% Affichage des listes et tables.
+\IMTAsommaire
+\newpage
+%\IMTAlistefigures  % commenter pour ne pas avoir la liste des figures (absente du modèle de cadrage)
+%\IMTAlistetableaux   % commenter pour ne pas avoir la liste des tables (absente du modèle de cadrage)
+%---------------------------------------------------------------------------------------------
+%                 CORPS DU DOCUMENT : ordre de la consigne du document de synthèse
+%---------------------------------------------------------------------------------------------
+
+
+
+\input{sections/01-introduction}
+\input{sections/02-presentation}
+\input{sections/03-cdcf}
+\input{sections/04-plan-travail}
+\input{sections/05-organisation}
+\input{sections/06-validation}
+\input{sections/07-conclusion}
+\input{sections/08-references}
+
+%--------------------------------------- DEBUT DES ANNEXES --------------------------------------
+\newpage
+\begin{IMTAannexes}
+
+\input{sections/10-presentation-client}
+\input{sections/09-contrat-equipe}
+
+%------------------------------------- -- FIN DES ANNEXES --------------------------------------
+\end{IMTAannexes}
+
+%---------------------------------------- Do not modify ----------------------------------------
+\IMTAcoverpage
+%------------------------------------ End of do not modify -------------------------------------
+
+\end{document}
+
+%***********************************************************************************************
+%                                   FIN DU FICHIER D'EDITION
+%***********************************************************************************************

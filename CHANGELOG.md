@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-10-08
+
+- Ajout du document de synthèse version 2 (PDF et sources LaTeX) dans `docs/`.
+
 ## 2026-10-01
 
 - Ajout des documents du projet 2025 (comptes rendus, définition, livrables, poster).

@@ -1,0 +1,29 @@
+\section{Introduction}
+
+Ce document fait le point sur le lancement du projet : ce que l'équipe a compris du besoin du Cerema, ce qu'elle va réaliser et comment elle s'organise. Il s'adresse au client et au tuteur école, prépare la revue de projet et sert à affiner le besoin avec le client. Il s'appuie sur la fiche du sujet, les travaux du projet 2025, la réunion de lancement et les échanges avec le Cerema (section~\ref{sec:bibliographie}). Le tableau~\ref{tab:terminologie} définit les termes techniques utilisés.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Terminologie}
+\label{tab:terminologie}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.8cm}L@{}}
+\toprule
+\textbf{Terme} & \textbf{Définition} \\
+\midrule
+USV (\emph{Unmanned Surface Vehicle}) & Drone de surface : bateau sans équipage, télépiloté ou autonome. \\
+PCE & Projet Commande Entreprise, réalisé par des élèves pour un partenaire extérieur. \\
+Autopilote (Pixhawk, ArduPilot) & Carte et logiciel qui commandent les moteurs et gèrent la navigation. \\
+Station sol (QGroundControl) & Ordinateur qui permet de piloter le bateau, de programmer et de suivre les missions. \\
+Ordinateur compagnon & Ordinateur embarqué (ici un Raspberry Pi 4) qui analyse les images et dialogue avec l'autopilote. \\
+MAVLink & Langage de communication entre l'autopilote, l'ordinateur compagnon et la station sol. \\
+Point de passage (\emph{waypoint}) & Position que le bateau doit rejoindre lors d'une mission programmée. \\
+ESC & Variateur qui commande la vitesse d'un moteur. \\
+YOLO & Famille de modèles d'IA qui détectent des objets dans une image. \\
+Métadonnées de détection & Résultats du modèle (cadre, classe, score de confiance) transmis avec l'image, exploitables par l'ordinateur compagnon. \\
+OCR & Reconnaissance de caractères, ici pour lire l'immatriculation d'un navire. \\
+AIS & Système par lequel un navire émet en continu son identité, sa position et sa vitesse. \\
+Gouverne & Surface orientable qui dirige le bateau, ici commandée par un moteur. \\
+\bottomrule
+\end{tabularx}
+\end{table}

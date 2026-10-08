@@ -1,0 +1,103 @@
+\section{Le plan de travail}
+\label{sec:plan-travail}
+
+% ---------------------------------------------------------------------------
+\subsection{Méthodologie}
+
+L'équipe suit une méthode hybride. L'ensemble du projet suit un cycle en V : cahiers des charges, conception, intégration, tests, puis recette. À l'intérieur de chaque lot, elle travaille de façon agile, par itérations de deux semaines rythmées par les réunions avec le client (figure~\ref{fig:gantt}) et par un point d'équipe hebdomadaire. Cela permet d'ajuster le travail au fil de la découverte du matériel. Dans un premier temps, l'équipe va se diviser en deux groupes selon les compétences afin de réaliser les premières grosses tâches en parallèle puis leur intégration.
+
+% ---------------------------------------------------------------------------
+\subsection{Étapes du projet}
+
+Les deux parties avancent en parallèle, chacune confiée à un groupe de trois, puis sont réunies. Chaque groupe rédige un cahier des charges précis une fois le matériel pris en main ; il évoluera au cours du projet.
+\\
+\paragraph{Intégration du bateau.}
+\begin{enumerate}
+  \item \textbf{Prise en main :} comprendre les composants, vérifier le schéma d'assemblage et repérer ce qui manque, faire tourner les moteurs et piloter le bateau.
+  \item \textbf{Cahier des charges précis} de la partie matérielle.
+  \item \textbf{Choix du type de moteur et de gouvernail} : choisir entre les différents moteurs ainsi que le système de manoeuvre.
+  \item \textbf{Intégration sur la plateforme :} choisir la propulsion (deux moteurs, ou un moteur et un gouvernail), puis faire tenir un cap au bateau et l'arrêter.
+  \item \textbf{Ajustements et tests}, jusqu'à une mission complète par points de passage.
+\end{enumerate}
+
+\paragraph{Vision embarquée.}
+\begin{enumerate}
+  \item \textbf{Compréhension du travail 2025} (caméras, modèles, code), fourni sur clé USB par le Cerema.
+  \item \textbf{Cahier des charges précis} de la partie vision.
+  \item \textbf{Stratégie de détection}, si possible avec deux caméras sur un Raspberry Pi 4.
+  \item \textbf{Tests}, notamment par mauvais temps et en basse résolution ; la caméra ne sera pas encore montée sur le bateau.
+\end{enumerate}
+
+\paragraph{Intégration de la vision au bateau.} Réunir les deux parties pour réaliser le scénario de démonstration (section~\ref{sec:validation-besoin}).
+
+% ---------------------------------------------------------------------------
+\subsection{Moyens nécessaires}
+
+\paragraph{Matériel.} Le tableau~\ref{tab:materiel} liste le matériel reçu. Il diffère de celui prévu par la fiche du sujet (Raspberry Pi 5, GPS de haute précision, 2 moteurs) ; le Cerema a confirmé l'usage des Raspberry Pi 4 et des trois caméras. La figure~\ref{fig:architecture} montre un premier schéma d'assemblage, que le Cerema demande de confirmer.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Matériel mis à disposition}
+\label{tab:materiel}
+\begin{tabularx}{\textwidth}{@{}Lp{2cm}@{}}
+\toprule
+\textbf{Élément} & \textbf{Quantité} \\
+\midrule
+Valise Stanley & 2 \\
+Batterie Tattu 12 Ah 4S & 1 \\
+Moteur Minis5 & 4 \\
+ESC BEC EFL725018 & 1 \\
+GPS Drotek NeoM8P, avec antenne et 2 câbles de connexion & 1 \\
+Raspberry Pi 4 & 2 \\
+Carte SD 16 Go & 1 \\
+Raspberry Pi 2, avec carte SD 8 Go & 1 \\
+Nappe CSI MIPI pour caméra Raspberry Pi & 1 \\
+Caméra IMX500 & 1 \\
+Contrôleur de vol Pixhawk 6C Mini, avec câbles & 1 \\
+Caméra Raspberry Pi P5V04A Sunny 5 Mpx & 1 \\
+Caméra Raspberry Pi OV5647 vision nocturne & 1 \\
+Module de télémétrie Holybro Radio V3 SiK & 1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  bloc/.style={draw, rounded corners, fill=gray!8, align=center, text width=2.6cm, minimum height=1cm},
+  bord/.style={draw, rounded corners, thick, fill=lotA!10, align=center, text width=2.6cm, minimum height=1.1cm},
+  vis/.style={draw, rounded corners, thick, fill=lotB!10, align=center, text width=2.6cm, minimum height=1.1cm},
+  lien/.style={->, >=stealth, thick},
+  et/.style={font=\footnotesize, fill=white, inner sep=1pt}]
+  \node[bord] (px) at (0,0) {\textbf{Autopilote}\\ Pixhawk 6C Mini};
+  \node[vis] (rpi) at (5,0) {\textbf{Ordinateur}\\ Raspberry Pi 4};
+  \node[vis] (cam) at (9.5,0) {\textbf{Caméras}\\ IMX500, OV5647, P5V04A};
+  \node[bloc] (gps) at (0,2.2) {GPS\\ Drotek NeoM8P};
+  \node[bloc] (sol) at (-4.8,0) {Station sol\\ (ordinateur)};
+  \node[bloc] (esc) at (0,-2.2) {ESC};
+  \node[bloc] (mot) at (-4.8,-2.2) {Moteurs Minis5};
+  \node[bloc] (bat) at (5,-2.2) {Batterie\\ Tattu 12 Ah 4S};
+  \node[draw, dashed, rounded corners, align=center, text width=2.6cm, minimum height=1cm] (man) at (9.5,-2.2) {\textit{À identifier :}\\ modem, radiocommande};
+  \draw[lien] (gps) -- node[et]{position} (px);
+  \draw[<->, >=stealth, thick] (sol) -- node[et]{radio SiK} (px);
+  \draw[<->, >=stealth, thick] (px) -- node[et]{MAVLink} (rpi);
+  \draw[lien] (cam) -- node[et]{nappe CSI} (rpi);
+  \draw[lien] (px) -- node[et]{commande} (esc);
+  \draw[lien] (esc) -- (mot);
+  \draw[lien, dashed] (bat) -- node[et]{puissance} (esc);
+  \draw[lien, dashed] (bat) -- node[et]{alimentation} (rpi);
+\end{tikzpicture}}
+\caption{Schéma d'assemblage provisoire des composants (traits pleins : données ; pointillés : énergie)}
+\label{fig:architecture}
+\end{figure}
+
+\paragraph{Logiciels.} ArduPilot, QGroundControl, MAVLink, Python et YOLO, cités par la fiche du sujet ; GitHub pour le code.
+
+\paragraph{Environnements.} Développement sur les ordinateurs de l'équipe et en salle de projet à l'école ; code partagé sur GitHub. Essais sur l'eau dans un lieu à définir ; la portée de la radio reste à vérifier.
+
+\paragraph{Données d'entrée.} Le Cerema fournit le travail 2025 sur clé USB ; les scénarios de mission et les contraintes de fonctionnement restent à préciser avec le client.
+
+\paragraph{Bibliographie.} Les ressources fournies par le client et celles identifiées par l'équipe figurent en section~\ref{sec:bibliographie}.
+\\

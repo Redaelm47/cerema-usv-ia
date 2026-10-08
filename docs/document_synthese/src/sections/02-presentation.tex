@@ -1,0 +1,97 @@
+\section{Présentation du projet}
+\label{sec:presentation}
+
+% ---------------------------------------------------------------------------
+\subsection{Contexte}
+\label{sec:contexte-projet}
+
+\paragraph{Le client et son besoin.}
+Le Cerema est un établissement public qui accompagne l'État et les collectivités, notamment dans la gestion des risques, et qui utilise des drones pour collecter des données sur le terrain. Sa direction Risques, Eaux et Mer veut mieux surveiller les zones maritimes où la navigation, le mouillage ou la pêche sont interdits ou limités, avec une solution à bas coût qui aide les contrôleurs en mer. Le drone doit détecter et identifier les navires présents dans ces zones.
+
+\paragraph{L'existant : le projet 2025.}
+Ce projet prolonge le PCE 2025 « Conception d'un micro drone de surface », résumé dans le tableau~\ref{tab:acquis-2025}. Sa principale limite : chaque partie a été testée en laboratoire, mais jamais l'ensemble en conditions réelles. En vision, l'équipe 2025 a proposé de détecter en basse résolution, qui consomme environ 23~\% de moins, puis de confirmer en haute résolution avec la caméra IA.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Acquis du projet 2025}
+\label{tab:acquis-2025}
+\begin{tabularx}{\textwidth}{@{}p{2.4cm}LL@{}}
+\toprule
+\textbf{Partie} & \textbf{Réalisé} & \textbf{Reste ouvert} \\
+\midrule
+Énergie & Batteries et panneaux solaires dimensionnés sur la baie de Saint-Brieuc (coût estimé à 2495,4~\euro{}). & Calculs à affiner. \\
+Coque & Catamaran modélisé ; maquette au 1/3 testée en bassin. & Pas de coque à l'échelle 1. \\
+Électronique & Composants choisis ; un moteur piloté par le Pixhawk ; arrêt des moteurs sur perte de signal validé ; GPS relié au Pixhawk. & Ensemble jamais testé en conditions réelles. \\
+Vision & Modèle YOLO entraîné sur environ 7000 images de 6 types de navires ; au moins 90~\% de détection sur des images dégradées (gouttes, flou). & Collecter des images réelles pour réentraîner le modèle. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Ce qui existe ailleurs.}
+Des drones de surface existent déjà, par exemple le Bathydrone NANO (Escadrone), le projet PLANCHA (Ifremer) ou le WiBoat C3 (ADCPro). La plupart servent à l'observation et non au contrôle : leur autonomie est faible et leurs contraintes de stabilité sont différentes. La forme en catamaran revient souvent pour sa stabilité.
+
+% ---------------------------------------------------------------------------
+\subsection{Enjeux et problématique}
+
+\begin{itemize}
+  \item \textbf{Pour le client :} disposer d'un outil de surveillance maritime à bas coût, capable d'être autonome pendant une longue durée, au service des politiques publiques de gestion des risques côtiers.
+  \item \textbf{Pour le projet :} faire évoluer le drone de 2025 vers une plateforme qui fonctionne, testée en conditions réelles, sur laquelle ajouter progressivement de l'autonomie. Il ne s'agit ni d'une réponse à la concurrence ni d'une recherche scientifique, mais de l'évolution d'un produit existant.
+\end{itemize}
+
+\noindent\textbf{Problématique :} comment concevoir et intégrer un drone de surface autonome, robuste aux conditions marines et de moins d'un mètre, capable d'identifier les infractions grâce à l'IA, tout en respectant de fortes contraintes d'autonomie énergétique et de puissance de calcul embarquée ?
+
+% ---------------------------------------------------------------------------
+\subsection{Finalité, mission, objectifs}
+\label{sec:finalite-mission-objectifs}
+
+\paragraph{Finalité.} Aider le Cerema à développer un drone de surface pour surveiller les zones maritimes réglementées, capable de détecter et d'identifier les navires.
+
+\paragraph{Mission.} Obtenir un bateau qui fonctionne, pilotable à distance, servant de base pour ajouter progressivement de l'autonomie. La fiche du sujet prévoit trois étapes : piloter le bateau depuis un ordinateur grâce à un autopilote, ajouter un ordinateur embarqué qui dialogue avec l'autopilote, puis ajouter une brique d'IA qui détecte les navires et déclenche des alertes. Les attentes sont :
+\begin{itemize}
+  \item \textbf{bateau :} assembler durablement les composants, rendre le bateau capable de suivre une mission programmée par points de passage, repérer les composants manquants (modem…) et choisir la motorisation ;
+  \item \textbf{IA :} détecter les navires, puis reconnaître leur type, lire leur immatriculation et suivre leur activité ; rendre la détection fiable par mauvais temps (pluie, roulis) ; faire fonctionner deux caméras sur un Raspberry Pi 4. Elle doit aussi consommer le moins possible.
+\end{itemize}
+
+\paragraph{Objectifs.}
+\begin{enumerate}
+  \item \textbf{Un cahier des charges complet du produit}, précisé au fil du projet (fin octobre).
+  \item \textbf{Un prototype qui navigue} : pilotable à distance, capable de suivre une mission programmée, de tenir un cap et de s'arrêter (fin novembre).
+  \item \textbf{Une détection de navires qui fonctionne sur Raspberry Pi 4}, y compris par mauvais temps, avec au moins 90~\% de détection (fin novembre) ; si possible, reconnaître le type de navire, son immatriculation et son activité.
+  \item \textbf{L'intégration de la vision au bateau}, étanche et qui consomme le moins possible.
+  \\
+\end{enumerate}
+
+% ---------------------------------------------------------------------------
+\subsection{Périmètre}
+\label{sec:perimetre}
+
+À la demande du client, l'équipe se concentre sur deux parties : l'assemblage du bateau et la vision embarquée (figure~\ref{fig:perimetre}). La coque et le bilan énergétique, traités en 2025, sont hors périmètre. Les essais se font sur un catamaran bricolé de plus d'un mètre fourni par le Cerema ; le produit final visé fera moins d'un mètre.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  zone/.style={draw, rounded corners, thick, align=left, text width=4.6cm, inner sep=6pt, minimum height=3.6cm, anchor=north}]
+  \node[zone, draw=lotB, fill=lotB!10] (dans) at (0,0) {\textbf{Dans le périmètre}\\[3pt]
+    \textbullet~Assemblage durable des composants\\
+    \textbullet~Choix de la motorisation\\
+    \textbullet~Missions par points de passage\\
+    \textbullet~Détection de navires sur Raspberry Pi 4\\
+    \textbullet~Détection par mauvais temps\\
+    \textbullet~Cahiers des charges précis};
+  \node[zone, draw=orange!80!black, fill=orange!10] (opt) at (5.4,0) {\textbf{Si le temps le permet}\\[3pt]
+    \textbullet~Reconnaître le type de navire\\
+    \textbullet~Lire son immatriculation\\
+    \textbullet~Suivre son activité\\
+    \textbullet~S'approcher du navire pour l'identifier};
+  \node[zone, draw=lotC, fill=lotC!10] (hors) at (10.8,0) {\textbf{Hors périmètre}\\[3pt]
+    \textbullet~Conception de la coque\\
+    \textbullet~Bilan énergétique et panneaux solaires\\
+    \textbullet~Fabrication du produit final de moins d'un mètre\\
+    \textbullet~Conception de la gouverne\\
+    \textbullet~Caméra 360°};
+\end{tikzpicture}}
+\caption{Périmètre du projet}
+\label{fig:perimetre}
+\end{figure}

@@ -1,0 +1,158 @@
+\section{Cahier des charges fonctionnel}
+\label{sec:cdcf}
+
+% ---------------------------------------------------------------------------
+\subsection{Contexte d'utilisation du système}
+\label{sec:contexte}
+
+Au service du Cerema et des autorités maritimes, le drone surveille en continu les zones réglementées. En détectant et en identifiant systématiquement les navires en infraction, il optimise l'efficacité de la surveillance maritime et contribue directement à restreindre les activités de pêche non autorisées.
+\\
+La figure~\ref{fig:bete-cornes} résume le besoin :
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small,
+  bulle/.style={draw, ellipse, align=center, inner sep=2pt}]
+  \node[bulle, fill=lotA!12, text width=3.8cm] (qui) at (-4,1.6) {\textbf{À qui rend-il service ?}\\ Cerema et autorités marines};
+  \node[bulle, fill=lotB!12, text width=3.8cm] (quoi) at (4,1.6) {\textbf{Sur quoi agit-il ?}\\ Navires dans les zones réglementées};
+  \node[draw, thick, rounded corners, fill=gray!10, minimum width=3.2cm, minimum height=0.9cm] (usv) at (0,0.3) {\textbf{Drone de surface}};
+  \node[bulle, fill=orange!12, text width=3.8cm] (comment) at (-4,-1.5) {\textbf{Comment ?}\\ En détectant et identifiant les navires en infraction de pêche continuellement};
+  \node[bulle, fill=lotC!12, text width=3.8cm] (but) at (4,-1.5) {\textbf{Dans quel but ?}\\ Accroître l'efficacité de la surveillance maritime};
+  \draw[thick] (qui.south east) to[out=-40, in=180] (usv.west);
+  \draw[thick] (usv.east) to[out=0, in=220] (quoi.south west);
+  \draw[->, >=stealth, thick] (usv.south) to[out=-90, in=0] (comment.east);
+  \draw[->, >=stealth, thick] (usv.south) to[out=-90, in=180] (but.west);
+\end{tikzpicture}
+\caption{Expression du besoin}
+\label{fig:bete-cornes}
+\end{figure}
+
+
+Ce drone de surface navigue de manière autonome en suivant un parcours GPS préalablement programmé par les opérateurs. Pour maintenir son cap, il ajuste et corrige sa trajectoire par lui-même tout au long de la mission. Conçu pour opérer de manière ininterrompue, il doit disposer d'une forte autonomie. Sa mission principale consiste à repérer et identifier formellement les navires pratiquant la pêche illicite. Dès qu'une infraction est constatée, le drone transmet une alerte immédiate aux équipes, leur fournissant la position et l'identité du bateau suspect.
+
+
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  ext/.style={draw=gray!60, rounded corners=3pt, fill=gray!8, align=center, text width=3.2cm, minimum height=1.1cm},
+  fl/.style={->, >=stealth, thick, draw=gray!70!black},
+  et/.style={font=\footnotesize, align=center, text=gray!30!black}]
+  \node[draw=lotA, very thick, rounded corners=4pt, fill=lotA!10, align=center, text width=4cm, minimum height=1.9cm] (usv) at (0,0)
+    {\textbf{Drone de surface}\\[2pt] navigation autonome\\ détection et identification};
+  \node[ext] (op)  at (-7,0)  {\textbf{Opérateurs}};
+  \node[ext] (nav) at (7,0)   {\textbf{Navires de pêche}};
+  \node[ext] (sat) at (0,3)   {\textbf{Satellites GPS}};
+  \node[ext] (mer) at (0,-3)  {\textbf{Milieu marin}\\ courant, vagues};
+  \draw[fl] ([yshift=3mm]op.east) -- node[et, above]{parcours GPS } ([yshift=3mm]usv.west);
+  \draw[fl] ([yshift=-3mm]usv.west) -- node[et, below]{alerte : position et\\ identité du navire} ([yshift=-3mm]op.east);
+  \draw[fl] (nav) -- node[et, above]{images} (usv);
+  \draw[fl] (sat) -- node[et, right]{position} (usv);
+  \draw[fl, <->] (usv) -- node[et, right]{navigation et\\ correction du cap} (mer);
+ \end{tikzpicture}}
+\caption{Diagramme de contexte : le drone et les éléments extérieurs avec lesquels il interagit}
+\label{fig:contexte}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{Expression fonctionnelle du besoin}
+
+\subsubsection{Fonctions de service et de contrainte}
+Avant de détailler les fonctions du système, il convient de distinguer l'objectif final visé par le Cerema des objectifs réalisables dans le cadre de ce Projet Commande Entreprise (PCE). Si le produit final ambitionne d'être un navire totalement autonome sur un an, capable d'identifier formellement les actions de pêche illicite, notre projet n'a pas pour vocation de livrer ce produit fini.
+
+
+
+L'objectif de notre équipe est de réaliser une preuve de concept (PoC) fonctionnelle en se concentrant sur deux verrous technologiques majeurs :
+
+\begin{enumerate}
+    \item L'intégration matérielle et logicielle sur le navire : l'assemblage des composants pour permettre le pilotage à distance, l'exécution d'une mission de patrouille et l'interaction avec un opérateur. 
+    \item La détection par intelligence artificielle : le développement et l'intégration d'un modèle de vision (YOLO) embarqué, capable de détecter et d'identifier les navires présents dans une zone.
+\end{enumerate}
+
+Par conséquent, les critères et niveaux d'exigence présentés dans le tableau fonctionnel ci-dessous (Tableau ~\ref{tab:fonctions}) traduisent les objectifs de notre projet technique à l'horizon de décembre 2026, et non les spécifications du drone final.
+
+
+
+
+
+
+
+
+
+
+\begin{table}[H]
+\centering
+\small
+\caption{Fonctions du système, avec leurs critères de valeur, niveaux, flexibilité et priorité. FP : fonction principale, FS : fonction secondaire, FC : fonction de contrainte.}
+\label{tab:fonctions}
+\begin{tabularx}{\textwidth}{@{}Lp{3cm}p{2.4cm}p{1.8cm}p{1.3cm}@{}}
+\toprule
+\textbf{Fonction} & \textbf{Critère(s)} & \textbf{Niveau(x)} & \textbf{Flexibilité} & \textbf{Priorité} \\
+\midrule
+FP1 -- Être piloté manuellement avec un système de propulsion fixe couplée avec des gouvernes & réactivité de la commande & réponse < 1 s & Moyenne & 1 \\
+\addlinespace
+FP2 -- Détecter à bord, en temps réel, les navires présents dans la zone, y compris par pluie, roulis ou mouvement & Taux de détection ; cadence d'analyse & Taux $\geq$ 90 \% ; au moins 1 image analysée toutes les 5 s (niveaux atteints ou envisagés en 2025) & Moyenne & 1 \\
+\addlinespace
+FP3 -- Transmettre à l'opérateur l'état de la mission en temps réel (position, état du système) & Fréquence de mise à jour & Au moins 1 mise à jour par minute & Forte & 1 \\
+\addlinespace
+FP4 -- Générer une alerte à destination de l'opérateur lors d'une détection & Délai d'alerte & $\leq$ 5 s après la détection & Moyenne & 2 \\
+\addlinespace
+
+FP5 -- Suivre de façon autonome un cap, pouvoir suivre une trace GPS définie par points de passage & Précision du suivi de trajectoire & Écart $\leq$ 5 m à chaque point de passage & Moyenne & 2 \\
+\addlinespace
+
+FS1 -- Déterminer la catégorie, l'immatriculation et l'activité d'un navire détecté & Part des navires correctement identifiés & À définir avec le Cerema & Forte & 3 \\
+\addlinespace
+
+FS2 -- Modifier et optimiser la trajectoire du drône de surface pour s'approcher du bateau suspect pour une meilleure identification & Précision du suivi de trajectoire & Écart maximal de ± 5 mètres par rapport à la trajectoire calculée & Forte & 3 \\
+\addlinespace
+
+FC1 -- Utiliser le matériel mis à disposition (tableau~\ref{tab:materiel}) & Conformité à la liste du matériel & Matériel du tableau~\ref{tab:materiel} & Faible & 1 \\
+\addlinespace
+FC2 -- Communiquer entre l'ordinateur compagnon et l'autopilote par le protocole MAVLink & Protocole utilisé & MAVLink & Nulle & 1 \\
+\addlinespace
+FC3 -- Limiter la consommation energétique & Durée de fonctionnement & Au moins 1h d'essai en continu & Moyenne & 2 \\
+\addlinespace
+FC4 -- Respecter les contraintes de sécurité & Comportement sur perte de liaison & Arrêt des moteurs (fonction validée en 2025) & Nulle & 1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Scénarios}
+\label{sec:scenarios}
+
+\paragraph{Scénario nominal.} 
+\begin{enumerate}
+  \item l'opérateur lance une patrouille depuis la station sol (FP5) ;
+  \item le bateau parcourt la zone seul et envoie son état (FP5, FP3) ;
+  \item la caméra détecte un navire (FP2) ;
+  \item l'opérateur reçoit une alerte (FP4) ;
+  \item l'opérateur peut prendre la main sur le pilotage (FP1).
+\end{enumerate}
+
+\paragraph{Scénario d'usage cible.} Issu de la réunion du 02/10/2026 avec le Cerema, il prolonge le scénario nominal en couplant la vision et la navigation. Pour économiser l'énergie du Raspberry Pi, l'analyse est répartie entre plusieurs petits modèles spécialisés, appelés experts, qui ne tournent jamais tous en même temps. Les étapes 1, 2, 5 et 6 en forment le socle ; les étapes 3 et 4 (FS1, FS2) seront réalisées si le temps le permet.
+\begin{enumerate}
+  \item le bateau patrouille seul sur une route programmée et envoie son état à l'opérateur (FP5, FP3) ;
+  \item un modèle léger surveille en permanence ; quand un navire est détecté sur plusieurs images consécutives, le seuil d'alerte est franchi (FP2) ;
+  \item un petit modèle de décision réveille l'expert utile : catégorie du navire, lecture de l'immatriculation, trajectoire d'approche (liste non exhaustive) (FS1) ;
+  \item l'ordinateur compagnon transmet à l'autopilote une consigne de navigation issue de cette analyse : le bateau quitte sa route, se dirige vers le navire et le contourne, sans contact, jusqu'à ce que l'immatriculation soit lisible (FS2, FC2) ;
+  \item l'opérateur reçoit une alerte courte, sans image : position, catégorie, immatriculation (FP4) ;
+  \item le bateau reprend sa patrouille ; l'opérateur peut reprendre la main à tout moment (FP5, FP1).
+\end{enumerate}
+
+\paragraph{Cas limites.} 
+\begin{itemize}
+  \item perte de la liaison : arrêt des moteurs (fonction déjà validée en 2025) ;
+  \item perte du GPS : arrêt et alerte à l'opérateur ;
+  \item batterie faible : alerte à l'opérateur ;
+  \item détection douteuse : image transmise à l'opérateur, qui confirme.
+  \\
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+\subsection{Validation du besoin}
+\label{sec:validation-besoin}
+
+Chaque fonction sera d'abord testée seule, composant par composant, puis avec les autres. La fiche prévoit des essais de navigation manuelle et automatique (FP1, FP5), des tests de détection de bateau en action de pêche (FP2), des tests de communication entre l'opérateur et le drone de surface (FP3,FP4) et la vérification des missions automatiques (FP5). L'équipe y ajoute des tests de détection sur des images réelles et dégradées (FP2). Les méthodes, seuils et responsables sont détaillés en section~\ref{sec:validation-projet}.
+\\

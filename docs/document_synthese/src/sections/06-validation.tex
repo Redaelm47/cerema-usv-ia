@@ -1,0 +1,32 @@
+\section{Validation du projet}
+\label{sec:validation-projet}
+
+Le tableau~\ref{tab:validation} reprend, dans le même ordre, chaque fonction du tableau~\ref{tab:fonctions} avec son niveau, et précise comment elle sera validée, par qui et à quel jalon. Les seuils restent à valider avec le Cerema. Les trois dernières lignes portent sur le projet dans son ensemble.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Critères de validation des fonctions du tableau~\ref{tab:fonctions} et du projet}
+\label{tab:validation}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}Lp{3.2cm}p{2.2cm}p{0.9cm}@{}}
+\toprule
+\textbf{Fonction} & \textbf{Méthode} & \textbf{Seuil} & \textbf{Responsable} & \textbf{Jalon} \\
+\midrule
+FP1 -- Pilotage manuel à distance & Essai sur l'eau & Réponse < 1 s & Groupe intégration & J2 \\
+FP2 -- Détection des navires & Tests sur images réelles et dégradées (pluie, roulis, mouvement) & Taux $\geq$ 90~\% ; au moins 1 image analysée toutes les 5 s & Groupe vision & J7 \\
+FP3 -- Transmission de l'état de la mission & Test de communication entre la station sol et le bateau & Au moins 1 mise à jour par minute & Groupe intégration & J6 \\
+FP4 -- Alerte à l'opérateur & Démonstration & $\leq$ 5 s après la détection & Groupe vision & J8 \\
+FP5 -- Suivi autonome d'un cap et d'une trace GPS & Essai sur l'eau & Écart $\leq$ 5 m à chaque point de passage & Groupe intégration & J6 \\
+FS1 -- Identification des navires & Tests sur images de navires connus, si la fonction est réalisée & À définir avec le Cerema & Groupe vision & J8 \\
+FS2 -- Approche du navire suspect & Essai sur l'eau, si la fonction est réalisée & Écart $\leq$ 5 m par rapport à la trajectoire calculée & Toute l'équipe & J8 \\
+FC1 -- Matériel mis à disposition & Revue du matériel utilisé & Matériel du tableau~\ref{tab:materiel} & Groupe intégration & J4 \\
+FC2 -- Protocole MAVLink & Vérification des échanges entre l'ordinateur compagnon et l'autopilote & MAVLink & Groupe intégration & J8 \\
+FC3 -- Consommation énergétique & Essai d'endurance sur l'eau & Au moins 1 h d'essai en continu & Groupe intégration & J8 \\
+FC4 -- Sécurité & Coupure volontaire de la liaison & Arrêt des moteurs & Groupe intégration & J2 \\
+\midrule
+Cahier des charges & Revue avec le Cerema & Validé par le client & Toute l'équipe & J4 \\
+Scénario complet (FP1 à FP5) & Démonstration au client et au tuteur & Patrouille, détection, alerte, reprise en main & Toute l'équipe & J8 \\
+Livrables & Dépôt sur Moodle et GitHub & Dans les délais & Selma & J1 à J8 \\
+\bottomrule
+\end{tabularx}
+\end{table}

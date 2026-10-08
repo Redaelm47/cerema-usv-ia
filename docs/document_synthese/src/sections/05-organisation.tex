@@ -1,0 +1,270 @@
+\section{Organisation}
+\label{sec:organisation}
+
+% ---------------------------------------------------------------------------
+\subsection{Présentation de l'équipe}
+\label{sec:equipe}
+
+L'équipe compte six élèves de trois filières : MCE (Mathematical and Computational Engineering), OPE (Observation and Perception of the Environment) et SEH (Embedded and Heterogeneous Systems). Elle se répartit en deux groupes de trois, vision embarquée et intégration du bateau ; cette répartition pourra évoluer (tableau~\ref{tab:equipe}).
+
+\begin{table}[H]
+\centering
+\small
+\caption{Membres de l'équipe : filière, compétences et rôles}
+\label{tab:equipe}
+\begin{tabularx}{\textwidth}{@{}p{2.8cm}p{1cm}Lp{2.9cm}p{2cm}@{}}
+\toprule
+\textbf{Membre} & \textbf{Filière} & \textbf{Compétences} & \textbf{Rôle organisationnel} & \textbf{Rôle technique} \\
+\midrule
+Guillaume Leroy & MCE & Programmation en Python, traitement du signal ; centres d'intérêt : mathématiques, IA & Responsable projet & Vision embarquée \\
+\addlinespace
+Reda El Mekkaoui & MCE & Machine learning, vision par ordinateur ; centres d'intérêt : IA, systèmes embarqués & Responsable communication client & Vision embarquée \\
+\addlinespace
+Adam-Sabri Hlaoua & MCE & Traitement d'image, machine learning, programmation en Python & Responsable comptes rendus & Vision embarquée \\
+\addlinespace
+Ewen Gourmelen & OPE & Robotique et automatisme, physique des capteurs, conception mécanique et électronique & Responsable matériel & Intégration du bateau \\
+\addlinespace
+Rana Brini & OPE & Traitement du signal, de l'image et de l'information, architecture et fonctionnement des capteurs physiques, machine learning appliqué & Responsable matériel & Intégration du bateau \\
+\addlinespace
+Selma Ben-Abdelkader & SEH & Conception de circuits numériques, deep learning, intelligence artificielle & Responsable livrables & Intégration du bateau \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Acquis et formations nécessaires.}
+L'équipe connaît déjà Arduino, les réseaux de neurones et la vision par ordinateur. Elle doit se former à ArduPilot et QGroundControl, à MAVLink, à l'électronique du bateau, au Raspberry Pi avec la caméra IMX500 et à YOLO embarqué. Elle s'appuiera sur de la documentation en ligne, l'espace CERAE de l'IMT Atlantique et des outils d'IA, et sollicitera les tuteurs en cas de blocage.
+\\
+% ---------------------------------------------------------------------------
+\subsection{Parties prenantes et ressources externes}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Parties prenantes et ressources externes}
+\label{tab:parties-prenantes}
+\begin{tabularx}{\textwidth}{@{}p{2.7cm}p{2.3cm}Lp{5.2cm}@{}}
+\toprule
+\textbf{Nom} & \textbf{Organisme} & \textbf{Rôle} & \textbf{Contact} \\
+\midrule
+Antoine Douchin & Cerema & Client et tuteur entreprise (drones, traitement de données) & antoine.douchin@cerema.fr \\
+Matthieu Arzel & IMT Atlantique & Tuteur école (gestion de projet, systèmes embarqués) & matthieu.arzel@imt-atlantique.fr \\
+Charlotte Langlais & IMT Atlantique & Responsable de l'UE & charlotte.langlais@imt-atlantique.fr \\
+Lucia Bergantin & IMT Atlantique & Experte technique (vision embarquée, modélisation 3D) & lucia.bergantin@imt-atlantique.fr \\
+Groupe 11 (PCE 2025) & IMT Atlantique & Retour d'expérience sur le projet 2025 & par mail \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\subsection{Structure du projet}
+\label{sec:structure}
+
+Le projet est découpé en quatre lots (figure~\ref{fig:lots}). Les volumes horaires sont des estimations, inspirées du projet 2025.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  racine/.style={draw, thick, fill=gray!15, align=center, text width=5cm, minimum height=0.8cm},
+  lot/.style={draw, thick, align=center, text width=3.6cm, minimum height=1.5cm},
+  sl/.style={draw, align=left, text width=3.3cm, minimum height=0.6cm}]
+  \node[racine] (p) at (6.3,1.8) {\textbf{Projet 20 -- Plateforme USV}};
+  \node[lot, fill=lotD!15, draw=lotD] (l0) at (0,0) {\textbf{L0 -- Gestion de projet}\\ Toute l'équipe\\ 30 h};
+  \node[lot, fill=lotA!15, draw=lotA] (l1) at (4.2,0) {\textbf{L1 -- Intégration du bateau}\\ Ewen, Rana, Selma\\ 120 h};
+  \node[lot, fill=lotB!15, draw=lotB] (l2) at (8.4,0) {\textbf{L2 -- Vision embarquée}\\ Guillaume, Reda, Adam-Sabri\\ 120 h};
+  \node[lot, fill=lotC!15, draw=lotC] (l3) at (12.6,0) {\textbf{L3 -- Intégration vision et bateau}\\ Toute l'équipe\\ 40 h};
+  \foreach \l in {l0,l1,l2,l3} \draw (p.south) -- ++(0,-0.4) -| (\l.north);
+  \node[sl, below=0.3cm of l0, xshift=0.15cm] (a1) {Document de synthèse};
+  \node[sl, below=0.15cm of a1] (a2) {Revue de projet};
+  \node[sl, below=0.15cm of a2] (a3) {Plan d'actions};
+  \node[sl, below=0.15cm of a3] (a4) {Recette et retour d'expérience};
+  \node[sl, below=0.3cm of l1, xshift=0.15cm] (b1) {L1.1 Prise en main des composants};
+  \node[sl, below=0.15cm of b1] (b2) {L1.2 Cahier des charges matériel};
+  \node[sl, below=0.15cm of b2] (b3) {L1.3 Intégration et propulsion};
+  \node[sl, below=0.15cm of b3] (b4) {L1.4 Ajustements et tests};
+  \node[sl, below=0.3cm of l2, xshift=0.15cm] (c1) {L2.1 Compréhension du travail 2025};
+  \node[sl, below=0.15cm of c1] (c2) {L2.2 Cahier des charges vision};
+  \node[sl, below=0.15cm of c2] (c3) {L2.3 Stratégie de détection};
+  \node[sl, below=0.15cm of c3] (c4) {L2.4 Tests};
+  \node[sl, below=0.3cm of l3, xshift=0.15cm] (d1) {L3.1 Intégration};
+  \node[sl, below=0.15cm of d1] (d2) {L3.2 Démonstration du scénario};
+  \foreach \l/\s in {l0/a1,l0/a2,l0/a3,l0/a4,l1/b1,l1/b2,l1/b3,l1/b4,l2/c1,l2/c2,l2/c3,l2/c4,l3/d1,l3/d2}
+    \draw ([xshift=-1.75cm]\l.south) |- (\s.west);
+\end{tikzpicture}}
+\caption{Organigramme des lots, avec responsables et volume horaire estimé}
+\label{fig:lots}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{Planification}
+
+Le diagramme de Gantt (figure~\ref{fig:gantt}) place les lots et les jalons dans le temps, d'après le calendrier de l'UE (tableau~\ref{tab:jalons}). Les réunions client, toutes les deux semaines à partir du jeudi 15/10/2026, marquent les itérations.
+
+\begin{figure}[H]
+\centering
+\begin{ganttchart}[
+    x unit=0.92cm, y unit chart=0.55cm, y unit title=0.55cm,
+    vgrid={*1{gray!25, dotted}}, hgrid={*1{gray!15}},
+    canvas/.append style={draw=gray!50},
+    title/.append style={draw=gray!50, fill=gray!10},
+    title label font=\small\bfseries, bar label font=\small,
+    group label font=\small\bfseries, milestone label font=\small\itshape,
+    bar height=.6, group height=.45, group top shift=.28,
+    group left shift=0, group right shift=0, group peaks height=0, group peaks width=0,
+    milestone height=.6,
+  ]{1}{12}
+  \gantttitle{Sept.}{1} \gantttitle{Octobre}{4} \gantttitle{Novembre}{4} \gantttitle{Décembre}{3} \\
+  \gantttitle[title label font=\footnotesize]{28/09}{1}
+  \gantttitle[title label font=\footnotesize]{05/10}{1}
+  \gantttitle[title label font=\footnotesize]{12/10}{1}
+  \gantttitle[title label font=\footnotesize]{19/10}{1}
+  \gantttitle[title label font=\footnotesize]{26/10}{1}
+  \gantttitle[title label font=\footnotesize]{02/11}{1}
+  \gantttitle[title label font=\footnotesize]{09/11}{1}
+  \gantttitle[title label font=\footnotesize]{16/11}{1}
+  \gantttitle[title label font=\footnotesize]{23/11}{1}
+  \gantttitle[title label font=\footnotesize]{30/11}{1}
+  \gantttitle[title label font=\footnotesize]{07/12}{1}
+  \gantttitle[title label font=\footnotesize]{14/12}{1} \\
+  \ganttgroup[group/.append style={fill=lotD, draw=lotD}]{L0 -- Gestion de projet}{1}{12} \\
+  \ganttgroup[group/.append style={fill=lotA, draw=lotA}]{L1 -- Intégration du bateau}{1}{10} \\
+  \ganttbar[bar/.append style={fill=lotA!30, draw=lotA}, name=b11]{Prise en main des composants}{1}{3} \\
+  \ganttbar[bar/.append style={fill=lotA!30, draw=lotA}, name=b12]{Cahier des charges matériel}{3}{4} \\
+  \ganttbar[bar/.append style={fill=lotA!30, draw=lotA}, name=b13]{Intégration et propulsion}{4}{8} \\
+  \ganttbar[bar/.append style={fill=lotA!30, draw=lotA}, name=b14]{Ajustements et tests}{8}{10} \\
+  \ganttgroup[group/.append style={fill=lotB, draw=lotB}]{L2 -- Vision embarquée}{1}{9} \\
+  \ganttbar[bar/.append style={fill=lotB!30, draw=lotB}, name=b21]{Compréhension du travail 2025}{1}{2} \\
+  \ganttbar[bar/.append style={fill=lotB!30, draw=lotB}, name=b22]{Cahier des charges vision}{3}{4} \\
+  \ganttbar[bar/.append style={fill=lotB!30, draw=lotB}, name=b23]{Stratégie de détection}{4}{7} \\
+  \ganttbar[bar/.append style={fill=lotB!30, draw=lotB}, name=b24]{Tests}{7}{9} \\
+  \ganttgroup[group/.append style={fill=lotC, draw=lotC}]{L3 -- Intégration vision et bateau}{10}{12} \\
+  \ganttbar[bar/.append style={fill=lotC!30, draw=lotC}, name=b31]{Intégration}{10}{11} \\
+  \ganttbar[bar/.append style={fill=lotC!30, draw=lotC}, name=b32]{Démonstration du scénario}{11}{12} \\
+  \ganttgroup[group/.append style={draw=none, fill=none}]{Jalons}{1}{12} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J1 -- Document de synthèse}{1} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J2 -- Prise en main du bateau}{3} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J3 -- Revue de projet}{4} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J4 -- Cahiers des charges précis}{4} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J5 -- Plan d'actions}{6} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J6 -- Bateau suivant un cap}{8} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J7 -- Vision fonctionnelle}{9} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=black}]{J8 -- Recette}{12} \\
+  \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=gray!60, draw=gray!80}]{Réunions client}{3}
+    \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=gray!60, draw=gray!80}]{}{5}
+    \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=gray!60, draw=gray!80}]{}{7}
+    \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=gray!60, draw=gray!80}]{}{9}
+    \ganttmilestone[milestone left shift=.3, milestone right shift=-.3, milestone/.append style={fill=gray!60, draw=gray!80}]{}{11}
+  % Dépendances fin -> début (flèches tracées en TikZ, voir \ganttdep dans le préambule)
+  \ganttdep{b11}{b12} \ganttdep{b12}{b13} \ganttdep{b13}{b14}
+  \ganttdep{b21}{b22} \ganttdep{b22}{b23} \ganttdep{b23}{b24}
+  \ganttdep[0.825cm]{b14}{b31} \ganttdep[0.825cm]{b24}{b31} \ganttdep{b31}{b32}
+\end{ganttchart}
+\caption{Diagramme de Gantt. Colonnes : semaines, désignées par la date du lundi. Flèches : dépendances entre tâches (une tâche commence quand la précédente est terminée). Losanges noirs : jalons (tableau~\ref{tab:jalons}) ; losanges gris : réunions client prévues.}
+\label{fig:gantt}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Jalons}
+\label{tab:jalons}
+\begin{tabularx}{\textwidth}{@{}p{0.7cm}p{4cm}Lp{1.1cm}p{1.9cm}@{}}
+\toprule
+\textbf{Id.} & \textbf{Jalon} & \textbf{Critère} & \textbf{Lot} & \textbf{Date} \\
+\midrule
+J1 & Document de synthèse & Envoyé au client et au tuteur & L0 & 02/10/2026 \\
+J2 & Prise en main du bateau & Moteurs commandés, bateau piloté à distance & L1 & 16/10/2026 \\
+J3 & Revue de projet & Déposée sur Moodle & L0 & 19/10/2026 \\
+J4 & Cahiers des charges précis & Validés par le Cerema & L1, L2 & 23/10/2026 \\
+J5 & Plan d'actions & Déposé sur Moodle & L0 & 05/11/2026 \\
+J6 & Bateau suivant un cap & Suivi de cap, arrêt & L1 & 20/11/2026 \\
+J7 & Vision fonctionnelle & Détection testée, y compris par mauvais temps & L2 & 27/11/2026 \\
+J8 & Recette & Scénario complet démontré au client et au tuteur & L3, L0 & 18/12/2026 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Livrables}
+\label{tab:livrables}
+\begin{tabularx}{\textwidth}{@{}Lp{2.3cm}p{3.4cm}p{2.3cm}@{}}
+\toprule
+\textbf{Livrable} & \textbf{Type} & \textbf{Destinataire} & \textbf{Échéance} \\
+\midrule
+Document de synthèse & Organisationnel & Client et école & 02/10/2026 \\
+Revue de projet & Organisationnel & École & 19/10/2026 \\
+Plan d'actions & Organisationnel & École & 05/11/2026 \\
+Cahiers des charges précis & Technique & Client & 23/10/2026 \\
+Code (dépôt GitHub) & Technique & Client & En continu \\
+Documentation technique et procédures d'utilisation & Technique & Client & 18/12/2026 \\
+Recette du projet & Organisationnel & Client et tuteur école & 18/12/2026 \\
+Retour d'expérience & Organisationnel & École & Décembre 2026 \\
+Posters et forum & Organisationnel & École & Janvier 2027 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\subsection{Communication et partage}
+
+Reda El Mekkaoui est l'interlocuteur du client ; Adam-Sabri Hlaoua rédige les comptes rendus, partagés avec le client et le tuteur après chaque réunion (tableau~\ref{tab:communication}).
+
+\begin{table}[H]
+\centering
+\small
+\caption{Moyens de communication et de partage}
+\label{tab:communication}
+\begin{tabularx}{\textwidth}{@{}p{3cm}Lp{3.2cm}L@{}}
+\toprule
+\textbf{Avec qui} & \textbf{Moyen} & \textbf{Fréquence} & \textbf{Outils} \\
+\midrule
+Équipe & Point d'avancement en présentiel & Chaque semaine & WhatsApp \\
+Tuteur école & Réunion à l'école & Toutes les deux semaines & E-mail \\
+Client (Cerema) & Réunion à l'école & Toutes les deux semaines & E-mail \\
+Documents et code & Partage avec le client et le tuteur & En continu & GitHub, espace de partage IMT \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ---------------------------------------------------------------------------
+\subsection{Analyse des risques}
+\label{sec:risques}
+
+Le tableau~\ref{tab:risques} présente l'analyse initiale des risques ; elle sera mise à jour à mi-projet et en fin de projet. Pour chaque risque, la probabilité (P) et la gravité (G) sont notées de 1 à 3 ; la criticité est leur produit, de 1--2 (faible, vert) à 6--9 (élevée, rouge).
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{Analyse initiale des risques}
+\label{tab:risques}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.9cm}cc>{\centering\arraybackslash}p{1.7cm}LLp{1.9cm}@{}}
+\toprule
+\textbf{Risque} & \textbf{P} & \textbf{G} & \textbf{Criticité} & \textbf{Prévention} & \textbf{Correction} & \textbf{Responsable} \\
+\midrule
+Manque de temps & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Planifier avec marge ; fixer des jalons intermédiaires stricts & Prioriser la navigation puis la détection ; identification en option & Guillaume \\
+\addlinespace
+Composants manquants ou inadaptés (modem, radio) & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Inventorier et tester le matériel dès la prise en main & Signaler immédiatement au Cerema ; basculer sur des modules de rechange & Ewen, Rana \\
+\addlinespace
+Prise en main longue des outils (ArduPilot, MAVLink) & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Se former dès le début avec les tutoriels et documentations officielles & Solliciter les tuteurs ; s'appuyer sur des exemples validés & Chaque groupe \\
+\addlinespace
+Pas de jeu de données adapté à la détection & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Réutiliser et vérifier l'exhaustivité du jeu de données 2025 & Collecter rapidement des images réelles ; augmentation de données & Groupe vision \\
+\addlinespace
+Rupture de la coque, voie d'eau, chavirage & 1 & 3 & \cellcolor{critiqueMed}3 -- Moyenne & Premiers essais en eau calme ; caisson électronique étanche testé à vide & Procédure d'arrêt d'urgence ; flottaison et récupération immédiate & Groupe intégration \\
+\addlinespace
+Optique abîmée par l'eau de mer ou la pluie & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Boîtier étanche avec traitement hydrophobe pour l'objectif & Nettoyage ou remplacement de l'optique ; modèle entraîné sur images dégradées & Groupe vision \\
+\addlinespace
+Incident sur batterie lithium (court-circuit, feu) & 1 & 3 & \cellcolor{critiqueMed}3 -- Moyenne & Charge sous surveillance stricte ; stockage en sac LiPo ignifugé & Extincteur adapté à proximité ; coupe-circuit général d'urgence & Ewen, Rana \\
+\addlinespace
+Surconsommation du Raspberry Pi & 2 & 1 & \cellcolor{critiqueLow}2 -- Faible & Optimiser les algorithmes ; choisir un modèle léger & Détection en basse résolution ou cadence de traitement réduite & Groupe vision \\
+\addlinespace
+Perte de liaison radio ou télémétrie en mer & 2 & 3 & \cellcolor{critiqueHigh}\textbf{6} -- Élevée & Vérifier la portée radio à quai ; antennes orientées et dégagées & Failsafe ArduPilot automatique (retour au point de départ) et arrêt des propulseurs & Groupe intégration \\
+\addlinespace
+Perte du signal GPS ou dérive du compas & 2 & 3 & \cellcolor{critiqueHigh}\textbf{6} -- Élevée & Étalonner le compas loin des masses métalliques ; vérifier le HDOP avant départ & Passage immédiat en pilotage manuel par radiocommande & Groupe intégration \\
+\addlinespace
+Conditions météo défavorables (vent, clapot) & 2 & 2 & \cellcolor{critiqueMed}4 -- Moyenne & Consulter les bulletins météo côtiers avant chaque essai & Reporter les essais en mer ; simulation et travail logiciel à quai & Toute l'équipe \\
+\bottomrule
+\end{tabularx}
+\end{table}
