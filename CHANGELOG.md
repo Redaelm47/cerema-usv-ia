@@ -5,6 +5,7 @@ Ce fichier répertorie les principales évolutions du projet.
 ## 2026-10-08
 
 - Ajout du document de synthèse version 2 (PDF et sources LaTeX) dans `docs/`.
+- Ajout de la proposition d'architecture de la vision embarquée et de la répartition du travail (PDF) dans `docs/`.
 
 ## 2026-10-01
 
