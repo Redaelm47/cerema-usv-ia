@@ -7,7 +7,7 @@ autoriser le partage de réseau wifi par ethernet
 permet de trouver son adresse IP 192.168.137.200
 >>>ping 192.168.137.200
 rpi : cerema-pi l’identifiant : pi et le mdp : cerema
->>>ssh pi@192.168.137.200
+>>>ssh pi@192.168.137.200         ou >>>ssh pi@cerema-pi.local 
 >>>yes
 >>>cerema (mdp)
 -> connecter à la Raspberry pi !!!
@@ -46,3 +46,8 @@ depuis le terminal du pc
 
 
 -> reste 5.6 giga de place
+
+
+pour faire touner sur le pc en direct : 
+>>>winget install Gyan.FFmpeg
+>>>ssh pi@cerema-pi.local "rpicam-vid -t 0 -n --inline --rotation 180 --width 1280 --height 720 --framerate 15 --post-process-file /usr/share/rpi-camera-assets/imx500_mobilenet_ssd.json -o -" | ffplay -fflags nobuffer -flags low_delay -framedrop -
