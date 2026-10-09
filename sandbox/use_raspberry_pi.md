@@ -14,7 +14,6 @@ ssh pi@cerema-pi.local
 
 (Mot de passe : cerema)
 
-## 2. Lancer la détection YOLO avec enregistrement
 Une fois connecté au Pi, exécutez ces commandes :
 ```
 cd Desktop/Yolo_test
@@ -22,6 +21,8 @@ cd Desktop/Yolo_test
 ```
 source yolo_env/bin/activate
 ```
+
+## 2. Lancer la détection YOLO avec enregistrement
 
 ```
 python yolo_detect_rasp.py --model best.pt --source picamera0 --resolution 640x480 --record --no-display
@@ -35,11 +36,15 @@ Pour lancer un affichage en direct du flux de la caméra depuis le Pi directemen
 ```
 ssh pi@cerema-pi.local "rpicam-vid -t 0 -n --inline --rotation 180 --width 1280 --height 720 --framerate 15 --post-process-file /usr/share/rpi-camera-assets/imx500_mobilenet_ssd.json -o -" | ffplay -fflags nobuffer -flags low_delay -framedrop -
 ```
+## 4. Lancer un acquisition des données en json
+Pour avoir les différentes détection de la vidéo sous format json : 
 
-## 4. Récupérer la vidéo demo1.avi sur votre PC
+```
+python yolo_json_export.py --model yolo11n.pt
+```
+
+## 5. Récupérer un fichier sur votre PC
 Depuis un terminal sur votre PC portable :
 ```
 scp pi@cerema-pi.local:Desktop/Yolo_test/demo1.avi .
 ```
-
-*(Astuce lecture : Si la vidéo enregistrée paraît accélérée, ouvrez-la avec VLC et appuyez sur la touche `[` pour baisser la vitesse en dessous de 0.67x).*
