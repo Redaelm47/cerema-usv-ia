@@ -4,7 +4,8 @@ Scripts de détection de navires de l'équipe 2025, récupérés sur la clé USB
 
 - `yolo_detect.py` : détection sur image, dossier, vidéo, caméra USB ou Pi Camera, avec affichage.
 - `yolo_detect_rasp.py` : variante pour Raspberry Pi, avec l'option `--no-display` (sans écran) et une capture Pi Camera en `XRGB8888`.
-- `test.jpg` : image de test.
+- `test.jpg`, `bateau_test.jpg`, `personne_test.jpg` : images de test.
+- `detections.json` : exemple de sortie JSON obtenu sur le Raspberry Pi (une ligne par image : horodatage et liste des détections avec classe, confiance et boîte).
 
 Exemple :
 
