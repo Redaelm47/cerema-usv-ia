@@ -10,6 +10,12 @@ const LIBELLES_ACTIONS = {
 const LIBELLES_MODES = { patrouille: "Patrouille", approche: "Approche" };
 const TAILLE_JOURNAL = 200;
 
+// Adresse du serveur de la station sol. Vide quand c'est lui qui sert cette page. Quand la page est
+// hébergée ailleurs (GitHub Pages), c'est le serveur lancé sur cet ordinateur, ou celui donné par
+// ?serveur=http://hote:port dans l'adresse.
+const SERVEUR = (new URLSearchParams(location.search).get("serveur")
+  ?? (location.hostname.endsWith("github.io") ? "http://localhost:8000" : "")).replace(/\/$/, "");
+
 let etat;
 let alertesDejaVues = 0;
 let renduPrevu = false;
@@ -94,8 +100,10 @@ function rendreDrone() {
   jauge.className = d ? niveau(d.batterie, 0.3, 0.15, false) : "";
 
   const temperature = $("temperature");
-  temperature.textContent = d ? `${d.temperature_pi.toFixed(1)} °C` : "—";
-  temperature.className = "valeur " + (d ? niveau(d.temperature_pi, 70, 80, true) : "");
+  // temperature_pi vaut null quand la chaîne ne tourne pas sur le Pi.
+  const mesuree = d && d.temperature_pi !== null;
+  temperature.textContent = mesuree ? `${d.temperature_pi.toFixed(1)} °C` : "—";
+  temperature.className = "valeur " + (mesuree ? niveau(d.temperature_pi, 70, 80, true) : "");
 }
 
 function rendreAlertes() {
@@ -110,6 +118,7 @@ function rendreAlertes() {
       el("p", null, "Type : ", types(a.types)),
       el("p", null, "Immatriculation : ",
         a.immatriculation ? el("span", "immat", a.immatriculation) : "non lue", confiance),
+      a.textes_lus && a.textes_lus.length ? el("p", null, "Texte lu sur la coque : ", a.textes_lus.join(", ")) : null,
       el("p", "raison", a.raison));
   }));
   alertesDejaVues = etat.alertes.length;
@@ -119,15 +128,21 @@ function rendreAlertes() {
 
 function rendreNavires() {
   const navires = [...etat.navires.values()].sort((a, b) => b.t - a.t);
+  // data-titre : sur un écran étroit, chaque ligne devient une fiche et la cellule affiche son intitulé.
+  const cellule = (titre, classe, ...enfants) => {
+    const td = el("td", classe, ...enfants);
+    td.dataset.titre = titre;
+    return td;
+  };
   $("navires").replaceChildren(...navires.map((n) => el("tr", null,
-    el("td", "num", `n° ${n.id}`),
-    el("td", null,
+    cellule("Piste", "num", `n° ${n.id}`),
+    cellule("Situation", null,
       n.action ? el("span", `badge ${n.action}`, LIBELLES_ACTIONS[n.action] ?? n.action) : "—",
       el("span", "raison", n.raison)),
-    el("td", null, types(n.types)),
-    el("td", null, n.immatriculation ? el("span", "immat", n.immatriculation) : "—",
+    cellule("Type", null, types(n.types)),
+    cellule("Immatriculation", null, n.immatriculation ? el("span", "immat", n.immatriculation) : "—",
       n.confiance === null ? null : el("span", "raison", `confiance ${pourcent(n.confiance)}`)),
-    el("td", "num", secondes(n.t)))));
+    cellule("Vu à", "num", secondes(n.t)))));
   $("nb-navires").textContent = navires.length;
   $("navires-vide").hidden = navires.length > 0;
 }
@@ -148,9 +163,13 @@ function rendre() {
 }
 
 function connecter() {
-  const flux = new EventSource("/flux");
+  // ?direct=non dans l'adresse : pas de flux en direct, la page redemande les messages chaque seconde.
+  if (new URLSearchParams(location.search).get("direct") === "non") return interroger();
+  const flux = new EventSource(SERVEUR + "/flux");
   const connexion = $("connexion");
+  let ouvert = false;
   flux.onopen = () => {
+    ouvert = true;
     connexion.className = "connexion en-ligne";
     $("connexion-texte").textContent = "connecté au serveur";
   };
@@ -160,6 +179,34 @@ function connecter() {
   };
   flux.addEventListener("reinit", () => { vider(); prevoirRendu(); });
   flux.addEventListener("message", (e) => traiter(JSON.parse(e.data)));
+  // Certains intermédiaires (tunnels) retiennent le flux en direct : sans ouverture au bout de 4 s,
+  // la page redemande les nouveaux messages chaque seconde.
+  setTimeout(() => { if (!ouvert) { flux.close(); interroger(); } }, 4000);
+}
+
+function interroger() {
+  const connexion = $("connexion");
+  let recus = 0;
+  let remises = null;
+  const tour = async () => {
+    try {
+      const reponse = await (await fetch(`${SERVEUR}/messages?depuis=${recus}`, { cache: "no-store" })).json();
+      if (remises !== reponse.remises_a_zero || reponse.total < recus) {
+        // Historique vidé côté serveur : on repart de zéro au tour suivant.
+        remises = reponse.remises_a_zero;
+        if (recus > 0) { recus = 0; vider(); prevoirRendu(); setTimeout(tour, 0); return; }
+      }
+      reponse.messages.forEach(traiter);
+      recus += reponse.messages.length;
+      connexion.className = "connexion en-ligne";
+      $("connexion-texte").textContent = "connecté au serveur (toutes les secondes)";
+    } catch (erreur) {
+      connexion.className = "connexion hors-ligne";
+      $("connexion-texte").textContent = "serveur injoignable, nouvelle tentative…";
+    }
+    setTimeout(tour, 1000);
+  };
+  tour();
 }
 
 vider();

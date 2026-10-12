@@ -20,6 +20,24 @@ python rejouer.py                   # rejoue exemples/scenario_demo.jsonl (~22 s
 python rejouer.py --vitesse 3 --boucle
 ```
 
+## Suivre la mission depuis un téléphone
+
+Le téléphone doit être sur le même réseau que le Mac. Le serveur affiche au démarrage l'adresse à ouvrir, de la forme `http://nom-du-mac.local:8000`. La page s'adapte à un écran étroit.
+
+## Quand le Pi et le Mac ne sont pas sur le même réseau
+
+Le Pi ne peut alors pas joindre le Mac directement. Il faut une adresse publique qui mène au serveur du Mac : un tunnel. Avec `cloudflared` (`brew install cloudflared`), dans un second terminal :
+
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
+
+La commande affiche une adresse de la forme `https://quelque-chose.trycloudflare.com`. Cette adresse sert à tout : le Pi y envoie ses messages (`--station https://quelque-chose.trycloudflare.com`), et la page s'ouvre dessus depuis n'importe quel appareil, téléphone compris. Elle change à chaque lancement.
+
+Tant que le tunnel est ouvert, quiconque connaît l'adresse peut voir la page et envoyer de faux messages : le fermer (Ctrl+C) après l'essai.
+
+La copie de la page sur GitHub Pages (https://redaelm47.github.io/cerema-station-sol-test/) fonctionne aussi avec le tunnel, en ajoutant `?serveur=https://quelque-chose.trycloudflare.com` à son adresse. GitHub Pages ne peut pas remplacer le serveur : il ne sait que distribuer des fichiers, pas recevoir les messages du Pi.
+
 ## Envoyer des messages depuis le drone
 
 Le décideur (Reda) envoie chaque message par `POST /message` vers `http://<ip-du-mac>:8000`. Le Mac et le Pi doivent être sur le même réseau ; l'adresse du Mac s'obtient avec `ipconfig getifaddr en0`.
@@ -46,9 +64,9 @@ Un objet JSON par message, aucune image.
 
 | Genre | Champs |
 |---|---|
-| `alerte` | `t`, `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation` (ou `null`), `raison` |
+| `alerte` | `t`, `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation` (ou `null`), `raison`, et parfois `textes_lus` (liste des textes lus sur la coque qui ne sont pas une immatriculation française) |
 | `decision` | `t`, `id_piste`, `action`, `raison` |
-| `etat` | `t`, `mode`, `batterie` (simulée, entre 0 et 1), `navires_suivis`, `temperature_pi` |
+| `etat` | `t`, `mode`, `batterie` (simulée, entre 0 et 1), `navires_suivis`, `temperature_pi` (`null` ailleurs que sur le Pi) |
 
 - `t` : secondes depuis le démarrage du drone.
 - Actions : `expert_type`, `expert_ocr`, `approche`, `alerte_complete`, `alerte_partielle`.
