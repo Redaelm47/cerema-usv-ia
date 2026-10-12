@@ -1,0 +1,4 @@
+# Chaîne avec les vrais experts (Mac et Raspberry Pi). Le scénario simulé, lui, ne demande rien.
+numpy
+opencv-python-headless   # opencv-python sur un ordinateur, pour l'affichage
+onnxruntime

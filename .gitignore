@@ -32,3 +32,6 @@ station_sol/journaux/
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+
+# Poids de modèles à côté d'un fichier .onnx
+*.onnx_data

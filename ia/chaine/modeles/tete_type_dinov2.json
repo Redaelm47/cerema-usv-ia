@@ -1,0 +1,121 @@
+{
+  "reseau": "dinov2",
+  "types": [
+    "cargo",
+    "ferry",
+    "peche",
+    "pneumatique",
+    "vedette",
+    "voilier"
+  ],
+  "images": {
+    "cargo": 113,
+    "ferry": 119,
+    "peche": 128,
+    "pneumatique": 123,
+    "vedette": 127,
+    "voilier": 112
+  },
+  "partage": {
+    "entrainement": 430,
+    "calibration": 145,
+    "test": 147
+  },
+  "regularisation": 0.001,
+  "alpha": 0.1,
+  "seuil": 0.1469,
+  "test_natif": {
+    "exactitude": 0.871,
+    "couverture": 0.946,
+    "taille_ensemble": 1.53,
+    "un_seul_type": 0.599
+  },
+  "test_par_largeur_px": {
+    "32": {
+      "exactitude": 0.626,
+      "couverture": 0.878,
+      "taille_ensemble": 2.13,
+      "un_seul_type": 0.272
+    },
+    "48": {
+      "exactitude": 0.741,
+      "couverture": 0.912,
+      "taille_ensemble": 1.86,
+      "un_seul_type": 0.395
+    },
+    "64": {
+      "exactitude": 0.782,
+      "couverture": 0.932,
+      "taille_ensemble": 1.77,
+      "un_seul_type": 0.469
+    },
+    "96": {
+      "exactitude": 0.857,
+      "couverture": 0.918,
+      "taille_ensemble": 1.67,
+      "un_seul_type": 0.497
+    },
+    "128": {
+      "exactitude": 0.837,
+      "couverture": 0.952,
+      "taille_ensemble": 1.61,
+      "un_seul_type": 0.558
+    },
+    "224": {
+      "exactitude": 0.884,
+      "couverture": 0.946,
+      "taille_ensemble": 1.57,
+      "un_seul_type": 0.578
+    }
+  },
+  "confusion_test": {
+    "cargo": [
+      22,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    "ferry": [
+      0,
+      23,
+      1,
+      0,
+      0,
+      0
+    ],
+    "peche": [
+      0,
+      0,
+      23,
+      2,
+      1,
+      0
+    ],
+    "pneumatique": [
+      0,
+      1,
+      1,
+      20,
+      1,
+      2
+    ],
+    "vedette": [
+      0,
+      0,
+      3,
+      1,
+      21,
+      1
+    ],
+    "voilier": [
+      0,
+      0,
+      3,
+      0,
+      1,
+      19
+    ]
+  }
+}

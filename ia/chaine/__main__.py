@@ -1,0 +1,134 @@
+"""Lance la chaîne sur le scénario simulé ou sur une vidéo.
+
+    python3 -m chaine                                   scénario simulé, experts factices, sans dépendance
+    python3 -m chaine --video ../data/bateau.webm       vidéo, vrais experts, suivi de remplacement (ultralytics)
+    python3 -m chaine --video v.mp4 --sortie runs/annotee.mp4 --messages http://127.0.0.1:8000/messages
+"""
+import argparse
+import time
+from collections import defaultdict
+
+from .chaine import Chaine
+from .experts import DroneSimule, ExpertApprocheSimulee, ExpertOCRFactice, ExpertTypeFactice
+from .journal import Journal
+from .messages import Emetteurs, creer_emetteur
+from .reglages import Reglages
+from .sources import ScenarioSimule, SourceRejouee, SourceVideo
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Chaîne de vision embarquée : décision et experts")
+    parser.add_argument("--video", help="chemin d'une vidéo ; sans cette option, scénario simulé")
+    parser.add_argument("--observations", help="avec --video : observations du contrat 1 déjà enregistrées (.jsonl), "
+                                               "rejouées à la place de la détection et du suivi")
+    parser.add_argument("--enregistrer-observations", metavar="FICHIER",
+                        help="avec --video : écrit les observations du contrat 1, une ligne JSON par image")
+    parser.add_argument("--factices", action="store_true", help="experts factices même sur une vidéo")
+    parser.add_argument("--seuil-ocr", type=float, help="largeur en pixels à partir de laquelle on tente de lire")
+    parser.add_argument("--vitesse-approche", type=float, default=3.0, help="vitesse du drone simulé, en m/s")
+    parser.add_argument("--sans-zoom", action="store_true", help="avec --video : l'approche simulée ne zoome pas")
+    parser.add_argument("--largeur-vue", type=int, metavar="PX",
+                        help="avec --video : largeur de l'image fournie à la chaîne ; plus petite que la vidéo, "
+                             "le zoom de l'approche apporte du vrai détail")
+    parser.add_argument("--reseau-type", choices=("dinov2", "dinov3"), default="dinov2",
+                        help="réseau figé de l'expert type")
+    parser.add_argument("--taille-detection", type=int, default=640, metavar="PX",
+                        help="avec --video : côté de l'image vue par le détecteur du suivi de remplacement")
+    parser.add_argument("--fils", type=int, help="nombre de fils d'ONNX Runtime")
+    parser.add_argument("--sortie", help="avec --video : chemin de la vidéo annotée à écrire (.mp4)")
+    parser.add_argument("--journal", default="runs/journal.jsonl", help="fichier du journal des décisions")
+    parser.add_argument("--messages", action="append", metavar="ADRESSE",
+                        help="où envoyer les messages du contrat 3 : fichier .jsonl, http://hôte:port/chemin ou "
+                             "udp://hôte:port ; option répétable (défaut : runs/messages.jsonl)")
+    args = parser.parse_args()
+
+    reglages = Reglages()
+    if args.seuil_ocr:
+        reglages.seuil_ocr_px = args.seuil_ocr
+    drone = DroneSimule(vitesse_m_s=args.vitesse_approche)
+
+    if args.video and args.observations:
+        source = SourceRejouee(args.video, args.observations)
+    elif args.video:
+        source = SourceVideo(args.video, drone=None if args.sans_zoom else drone,
+                             enregistrer=args.enregistrer_observations, largeur_vue=args.largeur_vue,
+                             taille_detection=args.taille_detection)
+    else:
+        source = ScenarioSimule(drone)
+
+    derouler(source, reglages, drone, vrais_experts=bool(args.video) and not args.factices, fils=args.fils,
+             reseau_type=args.reseau_type, journal=args.journal, messages=args.messages or ["runs/messages.jsonl"],
+             sortie=args.sortie if args.video else None)
+
+
+def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool, fils: int | None = None,
+             reseau_type: str = "dinov2", journal: str = "runs/journal.jsonl", messages: list[str] | None = None,
+             sortie: str | None = None) -> Chaine:
+    """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement."""
+    messages = messages or ["runs/messages.jsonl"]
+    experts = [ExpertApprocheSimulee(drone, reglages)]
+    if vrais_experts:
+        # Importés ici : ONNX Runtime et OpenCV ne sont demandés que pour les vrais experts.
+        from .experts.ocr import ExpertOCR
+        from .experts.qualite import FiltreQualite
+        from .experts.type import ExpertType
+        experts += [FiltreQualite(reglages), ExpertType(fils=fils, reseau=reseau_type), ExpertOCR(reglages, fils=fils)]
+    else:
+        experts += [ExpertTypeFactice(), ExpertOCRFactice(reglages)]
+
+    chemin_journal, journal = journal, Journal(journal)
+    emetteur = Emetteurs([creer_emetteur(adresse) for adresse in messages])
+    chaine = Chaine(experts, reglages, journal, emetteur, drone)
+    video_annotee = None
+    if sortie:
+        from .affichage import VideoAnnotee
+        video_annotee = VideoAnnotee(sortie, source.images_par_s)
+
+    deja_affiche, images, t, debut = 0, 0, 0.0, time.perf_counter()
+    try:
+        for observations, image in source:
+            chaine.pas(observations, image)
+            images, t = images + 1, observations["t"]
+            if video_annotee is not None:
+                video_annotee.ecrire(image, list(chaine.fiches.values()), observations["t"], drone)
+            for ligne in journal.lignes[deja_affiche:]:
+                afficher(ligne)
+            deja_affiche = len(journal.lignes)
+    except KeyboardInterrupt:  # Ctrl+C devant une caméra : on clôt proprement, alertes en cours comprises
+        print("\narrêt demandé")
+    duree = time.perf_counter() - debut
+    chaine.cloturer(t)
+    for ligne in journal.lignes[deja_affiche:]:
+        afficher(ligne)
+    journal.fermer()
+    emetteur.fermer()
+    if video_annotee is not None:
+        video_annotee.fermer()
+        print(f"vidéo annotée écrite dans {sortie}")
+
+    print(f"\n{images} images en {duree:.1f} s ({images / max(duree, 1e-9):.1f} images/s, détection et suivi compris)")
+    durees = defaultdict(list)
+    for ligne in journal.lignes:
+        if "duree_ms" in ligne:
+            durees[ligne["action"]].append(ligne["duree_ms"])
+    for action, valeurs in durees.items():
+        valeurs.sort()
+        print(f"  {action:<12} {len(valeurs):3d} lancement(s), médiane {valeurs[len(valeurs) // 2]:7.1f} ms, "
+              f"max {valeurs[-1]:7.1f} ms")
+    print(f"{len(chaine.alertes)} alerte(s), journal dans {chemin_journal}, messages vers "
+          f"{', '.join(messages)}")
+    for alerte in chaine.alertes:
+        print("  ", alerte)
+    return chaine
+
+
+def afficher(ligne: dict) -> None:
+    fiche = ligne["fiche"]
+    experts = fiche["experts"]
+    print(f"{ligne['t']:7.2f} s  piste {ligne['piste']:<3} {ligne['action']:<16} {ligne['raison']:<44}"
+          f" {fiche['suivi']['boite'][2]:5.0f} px  type {'/'.join(experts['types']) or '?':<12}"
+          f" immat {experts['immatriculation'] or '?'}")
+
+
+if __name__ == "__main__":
+    main()
