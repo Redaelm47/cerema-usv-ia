@@ -50,6 +50,7 @@ Créer une chaîne fonctionnelle de détection des navires passant dans le champ
 - [ressources](ressources) : documents utiles (fiches techniques, articles, travail des prédécesseurs) ;
 - [usv](usv) : assemblage, motorisation et missions du drone ;
 - [ia](ia) : détection, OCR, tracking et portage sur Raspberry Pi ;
+- [station_sol](station_sol) : serveur et page opérateur qui affichent en direct les alertes et l'état du drone ;
 - [docs](docs) : livrables du projet (rapports, présentations, poster) ;
 - [CHANGELOG.md](CHANGELOG.md) : historique des principales évolutions.
 

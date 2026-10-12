@@ -21,6 +21,9 @@ runs/
 *.mov
 *.zip
 
+# Journaux de la station sol
+station_sol/journaux/
+
 # LaTeX
 *.aux
 *.log

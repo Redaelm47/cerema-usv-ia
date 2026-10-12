@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-10-12
+
+- Ajout de la station sol (`station_sol/`) : serveur, page opérateur en direct, vérification du contrat n°3 et rejeu de faux messages.
+
 ## 2026-10-08
 
 - Ajout du document de synthèse version 2 (PDF et sources LaTeX) dans `docs/`.
