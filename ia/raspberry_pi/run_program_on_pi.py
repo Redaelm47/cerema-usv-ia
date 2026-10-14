@@ -1,59 +1,72 @@
 import paramiko
 import time
-import socket
+import sys
 import argparse
 
-# Gestion des arguments depuis ton PC (avec seuil et intervalle en plus)
-parser = argparse.ArgumentParser(description="Lance un script à distance sur le Raspberry Pi")
-parser.add_argument('--script', type=str, default='yolo_json_export.py', help='Nom du script Python à exécuter sur le Pi')
-parser.add_argument('--model', type=str, default='best.pt', help='Nom du modèle à utiliser (ex: best.pt)')
+# Récupération de ta ligne de commande exacte
+parser = argparse.ArgumentParser(description="Pilotage distant de l'acquisition YOLO sur Raspberry Pi")
+parser.add_argument('--script', type=str, default='yolo_json_export.py', help='Nom du script Python')
+parser.add_argument('--model', type=str, default='best.pt', help='Chemin vers le modèle YOLO')
 parser.add_argument('--thresh', type=float, default=0.5, help='Seuil de confiance minimal')
-parser.add_argument('--interval', type=float, default=1.0, help='Temps en secondes entre 2 enregistrements')
+parser.add_argument('--interval', type=float, default=1.0, help='Intervalle d\'enregistrement en secondes')
 args = parser.parse_args()
 
 hostname = "cerema-pi.local"
 username = "pi"
 password = "cerema"
+remote_dir = "Desktop/Yolo_test"
 
-# Construction dynamique de la commande avec le seuil et l'intervalle
-if args.script == 'yolo_json_export.py':
-    command = f"cd Desktop/Yolo_test && source yolo_env/bin/activate && python {args.script} --model {args.model} --thresh {args.thresh} --interval {args.interval}"
-elif args.script == 'yolo_detect_rasp.py':
-    command = f"cd Desktop/Yolo_test && source yolo_env/bin/activate && python {args.script} --model {args.model} --source picamera0 --resolution 640x480 --record --no-display"
-else:
-    command = f"cd Desktop/Yolo_test && source yolo_env/bin/activate && python {args.script} --model {args.model}"
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-def check_host(host, port=22, timeout=3):
-    """Vérifie si le port SSH (22) du Pi répond sur le réseau."""
-    try:
-        socket.setdefaulttimeout(timeout)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((host, port))
-        s.close()
-        return True
-    except socket.error:
-        return False
+print(f"Connexion au Raspberry Pi ({hostname})...")
+try:
+    ssh.connect(hostname, username=username, password=password)
+except Exception as e:
+    print(f"Erreur de connexion SSH : {e}")
+    sys.exit(1)
 
-print(f"En attente de connexion avec le Raspberry Pi pour lancer '{args.script}'...")
+# 1. Vide automatiquement le fichier detections.json sur le Pi pour repartir sur du propre
+print("Réinitialisation du fichier detections.json sur le Pi...")
+ssh.exec_command(f"cd {remote_dir} && > detections.json")
 
-# Boucle d'attente du réseau
-while not check_host(hostname):
-    time.sleep(5)
+# 2. Construit la commande distante avec tes arguments
+command = f"cd {remote_dir} && source yolo_env/bin/activate && python {args.script} --model {args.model} --thresh {args.thresh} --interval {args.interval}"
 
-print("Raspberry Pi détecté ! Connexion SSH en cours...")
+print(f"Lancement de l'acquisition à distance (Modèle: {args.model}, Seuil: {args.thresh}, Intervalle: {args.interval}s)...")
+print("Appuie sur Ctrl+C sur ton PC pour stopper et récupérer le JSON.\n")
+
+# Ouvre un canal interactif pour voir les logs en direct
+transport = ssh.get_transport()
+channel = transport.open_session()
+channel.get_pty()
+channel.exec_command(command)
 
 try:
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname, username=username, password=password)
+    while True:
+        if channel.recv_ready():
+            output = channel.recv(1024).decode('utf-8', errors='ignore')
+            print(output, end="")
+        if channel.exit_status_ready():
+            break
+        time.sleep(0.05)
+except KeyboardInterrupt:
+    print("\nInterruption détectée depuis le PC. Arrêt du programme sur le Pi...")
+    channel.send('\x03') # Envoie Ctrl+C à distance
+    time.sleep(1)
 
-    print(f"Exécution distante : {command}")
-    stdin, stdout, stderr = ssh.exec_command(command)
+# 3. Rapatrie automatiquement le fichier detections.json sur ton PC à la fin
+print("\nTéléchargement automatique de detections.json vers ton PC...")
+sftp = ssh.open_sftp()
+remote_file = f"{remote_dir}/detections.json"
+local_file = "detections.json"
 
-    # Affiche les retours du programme du Pi en temps réel dans ton terminal PC
-    for line in iter(stdout.readline, ""):
-        print(line, end="")
-
-    ssh.close()
+try:
+    sftp.get(remote_file, local_file)
+    print("Fichier 'detections.json' récupéré avec succès dans ton dossier local !")
 except Exception as e:
-    print(f"Erreur de connexion : {e}")
+    print(f"Erreur lors du téléchargement du fichier : {e}")
+
+sftp.close()
+ssh.close()
+print("Session terminée proprement.")
