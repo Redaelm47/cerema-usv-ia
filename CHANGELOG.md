@@ -2,6 +2,12 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-10-12
+
+- Ajout de la station sol (`station_sol/`) : serveur, page opérateur en direct, vérification du contrat n°3 et rejeu de faux messages.
+- Réorganisation des README : tableau « Par où commencer », lots et répartition du lot L2, arborescence, méthode Git pas à pas ; README pour `sandbox/` ; liens entre `ia/`, `sandbox/` et `docs/`.
+- Document de synthèse version 1 déplacé de la racine vers `docs/`.
+
 ## 2026-10-08
 
 - Ajout du document de synthèse version 2 (PDF et sources LaTeX) dans `docs/`.
