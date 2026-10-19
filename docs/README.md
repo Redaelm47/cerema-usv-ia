@@ -13,6 +13,10 @@ Rapports, présentations et documents de travail du projet.
 - [20_synthese_PCE_2026.pdf](20_synthese_PCE_2026.pdf) : version 1, conservée pour mémoire
 - [document_synthese/](document_synthese) : sources LaTeX, copie de l'Overleaf partagé au 08/10/2026 (fichier principal : `src/tp_latex_lab_006.tex`, une section par fichier dans `src/sections/`)
 
+## Revue de projet
+
+- [revue_de_projet/](revue_de_projet) : présentation du 19/10/2026 et tableau de suivi du projet (planning, risques, actions), mis à jour chaque semaine
+
 ## Vision embarquée (lot L2)
 
 - [architecture_vision_embarquee.pdf](architecture_vision_embarquee.pdf) : proposition d'architecture (veille, suivi, décideur, experts, fiche navire, alerte), document de travail du 05/10/2026

@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-10-19
+
+- Ajout de la revue de projet (`docs/revue_de_projet/`) : présentation (PPTX et PDF) et tableau de suivi (planning v1/v2, risques, actions, données client, responsabilités, réunions).
+
 ## 2026-10-12
 
 - Ajout de la station sol (`station_sol/`) : serveur, page opérateur en direct, vérification du contrat n°3 et rejeu de faux messages.
