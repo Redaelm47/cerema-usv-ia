@@ -65,15 +65,21 @@ function cablage() {
   s += bx(420, 150, 260, 96, 'Pixhawk 6C Mini', 'ArduPilot Rover', BLUE, 'rgba(28,117,138,.10)');
   s += bx(20, 30, 270, 84, 'GPS NEO-M8P', 'Drotek · capte bien le signal');
   s += bx(20, 280, 270, 84, 'Station sol (PC)', 'QGroundControl');
-  s += bx(810, 30, 270, 84, 'Batterie 4S', '14,8 V → module 5 V');
-  s += bx(810, 280, 270, 84, 'ESC + moteurs', 'pilotage par gouverne');
+  s += bx(810, 10, 270, 84, 'Batterie 4S', '14,8 V');
+  s += bx(810, 156, 270, 84, 'Power module', 'répartit l\'alimentation');
+  s += bx(810, 302, 270, 84, 'ESC + moteurs', 'pilotage par gouverne');
   // liens
   s += `<path d="M290 72 L350 72 L350 180 L414 180" stroke="${RED}" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arR)"/>
   <text x="340" y="150" text-anchor="end" class="d-lab" style="fill:${RED};font-size:18px;font-weight:700">bloqué ici</text>
   <path d="M290 322 L350 322 L350 216 L414 216" stroke="#000" stroke-width="2"  marker-end="url(#ar)"/>
   <text x="340" y="262" text-anchor="end" class="d-lab s" style="font-size:15px">USB, puis radio</text>
-  <path d="M810 72 L750 72 L750 180 L686 180" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
-  <path d="M680 216 L750 216 L750 322 L804 322" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>`;
+  <path d="M945 94 L945 150" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M810 198 L686 198" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="748" y="188" text-anchor="middle" class="d-lab" style="font-size:17px;font-weight:700">5 V</text>
+  <path d="M945 240 L945 296" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="957" y="274" class="d-lab" style="font-size:17px;font-weight:700">14,8 V</text>
+  <path d="M550 246 L550 344 L804 344" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="680" y="334" text-anchor="middle" class="d-lab s" style="font-size:15px">commande</text>`;
   return s + '</svg>';
 }
 
@@ -166,11 +172,14 @@ module.exports = [
 
   // 6 · bateau : plan
   { kick: '4 · Lot L1 · bateau', title: 'Le plan pour débloquer',
-    fig: `<ul class="pts num" style="font-size:28px">
-      <li><b>Brochage</b> : lire le schéma Holybro et câbler sur le port GPS 1</li>
-      <li><b>Protocole</b> : UART ou I2C, même débit des deux côtés</li>
-      <li><b>ArduPilot</b> : déclarer le GPS sur le bon port série</li>
-      <li class="hot"><b>Sinon</b> : passer à un GPS u-blox F9P</li>
+    fig: `<ul class="pts lab" style="font-size:22px;gap:13px;max-width:1120px">
+      <li data-n="1a"><b>Documentation</b> : chercher plus de documentation sur le Drotek NEO-M8P pour connaître précisément ses broches</li>
+      <li data-n="1b"><b>Protocoles</b> : vérifier que ces broches sont compatibles avec le Pixhawk</li>
+      <li data-n="2"><b>Port GPS 1</b> : l'utiliser au lieu du GPS 2, sans rien brancher sur les broches 6 à 9 (a priori, le GPS 2 seul devrait aussi marcher)</li>
+      <li data-n="3"><b>u-center (u-blox)</b> : l'installer, réinitialiser le NEO-M8P et vérifier le baudrate</li>
+      <li data-n="4"><b>QGroundControl</b> : comprendre en détail ses fonctions pour régler les bons paramètres</li>
+      <li data-n="5"><b>Soudure</b> : souder les connexions sur le module</li>
+      <li data-n="6" class="hot"><b>Sinon</b> : passer à un GPS u-blox F9P</li>
     </ul>`,
     note: `Conseil du Cerema : <b>le matériel d'abord, le logiciel ensuite</b>. Batterie 4S vérifiée au multimètre avant chaque branchement.` },
 

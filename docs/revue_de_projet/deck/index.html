@@ -88,6 +88,9 @@ table.cmp tr.win td{background:rgba(207,80,68,.08);}
 .pts.num{counter-reset:n;}
 .pts.num li{counter-increment:n; padding-left:52px;}
 .pts.num li::before{content:counter(n); border:none; background:none; width:auto; height:auto; top:0; left:0; color:#1C758A; font-weight:700; font-size:28px;}
+.pts.lab li{padding-left:50px;}
+.pts.lab li::before{content:attr(data-n); border:none; background:none; width:auto; height:auto; top:0; left:0; color:#1C758A; font-weight:700;}
+.pts.lab li.hot::before{background:none; color:#CF5044;}
 .ph{color:#C78D46;}
 .big{font-size:35px; line-height:1.42; max-width:1000px;}
 .big b{font-weight:700;}
@@ -240,16 +243,23 @@ body:hover #hint{opacity:1;}
     <text x="155" y="68" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">GPS NEO-M8P</text>
     <text x="155" y="92" text-anchor="middle" class="d-lab s" style="font-size:16px">Drotek · capte bien le signal</text><rect x="20" y="280" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
     <text x="155" y="318" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">Station sol (PC)</text>
-    <text x="155" y="342" text-anchor="middle" class="d-lab s" style="font-size:16px">QGroundControl</text><rect x="810" y="30" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
-    <text x="945" y="68" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">Batterie 4S</text>
-    <text x="945" y="92" text-anchor="middle" class="d-lab s" style="font-size:16px">14,8 V → module 5 V</text><rect x="810" y="280" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
-    <text x="945" y="318" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">ESC + moteurs</text>
-    <text x="945" y="342" text-anchor="middle" class="d-lab s" style="font-size:16px">pilotage par gouverne</text><path d="M290 72 L350 72 L350 180 L414 180" stroke="#CF5044" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arR)"/>
+    <text x="155" y="342" text-anchor="middle" class="d-lab s" style="font-size:16px">QGroundControl</text><rect x="810" y="10" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
+    <text x="945" y="48" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">Batterie 4S</text>
+    <text x="945" y="72" text-anchor="middle" class="d-lab s" style="font-size:16px">14,8 V</text><rect x="810" y="156" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
+    <text x="945" y="194" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">Power module</text>
+    <text x="945" y="218" text-anchor="middle" class="d-lab s" style="font-size:16px">répartit l'alimentation</text><rect x="810" y="302" width="270" height="84" rx="12" fill="#fff" stroke="#000" stroke-width="2.5"/>
+    <text x="945" y="340" text-anchor="middle" class="d-lab" style="font-size:21px;font-weight:700">ESC + moteurs</text>
+    <text x="945" y="364" text-anchor="middle" class="d-lab s" style="font-size:16px">pilotage par gouverne</text><path d="M290 72 L350 72 L350 180 L414 180" stroke="#CF5044" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arR)"/>
   <text x="340" y="150" text-anchor="end" class="d-lab" style="fill:#CF5044;font-size:18px;font-weight:700">bloqué ici</text>
   <path d="M290 322 L350 322 L350 216 L414 216" stroke="#000" stroke-width="2"  marker-end="url(#ar)"/>
   <text x="340" y="262" text-anchor="end" class="d-lab s" style="font-size:15px">USB, puis radio</text>
-  <path d="M810 72 L750 72 L750 180 L686 180" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
-  <path d="M680 216 L750 216 L750 322 L804 322" stroke="#000" stroke-width="2" marker-end="url(#ar)"/></svg></div>
+  <path d="M945 94 L945 150" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M810 198 L686 198" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="748" y="188" text-anchor="middle" class="d-lab" style="font-size:17px;font-weight:700">5 V</text>
+  <path d="M945 240 L945 296" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="957" y="274" class="d-lab" style="font-size:17px;font-weight:700">14,8 V</text>
+  <path d="M550 246 L550 344 L804 344" stroke="#000" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="680" y="334" text-anchor="middle" class="d-lab s" style="font-size:15px">commande</text></svg></div>
     <p class="note">Le GPS capte bien (LED fixe), mais le Pixhawk ne le voit pas, branché sur le port GPS 2.</p>
   </div>
   <div class="pageno">05 / 15</div>
@@ -260,11 +270,14 @@ body:hover #hint{opacity:1;}
     <div class="kick">4 · Lot L1 · bateau</div>
     <h2>Le plan pour débloquer</h2>
     <svg class="uline" width="452" height="14" viewBox="0 0 452 14"><path d="M4 8 C 127 3, 316 12, 448 6" stroke="#CF5044" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>
-    <div class="fig"><ul class="pts num" style="font-size:28px">
-      <li><b>Brochage</b> : lire le schéma Holybro et câbler sur le port GPS 1</li>
-      <li><b>Protocole</b> : UART ou I2C, même débit des deux côtés</li>
-      <li><b>ArduPilot</b> : déclarer le GPS sur le bon port série</li>
-      <li class="hot"><b>Sinon</b> : passer à un GPS u-blox F9P</li>
+    <div class="fig"><ul class="pts lab" style="font-size:22px;gap:13px;max-width:1120px">
+      <li data-n="1a"><b>Documentation</b> : chercher plus de documentation sur le Drotek NEO-M8P pour connaître précisément ses broches</li>
+      <li data-n="1b"><b>Protocoles</b> : vérifier que ces broches sont compatibles avec le Pixhawk</li>
+      <li data-n="2"><b>Port GPS 1</b> : l'utiliser au lieu du GPS 2, sans rien brancher sur les broches 6 à 9 (a priori, le GPS 2 seul devrait aussi marcher)</li>
+      <li data-n="3"><b>u-center (u-blox)</b> : l'installer, réinitialiser le NEO-M8P et vérifier le baudrate</li>
+      <li data-n="4"><b>QGroundControl</b> : comprendre en détail ses fonctions pour régler les bons paramètres</li>
+      <li data-n="5"><b>Soudure</b> : souder les connexions sur le module</li>
+      <li data-n="6" class="hot"><b>Sinon</b> : passer à un GPS u-blox F9P</li>
     </ul></div>
     <p class="note">Conseil du Cerema : <b>le matériel d'abord, le logiciel ensuite</b>. Batterie 4S vérifiée au multimètre avant chaque branchement.</p>
   </div>

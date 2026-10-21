@@ -27,6 +27,9 @@ const EXTRA = `
 .pts.num{counter-reset:n;}
 .pts.num li{counter-increment:n; padding-left:52px;}
 .pts.num li::before{content:counter(n); border:none; background:none; width:auto; height:auto; top:0; left:0; color:${BLUE}; font-weight:700; font-size:28px;}
+.pts.lab li{padding-left:50px;}
+.pts.lab li::before{content:attr(data-n); border:none; background:none; width:auto; height:auto; top:0; left:0; color:${BLUE}; font-weight:700;}
+.pts.lab li.hot::before{background:none; color:${RED};}
 .ph{color:${GOLD};}
 .big{font-size:35px; line-height:1.42; max-width:1000px;}
 .big b{font-weight:700;}
