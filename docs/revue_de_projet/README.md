@@ -6,6 +6,7 @@ Dossier partagé avec le tuteur école et le Cerema avant la revue, comme le dem
 |---|---|
 | [revue_de_projet_P20.pptx](revue_de_projet_P20.pptx) | présentation de 13 diapositives (15 minutes), avec notes de l'orateur |
 | [revue_de_projet_P20.pdf](revue_de_projet_P20.pdf) | la même présentation en PDF, pour la lire sans PowerPoint |
+| [deck/](deck) | version web refaite le 21/10 après la réunion client du 15/10 (PDF et sources) |
 | [suivi_projet.xlsx](suivi_projet.xlsx) | outils de pilotage mis à jour chaque semaine : planning v1/v2, risques, actions court terme, données client, responsabilités, réunions |
 
 ## Correspondance avec la grille d'évaluation
