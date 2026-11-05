@@ -7,6 +7,7 @@ Ce fichier répertorie les principales évolutions du projet.
 - Ajout du plan d'actions de l'atelier 6 de co-développement (`docs/plan_actions_USV-IA.pdf`) : tableau des tâches sur GitHub, un responsable du suivi par sous-groupe, points de début et de fin de séance, horaires fixes.
 - Comptes rendus en PDF : point de fin de séance, répartition des tâches IA et plateforme, et point d'étape du 21/10 (jusque-là en Markdown seulement).
 - Rangement de `comptes_rendus/` : seuls les PDF et le sommaire restent à la racine du dossier ; textes, sources LaTeX, style commun et modèles sont dans `comptes_rendus/sources/`.
+- Ajout de deux skills Claude Code dans `.claude/skills/` : `compte-rendu-reunion` (d'une transcription de réunion au compte rendu PDF rangé et poussé) et `projet-cerema` (conventions du projet).
 
 ## 2026-10-19
 
