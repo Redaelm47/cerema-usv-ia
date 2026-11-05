@@ -1,0 +1,78 @@
+% Point de fin de séance à six du 05/11/2026 (action A8 du plan d'actions).
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-05_point-de-seance.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point de séance du 05/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, point de fin de séance}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT DE FIN DE SÉANCE À SIX \quad·\quad 05/11/2026}
+       {Point de séance du 05/11/2026}
+       {Où en est chaque sous-groupe, et qui fait quoi pour la prochaine séance.}
+       {Participants : les deux sous-groupes \quad·\quad Rédacteur : Reda El Mekkaoui \quad·\quad Prochain point : prochaine séance, 8h30}
+
+\begin{enbref}
+\begin{itemize}
+  \item \textbf{Plateforme} : on garde le GPS. Une dernière tentative avec le module actuel, branché sur le port GPS1 ; s'il ne marche pas, on change de module. En parallèle : télémétrie, branchement des moteurs et des ESC, prise en main d'ArduPilot et de QGroundControl.
+  \item \textbf{IA} : la chaîne marche à peu près de bout en bout depuis la démonstration du lundi 02/11. Restent les tests de dégradation, les tests d'hallucination et la ré-identification.
+  \item \textbf{Ensuite} : la plateforme fera un point commun pour que tous comprennent le contrôleur de vol et le pilotage des moteurs. L'IA passera à la vision nocturne, puis au mode d'emploi.
+\end{itemize}
+\end{enbref}
+
+\section{Qui fait quoi pour la prochaine séance}
+{\footnotesize\color{muted} Détail dans les deux répartitions du même jour : \textit{2026-11-05\_repartition-taches-plateforme.pdf} et \textit{2026-11-05\_repartition-taches-vision.pdf}.\par}
+
+\groupe{cPlat}{Plateforme (lot L1)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Ewen & GPS : dernière tentative & Trouver un câble JST-GH 10 broches, modifier certaines broches, brancher le GPS sur le port GPS1. S'il ne marche toujours pas, on change de module. Peu de temps à y passer.\\\hline
+Ewen & Télémétrie & La liaison marche, mais comme un simple câble. Analyser ce qui passe entre les modules et ce qu'on peut en tirer.\\\hline
+Rana & Branchement des moteurs et des ESC & Se documenter sur la façon de relier tous les composants, en tenant compte maintenant du moteur.\\\hline
+Selma & ArduPilot et QGroundControl & Étudier les paramètres depuis QGroundControl et la programmation d'une mission. À avancer dès la prochaine séance, une fois les branchements faits.\\\hline
+\end{tableau}
+
+\vspace{0.6em}
+\groupe{cIA}{IA (lot L2)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Guillaume & Tests de dégradation d'image & Gouttes d'eau, pixels noirs aléatoires. Une séance maximum.\\\hline
+Guillaume & Tests caméra & À continuer.\\\hline
+Reda & Tests d'hallucination & Vérifier que le système n'envoie pas d'alerte quand il n'y a aucun bateau.\\\hline
+Reda & Améliorer l'existant & En particulier les experts.\\\hline
+Reda & Petite boîte compacte & La fabriquer.\\\hline
+Adam-Sabri & Ré-identification & Savoir si un bateau a déjà été vu. Rechercher comment faire.\\\hline
+\mdseries\itshape à confirmer & Retester le modèle & « Base 4 » dans la transcription. Si besoin, ajouter à la base des images avec d'autres caractéristiques.\\\hline
+\end{tableau}
+
+\section{Fait depuis la dernière séance}
+\begin{itemize}
+  \item \textbf{IA} : démonstration du lundi 02/11 avec la vraie caméra. La chaîne (détection, experts, alerte) marche à peu près de bout en bout. Nouvelle répartition des tâches IA.
+  \item \textbf{Plateforme} : un module GPS prêté par un autre groupe a fonctionné. On ne peut pas le garder, mais on a vu comment le GPS doit se comporter. La liaison de télémétrie fonctionne.
+  \item \textbf{Équipe} : plan d'actions de l'atelier 6 adopté (horaires, points de séance, tableau des tâches).
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item \textbf{GPS} : on continue avec un GPS, comme le souhaite Antoine Douchin (Cerema). Une seule tentative de plus avec le module actuel, puis on en change plutôt que d'y passer plus de temps. Point encore à voir avec les tuteurs.
+  \item \textbf{IA} : priorité à une vision et des alertes fiables. La vision nocturne et le mode d'emploi viendront après.
+\end{enumerate}
+
+\section{Pour la suite}
+\begin{itemize}
+  \item \textbf{Plateforme} : quand chacun aura fini sa tâche, point commun. Tout le monde doit comprendre comment fonctionne le contrôleur de vol, comment piloter les moteurs et quels retours on reçoit sur l'ordinateur.
+  \item \textbf{IA} : la caméra de vision nocturne n'a pas encore été utilisée. On s'y mettra une fois le reste fini, puis on rédigera le mode d'emploi.
+\end{itemize}
+
+\section{Suivi du plan d'actions}
+\begin{tableau}{p{6.4cm} L}
+\entetetab{\textbf{Indicateur} & \textbf{Ce jour}}
+Tableau des tâches GitHub (A1) & Pas encore créé. Prévu avant la prochaine séance (Reda, Ewen). En attendant, les tâches sont listées ici.\\\hline
+Point de fin de séance (A7) & Fait : c'est ce compte rendu.\\\hline
+Retards à l'arrivée ou après la pause (A10) & Non relevés.\\\hline
+\end{tableau}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique. Corrections : « Eoen » → Ewen, « Ranel » → Rana, « l'Artois pilote » → ArduPilot, « GST, GH » → JST-GH. La transcription disait « sans GPS » : il faut lire « avec GPS ». Une erreur ? Dites-le, on corrige.}
+
+\end{document}

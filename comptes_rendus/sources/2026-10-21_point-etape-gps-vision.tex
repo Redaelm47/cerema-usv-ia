@@ -1,0 +1,123 @@
+% Compte rendu du point d'étape du 21/10/2026 : GPS Neo M8P et vision embarquée.
+% Même contenu que 2026-10-21_point-etape-gps-vision.md, mis en page en PDF.
+% Compiler depuis ce dossier : tectonic -o .. 2026-10-21_point-etape-gps-vision.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point d'étape GPS et vision embarquée, 21/10/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, compte rendu}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+\newcommand{\sous}[1]{\par\needspace{3\baselineskip}\vspace{2pt}{\small\bfseries\color{cDec}#1}\par\vspace{-2pt}}
+
+\begin{document}
+\setlist{itemsep=0.12em,topsep=0.1em,parsep=0pt,leftmargin=1.2em}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT D'ÉTAPE \quad·\quad 21/10/2026}
+       {Point d'étape GPS et vision embarquée}
+       {Diagnostic du GPS Neo M8P, sécurité du matériel, démo de la vision embarquée, base de données et API.}
+       {Présents : intervenants 1, 2 et 3 (noms à compléter) \quad·\quad Rédacteur : Reda El Mekkaoui}
+
+\begin{enbref}
+\begin{itemize}
+  \item Le GPS fixe sa position mais \textbf{ne parle pas au Pixhawk} : on reprend d'abord le câblage et les protocoles, la configuration d'ArduPilot ensuite.
+  \item Plan B si le M8P n'est pas compatible : \textbf{module F9P}.
+  \item La chaîne vision marche \textbf{en simulation}. Sur la vraie caméra, l'image est \textbf{floue}.
+  \item Le JSON ne suffira pas : il faut une \textbf{base de données extensible et une API}, et un \textbf{SSD} à la place de la carte SD.
+\end{itemize}
+\end{enbref}
+
+\section{Volet USV : GPS Neo M8P et Pixhawk}
+\sous{Constat}
+\begin{itemize}
+  \item Le Neo M8P est alimenté et fixe sa position, mais la liaison avec le Pixhawk (port GPS2, \texttt{SERIAL4}) ne marche pas.
+  \item On a déjà essayé d'inverser les broches, sans succès.
+\end{itemize}
+\sous{Causes possibles (selon l'intervenant 1)}
+\begin{itemize}
+  \item configuration de la puce u-blox ;
+  \item RX/TX inversés ;
+  \item baudrate ou port du Pixhawk mal configuré. Le port a peut-être été fermé ou reconfiguré l'an dernier (Matthieu Arzel l'a utilisé).
+\end{itemize}
+\sous{À vérifier sur le brochage}
+\begin{itemize}
+  \item Broches essentielles : masse, 5 V, TX/RX (UART), SCL/SDA (I2C).
+  \item Voir si ArduPilot exige un GPS branché sur GPS1.
+\end{itemize}
+\sous{À écarter}
+\begin{itemize}
+  \item Faire passer le GPS par la Raspberry Pi. C'est le Pixhawk qui fait la fusion des capteurs, et la latence serait trop forte.
+\end{itemize}
+
+\section{Volet USV : méthode et sécurité du matériel}
+\begin{itemize}
+  \item \textbf{Comprendre et documenter tout le câblage} autour du Pixhawk, sur le schéma Holybro annoté, \textbf{avant} de configurer ArduPilot.
+  \item Sources de référence : le site Holybro et la documentation ArduPilot.
+  \item \textbf{Batterie 4S (14,8 V)} : vérifier la polarité et les tensions au multimètre avant tout branchement. Ne pas alimenter le Pixhawk sur les sorties directes.
+  \item On peut tester le GPS seul avec un \textbf{adaptateur USB-série et un script Python}, plus simplement qu'avec la Raspberry Pi.
+  \item L'intervenant 1 n'est pas sur place la semaine suivante. En cas de blocage, lui écrire par mail pour caler une visio ou un appel de 30 minutes.
+\end{itemize}
+
+\needspace{9\baselineskip}\section{Volet IA : démo de la vision embarquée}
+\sous{Architecture présentée}
+\begin{center}
+\begin{tikzpicture}[
+    b/.style={rectangle, rounded corners=6pt, draw=#1!40, line width=0.5pt, fill=#1!6,
+              minimum height=1.1cm, align=center, inner xsep=7pt, font=\small},
+    fl/.style={-{Stealth[length=5pt,width=4.5pt,round]}, draw=cExt, line width=0.8pt},
+  ]
+  \node[b=cCam] (c) at (0,0) {\textbf{Caméra IMX500}\\[-1pt]{\footnotesize\color{muted}modèle léger, 1 image / 2 s}};
+  \node[b=cDec, right=0.55cm of c] (d) {\textbf{Décideur}};
+  \node[b=cExp, right=0.55cm of d] (e) {\textbf{Experts}\\[-1pt]{\footnotesize\color{muted}OCR, mouvement, catégorie}};
+  \node[b=cPi, right=0.55cm of e] (a) {\textbf{Alertes}\\[-1pt]{\footnotesize\color{muted}sur le dashboard}};
+  \draw[fl] (c) -- (d); \draw[fl] (d) -- (e); \draw[fl] (e) -- (a);
+\end{tikzpicture}
+\end{center}
+\begin{itemize}
+  \item Seuil de détection à 50 \%, réglable.
+  \item Filtre qualité : l'expert OCR n'est appelé que si l'image est assez nette.
+\end{itemize}
+\sous{Démo en simulation}
+\begin{itemize}
+  \item Bateau de pêche détecté, immatriculation lue, alerte sur le dashboard.
+  \item Bateau lointain détecté, mais sans plaque lisible.
+\end{itemize}
+\sous{Problèmes}
+\begin{itemize}
+  \item Le modèle \texttt{base.pt} de l'an dernier ne détecte rien, alors que \textbf{YOLO11n détecte le bateau à 88 \%}. Il a été fait par Kalid ; tout serait sur le Drive copié sur la clé USB.
+  \item Caméra filmant un écran : \textbf{image totalement floue}.
+  \item La Raspberry Pi 4 chauffe (52 °C relevés).
+\end{itemize}
+
+\section{Volet IA : base de données, API et évolutivité}
+\begin{itemize}
+  \item Le JSON ne suffira pas pour un bateau qui navigue 365 jours par an. Il faut une \textbf{base de données extensible} (SQL, NoSQL ou SQLite 3).
+  \item Champs à prévoir : vitesse, image dégradée de chaque bateau, futurs capteurs (lidar, AIS).
+  \item Prévoir des \textbf{experts en greffon}, dont la ré-identification d'un bateau revu plus tard. Matthieu Arzel pourrait aider.
+  \item Le dashboard HTML (fait avec Claude) est jugé utile, mais il ne faut pas trop développer l'interface : \textbf{priorité à une API} entre la base et l'affichage.
+  \item Une carte SD grillera avec des écritures répétées : \textbf{prévoir un SSD}.
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item Priorité au matériel (câblage, protocoles) avant la configuration du firmware ArduPilot.
+  \item Si le M8P ne peut pas fonctionner avec le Pixhawk, on passe sur un module \textbf{F9P}.
+  \item Le GPS est branché \textbf{directement au Pixhawk}, pas via la Raspberry Pi.
+  \item Le dashboard HTML actuel est conservé pour les tests.
+\end{enumerate}
+
+\section{Actions}
+\begin{tableau}{L p{3.4cm} p{2.7cm}}
+\entetetab{\textbf{Action} & \textbf{Responsable} & \textbf{Échéance}}
+Vérifier la compatibilité du M8P Drotek avec le Pixhawk et son brochage, puis envoyer un mail & Intervenant 1 & 21/10 au soir\\\hline
+Chercher un adaptateur USB-série à l'atelier & Intervenant 1 & \\\hline
+Étudier le brochage et les protocoles GPS du Pixhawk 6C mini (Holybro, ArduPilot) & Intervenant 2 & \\\hline
+Interroger Matthieu Arzel sur la configuration du Pixhawk & Intervenant 2 & \\\hline
+Tester le système sur la vraie caméra en réglant le problème de flou & Intervenant 2 & \\\hline
+Trouver un boîtier Pi 4 avec ventilateur et un SSD & Intervenant 3 & \\\hline
+Concevoir une base de données extensible et une API reliant la base au dashboard & Équipe vision embarquée & \\\hline
+\end{tableau}
+
+\textbf{Prochaine réunion} : à fixer. L'intervenant 1 étant absent la semaine suivante, prévoir une visio de 30 minutes par mail en cas de blocage.
+
+\redige{Rédigé à partir d'une transcription automatique : orthographes corrigées (« Olibro » → Holybro, « drawtech » → Drotek, « S9P / ZF9P » → F9P, « Ardel » → Arzel). Les intervenants n'étaient pas nommés dans la transcription.}
+
+\end{document}

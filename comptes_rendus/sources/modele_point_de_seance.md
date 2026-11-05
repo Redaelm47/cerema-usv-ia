@@ -1,6 +1,6 @@
 # Point de séance du JJ/MM/AAAA
 
-Point de fin de séance avec toute l'équipe (action A8 du [plan d'actions](../docs/plan_actions_USV-IA.pdf)).
+Point de fin de séance avec toute l'équipe (action A8 du [plan d'actions](../../docs/plan_actions_USV-IA.pdf)).
 
 | | |
 |---|---|

@@ -1,0 +1,91 @@
+% Répartition des tâches du sous-groupe plateforme (lot L1), point de séance du 05/11/2026.
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-05_repartition-taches-plateforme.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Répartition des tâches plateforme, 05/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, lot L1 Plateforme}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad LOT L1 PLATEFORME \quad·\quad POINT DE SÉANCE DU 05/11/2026}
+       {Répartition des tâches plateforme}
+       {Une dernière tentative sur le GPS, puis moteurs, télémétrie et ArduPilot pour piloter le bateau.}
+       {Sous-groupe : Ewen, Rana, Selma}
+
+\begin{enbref}
+\begin{itemize}
+  \item On garde un \textbf{GPS}, comme le souhaite Antoine Douchin (Cerema) : une dernière tentative avec le module actuel, sinon on en change.
+  \item Chacun avance sur sa partie : \textbf{Ewen} le GPS et la télémétrie, \textbf{Rana} le branchement des moteurs et des ESC, \textbf{Selma} ArduPilot et QGroundControl.
+  \item Une fois les tâches finies, \textbf{point commun} pour que tous comprennent le contrôleur de vol et le pilotage des moteurs.
+\end{itemize}
+\end{enbref}
+
+\section{Ordre des étapes}
+
+\begin{center}
+\begin{tikzpicture}[
+    etape/.style={rectangle, rounded corners=6pt, draw=#1!40, line width=0.5pt, fill=#1!6,
+                  minimum width=5.1cm, minimum height=1.55cm, align=center, inner sep=4pt},
+    num/.style={circle, fill=#1, text=white, font=\scriptsize\bfseries, minimum size=0.44cm, inner sep=0pt},
+    quand/.style={font=\scriptsize\bfseries, text=#1},
+    fl/.style={-{Stealth[length=5pt,width=4.5pt,round]}, draw=cExt, line width=0.8pt},
+  ]
+  \node[etape=cDec]  (a) at (0,0)    {\small\textbf{Chacun sa partie}\\[-1pt]{\footnotesize\color{muted}GPS, télémétrie, moteurs, ArduPilot}};
+  \node[etape=cPlat] (b) at (5.75,0) {\small\textbf{Point commun}\\[-1pt]{\footnotesize\color{muted}contrôleur de vol, pilotage des moteurs}};
+  \node[etape=cExt]  (c) at (11.5,0) {\small\textbf{Mission préprogrammée}\\[-1pt]{\footnotesize\color{muted}objectif du lot L1, par waypoints}};
+  \draw[fl] (a) -- (b); \draw[fl] (b) -- (c);
+  \node[quand=cDec,  above=3pt] at (a.north) {\tikz[baseline=(n.base)]\node[num=cDec](n){1};\enspace MAINTENANT};
+  \node[quand=cPlat, above=3pt] at (b.north) {\tikz[baseline=(n.base)]\node[num=cPlat](n){2};\enspace ENSUITE};
+  \node[quand=cExt,  above=3pt] at (c.north) {\tikz[baseline=(n.base)]\node[num=cExt](n){3};\enspace BUT};
+\end{tikzpicture}
+\end{center}
+
+\section{Qui fait quoi}
+
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cEwen}{EWEN}{GPS et télémétrie}
+\tache{GPS : dernière tentative}{Trouver un câble JST-GH 10 broches, modifier certaines broches, brancher le GPS sur le port GPS1. Peu de temps à y passer.}
+\tache{Télémétrie}{La liaison marche, mais comme un simple câble. Analyser ce qui passe entre les modules et ce qu'on peut en tirer.}
+\end{personne}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cRana}{RANA}{branchement}
+\tache{Moteurs et ESC}{Les brancher.}
+\tache{Documentation}{Comment relier tous les composants, en tenant compte maintenant du moteur.}
+\end{personne}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cSelma}{SELMA}{ArduPilot et QGroundControl}
+\tache{Paramètres}{Les étudier depuis QGroundControl.}
+\tache{Mission}{Comment programmer une mission. À avancer dès la prochaine séance, une fois les branchements faits.}
+\end{personne}
+\end{minipage}
+
+\section{Le GPS : une dernière tentative}
+
+\begin{center}
+\begin{tikzpicture}[
+    boite/.style={rectangle, rounded corners=6pt, draw=#1!40, line width=0.5pt, fill=#1!6,
+                  minimum height=1.0cm, align=center, inner xsep=10pt, font=\small},
+    fl/.style={-{Stealth[length=5pt,width=4.5pt,round]}, draw=cExt, line width=0.8pt, rounded corners=4pt},
+    lab/.style={font=\scriptsize\bfseries, text=#1, above, inner sep=2pt},
+  ]
+  \node[boite=cEwen] (t) at (0,0) {\textbf{Module actuel (Neo M8P)}\\[-1pt]{\footnotesize\color{muted}câble JST-GH 10 broches, port GPS1}};
+  \node[boite=cSelma, anchor=west, minimum width=4.9cm] (ok) at (6.3,0.68) {\textbf{On le garde}};
+  \node[boite=wait, anchor=west, minimum width=4.9cm] (ko) at (6.3,-0.68) {\textbf{On change de module}\\[-1pt]{\footnotesize\color{muted}plan B vu le 21/10 : module F9P}};
+  \coordinate (j) at ($(t.east)+(0.45,0)$);
+  \draw[draw=cExt, line width=0.8pt] (t.east) -- (j);
+  \draw[fl] (j) |- (ok.west) node[lab=cSelma, pos=0.78] {ça marche};
+  \draw[fl] (j) |- (ko.west) node[lab=wait, pos=0.78] {ça ne marche pas};
+\end{tikzpicture}
+\end{center}
+{\footnotesize\color{muted} Un module GPS prêté par un autre groupe a fonctionné : on ne peut pas le garder, mais on a vu comment le GPS doit se comporter. Passer encore du temps sur le module actuel ne fait pas l'unanimité : point à voir avec les tuteurs.\par}
+
+\section{Pour la suite}
+\begin{itemize}
+  \item Quand chacun aura fini sa tâche : point commun du sous-groupe. Tout le monde doit comprendre comment fonctionne le contrôleur de vol, comment piloter les moteurs et quels retours on reçoit sur l'ordinateur.
+\end{itemize}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique du point de séance. Corrections : « Eoen » → Ewen, « Ranel » → Rana, « l'Artois pilote » → ArduPilot, « GST, GH » → JST-GH. Si quelque chose est faux, dites-le, on corrige.}
+
+\end{document}

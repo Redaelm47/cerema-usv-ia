@@ -1,0 +1,89 @@
+% Style commun des comptes rendus USV-IA (même aspect que la répartition IA du 05/11/2026).
+% Compiler un compte rendu depuis ce dossier : tectonic -o .. <fichier>.tex
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style_cr}[2026/11/05 Comptes rendus USV-IA]
+
+\RequirePackage[margin=1.8cm,top=1.4cm,bottom=1.5cm]{geometry}
+\RequirePackage{fontspec}
+\setmainfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+                           ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\RequirePackage[french]{babel}
+\RequirePackage{xcolor}
+\RequirePackage{colortbl}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,babel}
+\RequirePackage{fontawesome5}
+\RequirePackage{titlesec}
+\RequirePackage{enumitem}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{ragged2e}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage{needspace}
+\RequirePackage[hidelinks]{hyperref}
+
+% Couleurs : IA (Guillaume, Reda, Adam-Sabri), plateforme (Ewen, Rana, Selma), encre
+\definecolor{cCam}{HTML}{0D9488}
+\definecolor{cExp}{HTML}{EA580C}
+\definecolor{cPi}{HTML}{4F46E5}
+\definecolor{cEwen}{HTML}{0284C7}
+\definecolor{cRana}{HTML}{C026D3}
+\definecolor{cSelma}{HTML}{059669}
+\definecolor{cPlat}{HTML}{0369A1}
+\definecolor{cIA}{HTML}{EA580C}
+\definecolor{cExt}{HTML}{64748B}
+\definecolor{cDec}{HTML}{0F172A}
+\definecolor{muted}{HTML}{64748B}
+\definecolor{hair}{HTML}{CBD5E1}
+\definecolor{wait}{HTML}{B45309}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\titleformat{\section}{\large\bfseries\color{cDec}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.1em}{0.35em}
+\titleformat{\subsection}{\normalsize\bfseries\color{cDec}}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.25em}
+\setlist{itemsep=0.25em,topsep=0.2em,parsep=0pt,leftmargin=1.2em}
+\setlist[itemize]{label={\color{muted}\textbullet}}
+\AtBeginDocument{\RaggedRight}
+
+% \entete{surtitre}{titre}{sous-titre}{ligne d'informations}
+\newcommand{\entete}[4]{%
+  {\scriptsize\bfseries\color{muted}#1\par}
+  \vspace{0.5em}
+  {\fontsize{21}{24}\selectfont\bfseries\color{cDec}#2\par}
+  \vspace{0.25em}
+  {\color{muted}#3\par}
+  \vspace{0.2em}
+  {\footnotesize\color{muted}#4\par}}
+
+% Encadré « En bref »
+\newtcolorbox{enbref}{enhanced, colback=cDec!4, colframe=cDec!4, arc=6pt,
+  left=10pt, right=10pt, top=7pt, bottom=7pt,
+  before upper={{\small\bfseries\color{cDec}En bref}\par\vspace{2pt}}}
+
+% Encadré d'alerte ou de question : \begin{remarque}{couleur}{icône}{titre}
+\newtcolorbox{remarque}[3]{enhanced, colback=#1!7, colframe=#1!45, boxrule=0.5pt, arc=6pt,
+  left=10pt, right=10pt, top=5pt, bottom=5pt,
+  before upper={{\small\color{#1}#2\enspace\textbf{#3}}\par\vspace{1pt}\small}}
+
+% Carte d'une personne : couleur, nom, rôle ; les cartes d'une même rangée ont la même hauteur
+\newtcolorbox{personne}[3]{enhanced, colback=white, colframe=#1!35, boxrule=0.5pt, arc=6pt,
+  left=8pt, right=8pt, top=6pt, bottom=7pt, equal height group=personnes,
+  before upper=\RaggedRight,
+  borderline north={2.6pt}{0pt}{#1},
+  title={{\small\bfseries\color{#1}#2}\par\vspace{1pt}{\scriptsize\color{muted}#3}},
+  coltitle=cDec, colbacktitle=white, toptitle=4pt, bottomtitle=0pt, titlerule=0pt}
+
+% Une tâche dans une carte
+\newcommand{\tache}[2]{{\small\textbf{#1}}\par\vspace{-1pt}{\footnotesize\color{muted}#2}\par\vspace{5pt}}
+
+% Tableau léger : \begin{tableau}{colonnes} \entetetab{A & B} ... \end{tableau}
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
+\newenvironment{tableau}[1]{\par\small\renewcommand{\arraystretch}{1.4}%
+  \arrayrulecolor{hair}\tabularx{\linewidth}{#1}\hline}{\endtabularx\par}
+\newcommand{\entetetab}[1]{\rowcolor{cDec!6}#1\\\hline}
+
+% Pied de page du rédacteur
+\newcommand{\redige}[1]{\par\vspace{0.8em plus 1fill}{\scriptsize\color{muted}#1\par}}

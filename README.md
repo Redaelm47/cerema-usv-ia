@@ -140,9 +140,9 @@ Conventions :
 
 ## Suivi
 
-Des échanges réguliers avec le Cerema sont prévus, toutes les 2 à 3 semaines. Chaque réunion fait l'objet d'un compte rendu dans [comptes_rendus](comptes_rendus), à partir du [modèle](comptes_rendus/modele_compte_rendu.md).
+Des échanges réguliers avec le Cerema sont prévus, toutes les 2 à 3 semaines. Chaque réunion fait l'objet d'un compte rendu dans [comptes_rendus](comptes_rendus), à partir du [modèle](comptes_rendus/sources/modele_compte_rendu.md).
 
-Depuis le 05/11/2026, chaque séance commence (8h30) et se termine (11h40) par un point à six. Le point de fin est résumé dans [comptes_rendus](comptes_rendus/README.md), à partir du [modèle de point de séance](comptes_rendus/modele_point_de_seance.md). Voir le [plan d'actions](docs/plan_actions_USV-IA.pdf).
+Depuis le 05/11/2026, chaque séance commence (8h30) et se termine (11h40) par un point à six. Le point de fin est résumé dans [comptes_rendus](comptes_rendus/README.md), à partir du [modèle de point de séance](comptes_rendus/sources/modele_point_de_seance.md). Voir le [plan d'actions](docs/plan_actions_USV-IA.pdf).
 
 ## Licence
 
