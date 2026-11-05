@@ -8,6 +8,8 @@ Ce dépôt est la base de travail commune entre l'équipe étudiante et le Cerem
 
 | Je cherche… | Aller à |
 |---|---|
+| Qui fait quoi en ce moment | le dernier point de séance, en tête de [comptes_rendus](comptes_rendus/README.md) |
+| Comment l'équipe s'organise (horaires, points de séance, suivi des tâches) | [docs/plan_actions_USV-IA.pdf](docs/plan_actions_USV-IA.pdf) |
 | Le sujet et le cadrage du projet | [docs/sujet_projet20_cerema.pdf](docs/sujet_projet20_cerema.pdf), [docs/20_synthese_PCE_2026_v2.pdf](docs/20_synthese_PCE_2026_v2.pdf) |
 | L'architecture de la vision embarquée | [docs/architecture_vision_embarquee.pdf](docs/architecture_vision_embarquee.pdf) |
 | Qui fait quoi pour la démonstration, et les contrats JSON entre les parties | [docs/repartition_travail.pdf](docs/repartition_travail.pdf) |
@@ -63,6 +65,8 @@ Pour la démonstration de la semaine du 12/10/2026, le lot L2 est réparti ainsi
 - **Reda** : décideur, experts (type, OCR, approche) et vidéo de test Blender ;
 - **Adam-Sabri** : station sol, c'est-à-dire le serveur et la page opérateur.
 
+La répartition en cours, pour les deux lots, est dans le dernier point de séance : voir [comptes_rendus](comptes_rendus/README.md).
+
 | Membre | Rôle organisationnel |
 |---|---|
 | Guillaume Leroy | responsable projet |
@@ -87,7 +91,7 @@ Pour la démonstration de la semaine du 12/10/2026, le lot L2 est réparti ainsi
 ```
 cerema-usv-ia/
 ├── docs/             livrables : sujet, synthèse, architecture, répartition du travail
-├── comptes_rendus/   réunions avec le Cerema et réunions d'équipe
+├── comptes_rendus/   réunions avec le Cerema, points de séance de l'équipe
 ├── usv/              volet bateau : assemblage, motorisation, missions
 ├── ia/               volet IA : détection, OCR, tracking, Raspberry Pi
 ├── station_sol/      serveur et page opérateur (alertes et état du drone en direct)
@@ -137,6 +141,8 @@ Conventions :
 ## Suivi
 
 Des échanges réguliers avec le Cerema sont prévus, toutes les 2 à 3 semaines. Chaque réunion fait l'objet d'un compte rendu dans [comptes_rendus](comptes_rendus), à partir du [modèle](comptes_rendus/modele_compte_rendu.md).
+
+Depuis le 05/11/2026, chaque séance commence (8h30) et se termine (11h40) par un point à six. Le point de fin est résumé dans [comptes_rendus](comptes_rendus/README.md), à partir du [modèle de point de séance](comptes_rendus/modele_point_de_seance.md). Voir le [plan d'actions](docs/plan_actions_USV-IA.pdf).
 
 ## Licence
 

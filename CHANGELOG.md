@@ -2,6 +2,12 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-11-05
+
+- Ajout du plan d'actions de l'atelier 6 de co-développement (`docs/plan_actions_USV-IA.pdf`) : tableau des tâches sur GitHub, un responsable du suivi par sous-groupe, points de début et de fin de séance, horaires fixes.
+- Comptes rendus : répartition des tâches IA (PDF) et premier point de fin de séance, avec un modèle de point de séance.
+- Rangement de `comptes_rendus/` : sommaire du plus récent au plus ancien, sources LaTeX dans `comptes_rendus/sources/`.
+
 ## 2026-10-19
 
 - Ajout de la revue de projet (`docs/revue_de_projet/`) : présentation (PPTX et PDF) et tableau de suivi (planning v1/v2, risques, actions, données client, responsabilités, réunions).

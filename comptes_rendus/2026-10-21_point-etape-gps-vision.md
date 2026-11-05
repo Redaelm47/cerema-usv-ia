@@ -30,7 +30,7 @@
 **Causes possibles** (selon l'intervenant 1)
 - configuration de la puce u-blox ;
 - RX/TX inversés ;
-- baudrate ou port du Pixhawk mal configuré. Le port a peut-être été fermé ou reconfiguré l'an dernier (Mathieu Arzel l'a utilisé).
+- baudrate ou port du Pixhawk mal configuré. Le port a peut-être été fermé ou reconfiguré l'an dernier (Matthieu Arzel l'a utilisé).
 
 **À vérifier sur le brochage**
 - Broches essentielles : masse, 5 V, TX/RX (UART), SCL/SDA (I2C).
@@ -73,7 +73,7 @@ caméra IMX500 (modèle léger, une image toutes les 2 s)
 
 - Le JSON ne suffira pas pour un bateau qui navigue 365 jours par an. Il faut une **base de données extensible** (SQL, NoSQL ou SQLite 3).
 - Champs à prévoir : vitesse, image dégradée de chaque bateau, futurs capteurs (lidar, AIS).
-- Prévoir des **experts en greffon**, dont la ré-identification d'un bateau revu plus tard. Mathieu Arzel pourrait aider.
+- Prévoir des **experts en greffon**, dont la ré-identification d'un bateau revu plus tard. Matthieu Arzel pourrait aider.
 - Le dashboard HTML (fait avec Claude) est jugé utile, mais il ne faut pas trop développer l'interface : **priorité à une API** entre la base et l'affichage.
 - Une carte SD grillera avec des écritures répétées : **prévoir un SSD**.
 
@@ -91,7 +91,7 @@ caméra IMX500 (modèle léger, une image toutes les 2 s)
 | Vérifier la compatibilité du M8P Drotek avec le Pixhawk et son brochage, puis envoyer un mail | Intervenant 1 | 2026-10-21 (ce soir) |
 | Chercher un adaptateur USB-série à l'atelier | Intervenant 1 | |
 | Étudier le brochage et les protocoles GPS du Pixhawk 6C mini (Holybro, ArduPilot) | Intervenant 2 | |
-| Interroger Mathieu Arzel sur la configuration du Pixhawk | Intervenant 2 | |
+| Interroger Matthieu Arzel sur la configuration du Pixhawk | Intervenant 2 | |
 | Tester le système sur la vraie caméra en réglant le problème de flou | Intervenant 2 | |
 | Trouver un boîtier Pi 4 avec ventilateur et un SSD | Intervenant 3 | |
 | Concevoir une base de données extensible et une API reliant la base au dashboard | Équipe vision embarquée | |
