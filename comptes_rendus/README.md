@@ -4,13 +4,20 @@ Une trace écrite de chaque réunion : avec le Cerema, avec les tuteurs, et les 
 
 > **Dernier en date : [point de séance du 05/11/2026](2026-11-05_point-de-seance.md)**. Qui fait quoi pour la prochaine séance, côté plateforme et côté IA.
 
+## Répartition des tâches en cours
+
+| Sous-groupe | Qui fait quoi |
+|---|---|
+| **Plateforme** (lot L1) | [Ewen, Rana, Selma](2026-11-05_point-de-seance.md#plateforme-lot-l1) : GPS et télémétrie, moteurs et ESC, ArduPilot et QGroundControl |
+| **IA** (lot L2) | [Guillaume, Reda, Adam-Sabri](2026-11-05_point-de-seance.md#ia-lot-l2) : dégradation et caméra, hallucination et experts, ré-identification. Priorités détaillées dans la [répartition IA](2026-11-05_repartition-taches-vision.pdf) (PDF) |
+
 ## Tous les comptes rendus
 
 Du plus récent au plus ancien.
 
 | Date | Réunion | Ce qu'on y trouve |
 |---|---|---|
-| 05/11/2026 | [Point de fin de séance](2026-11-05_point-de-seance.md) | Tâches de chacun (plateforme et IA), décision sur le GPS |
+| 05/11/2026 | [Point de fin de séance](2026-11-05_point-de-seance.md) | Répartition plateforme et IA, décision sur le GPS |
 | 05/11/2026 | [Répartition des tâches IA](2026-11-05_repartition-taches-vision.pdf) (PDF) | Priorités du lot vision, cadrage avec le client, matériel, vision nocturne, mode d'emploi |
 | 21/10/2026 | [Point d'étape GPS et vision embarquée](2026-10-21_point-etape-gps-vision.md) | Diagnostic du GPS Neo M8P, démo de la vision, base de données et SSD |
 
