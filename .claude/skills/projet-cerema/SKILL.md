@@ -25,7 +25,7 @@ Ce que Reda m'a déjà dit, pour ne pas avoir à le redire. Pour les comptes ren
 
 Rana n'est pas encore dans le dépôt GitHub.
 
-**Qui fait quoi en ce moment** : toujours dans `cerema-usv-ia/comptes_rendus/README.md` (tableau « Répartition des tâches en cours »). Ne pas recopier les tâches ici, elles changent à chaque séance.
+**Qui fait quoi en ce moment** : toujours dans `cerema-usv-ia/docs/comptes_rendus/README.md` (tableau « Répartition des tâches en cours »). Ne pas recopier les tâches ici, elles changent à chaque séance.
 
 Priorités décidées le 05/11/2026 : côté IA, une vision et des alertes parfaitement fiables d'abord (tests de dégradation, tests d'hallucination), puis la ré-identification, puis la vision nocturne, et le mode d'emploi en dernier livrable. Côté plateforme, une dernière tentative sur le GPS actuel (sinon on change de module, plan B F9P), puis moteurs, ESC, télémétrie, ArduPilot et QGroundControl, avec une mission préprogrammée comme objectif.
 
@@ -34,17 +34,24 @@ Priorités décidées le 05/11/2026 : côté IA, une vision et des alertes parfa
 ```
 ~/Desktop/imt/cerema/
 ├── cerema-usv-ia/          dépôt d'équipe (GitHub Redaelm47/cerema-usv-ia, privé)
-│   ├── comptes_rendus/     PDF des réunions + sommaire ; sources/ = .tex, style, modèles
-│   ├── docs/               livrables : sujet, synthèse, architecture, plan d'actions, revue de projet
+│   ├── docs/               tout ce qui se lit
+│   │   ├── docs/comptes_rendus/ PDF des réunions + sommaire ; sources/ = .tex, style, modèles
+│   │   ├── guides/         raspberry_pi/ (prise en main du Pi), git.md
+│   │   ├── revue_de_projet/
+│   │   ├── CHANGELOG.md    historique du dépôt
+│   │   └── *.pdf           sujet, synthèse, architecture, plan d'actions
 │   ├── ia/                 vision embarquée ; chaine/, suivi/, embarque/ et INTERFACES.md sont sur la branche ia/chaine-squelette
 │   ├── station_sol/        serveur et page opérateur
-│   ├── usv/                assemblage, motorisation, missions
+│   ├── usv/                assemblage, motorisation, missions, matériel
+│   ├── ressources/         travail de l'équipe 2025
 │   └── .claude/skills/     copie partagée de ces skills
 ├── overleaf/projet-partage/        Overleaf de la synthèse, partagé à six (clone git)
 ├── overleaf/architecture-vision/   Overleaf personnel de Reda (architecture de la vision)
 ├── diapo/                  présentations (revue de projet, réunions tuteur)
 └── .claude/skills/         ces skills, chargés à chaque session ouverte ici
 ```
+
+**Racine du dépôt sobre** (demandé par Reda le 05/11/2026, « comme font les professionnels ») : à la racine, seulement `README.md` (une page), `.gitignore`, `.github/`, `.claude/` et les dossiers `docs/`, `ia/`, `station_sol/`, `usv/`, `ressources/`. Ne rien créer d'autre à la racine : un document va dans `docs/`, un résultat de script ne se commite pas (l'ajouter au `.gitignore`). Le README reste court ; le détail va dans le README du dossier concerné.
 
 Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ignore les sous-dépôts. Ne rien y pousser.
 
@@ -57,14 +64,14 @@ Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ig
 - La copie locale est souvent sur une branche de travail (`ia/chaine-squelette`, non fusionnée) avec des modifications non commitées : ne jamais faire de checkout ni de stash dessus. Pour écrire sur `main`, passer par un worktree temporaire dans le scratchpad (commandes dans le skill `compte-rendu-reunion`), puis `git branch -f main origin/main`.
 - Le README demande des branches et des pull requests pour le code. Les documents et les comptes rendus vont directement sur `main` quand Reda le demande.
 - `git fetch` juste avant de pousser : les autres poussent aussi.
-- Messages de commit en français, qui disent ce qui change. Noter les évolutions importantes dans `CHANGELOG.md`, avec la date.
+- Messages de commit en français, qui disent ce qui change. Noter les évolutions importantes dans `docs/CHANGELOG.md`, avec la date.
 - Avant de publier un fichier fourni par Reda (un PDF des téléchargements, par exemple), le lire en entier. S'il en envoie une nouvelle version, comparer le texte avec l'ancienne et lui dire ce qui a changé.
 
 ## Documents (LaTeX, PDF)
 
 - Compilation : `tectonic` (`/opt/homebrew/bin/tectonic`). Il n'y a ni `pdflatex`, ni `latexmk`, ni `pandoc`. Compiler avec `-o` vers le scratchpad ou le dossier cible, pour ne pas salir les sources.
 - **Toujours compiler avant de pousser**, puis regarder le résultat : `pdftoppm -r 70 -png fichier.pdf <scratchpad>/apercu` et lire les images (pages, débordements, titres seuls en bas de page).
-- Style maison : police TeX Gyre Heros, palette des schémas (caméra `0D9488`, experts `EA580C`, Pi `4F46E5`, encre `0F172A`, gris `64748B`). Pour les PDF de l'équipe, reprendre `comptes_rendus/sources/style_cr.sty`.
+- Style maison : police TeX Gyre Heros, palette des schémas (caméra `0D9488`, experts `EA580C`, Pi `4F46E5`, encre `0F172A`, gris `64748B`). Pour les PDF de l'équipe, reprendre `docs/comptes_rendus/sources/style_cr.sty`.
 - **Gantt** dans une présentation : reprendre le Gantt pgfgantt de la synthèse (`docs/document_synthese/src/sections/05-organisation.tex`), compilé à part, avec une ligne rouge « aujourd'hui ». La couleur code le lot, rien d'autre. Ne pas ajouter d'informations sans source.
 - Les équipes lisent des PDF : ne pas livrer un `.md` comme document final.
 
@@ -78,7 +85,7 @@ Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ig
 
 - **Avant toute action sur le Pi** (connexion, installation, caméra) **et avant d'afficher quoi que ce soit en plein écran sur le Mac** : dire le plan en quelques lignes et attendre l'accord de Reda. Les lectures seules (état, fichiers) n'en demandent pas.
 - Le Pi est partagé avec Guillaume : vérifier que la caméra est libre (`ps` sur le Pi) avant de la prendre ; un seul programme à la fois peut tenir la caméra. Ne pas toucher à son dossier `~/Desktop/Yolo_test`.
-- Accès : `ssh pi@cerema-pi.local` (clé du Mac déjà installée), seulement quand le Mac et le Pi sont sur le même réseau. Déploiement : `sh ia/raspberry_pi/deployer.sh` vers `~/cerema`. Commandes de lancement : `ia/embarque/README.md` (ces deux fichiers sont sur la branche `ia/chaine-squelette`, pas encore sur `main`) et `sandbox/use_raspberry_pi.md`.
+- Accès : `ssh pi@cerema-pi.local` (clé du Mac déjà installée), seulement quand le Mac et le Pi sont sur le même réseau. Déploiement : `sh ia/raspberry_pi/deployer.sh` vers `~/cerema`. Commandes de lancement : `ia/embarque/README.md` (ces deux fichiers sont sur la branche `ia/chaine-squelette`, pas encore sur `main`) et `docs/guides/raspberry_pi/use_raspberry_pi.md`.
 - L'orientation de l'image dépend du montage : la vérifier à chaque séance (le 02/11, image droite, donc `--sans-retournement`).
 - Ne pas installer de logiciel sur le Mac ou le Pi sans l'accord de Reda.
 

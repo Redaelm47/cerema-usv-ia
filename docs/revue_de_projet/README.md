@@ -15,7 +15,7 @@ Dossier partagé avec le tuteur école et le Cerema avant la revue, comme le dem
 |---|---|---|
 | BC1 — conduite de projet | Outils de pilotage en place **et suivis dans le temps** | Diapositives 3 à 5 et 9 ; onglets Planning et Risques |
 | BC2 — contribution à l'équipe | Organisation qui anime l'équipe, capacité à se remettre en question | Diapositives 11 et 12 ; onglets Actions et Responsabilités |
-| BC4 — communication client | Plan de communication, échanges accessibles au tuteur | Diapositive 10 ; onglets Données client et Réunions ; [comptes_rendus](../../comptes_rendus) |
+| BC4 — communication client | Plan de communication, échanges accessibles au tuteur | Diapositive 10 ; onglets Données client et Réunions ; [comptes_rendus](../comptes_rendus) |
 | BC4 — conception | Solution adaptée au besoin, environnement de travail complet | Diapositives 6 à 8 ; [architecture_vision_embarquee.pdf](../architecture_vision_embarquee.pdf), [station_sol](../../station_sol) |
 
 ## À compléter avant la revue

@@ -24,7 +24,7 @@ Du plus récent au plus ancien.
 
 ## Comment on fonctionne
 
-Depuis l'[atelier 6 de co-développement](../docs/plan_actions_USV-IA.pdf) du 05/11/2026 :
+Depuis l'[atelier 6 de co-développement](../plan_actions_USV-IA.pdf) du 05/11/2026 :
 
 - **8h30**, point de début à six : ce qui a été fait depuis la dernière séance, ce qui bloque ;
 - **11h40**, point de fin à six : qui fait quoi pour la séance suivante ;

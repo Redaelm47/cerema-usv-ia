@@ -32,3 +32,6 @@ station_sol/journaux/
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+
+# Résultat rapatrié du Pi par ia/raspberry_pi/run_program_on_pi.py (exemple gardé dans ia/raspberry_pi/)
+/detections.json

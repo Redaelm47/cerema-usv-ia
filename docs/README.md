@@ -1,27 +1,36 @@
-# Livrables
+# Documents
 
-Rapports, présentations et documents de travail du projet.
+Tout ce qui se lit : suivi de l'équipe, livrables, guides.
+
+## Suivi de l'équipe
+
+| | |
+|---|---|
+| [comptes_rendus/](comptes_rendus) | Comptes rendus de réunion en PDF, le plus récent en tête, et la répartition des tâches en cours |
+| [plan_actions_USV-IA.pdf](plan_actions_USV-IA.pdf) | Atelier 6 de co-développement (05/11/2026) : tableau des tâches, responsables du suivi, points de séance, horaires |
+| [revue_de_projet/](revue_de_projet) | Présentation du 19/10/2026 et tableau de suivi (planning, risques, actions) |
+| [CHANGELOG.md](CHANGELOG.md) | Historique des principales évolutions du dépôt |
 
 ## Cadrage
 
-- [sujet_projet20_cerema.pdf](sujet_projet20_cerema.pdf) : sujet du projet 20 (Projet Commande Entreprise, S7, 2026-2027)
-- [presentation_projet20_cerema.pdf](presentation_projet20_cerema.pdf) : présentation du projet
+| | |
+|---|---|
+| [sujet_projet20_cerema.pdf](sujet_projet20_cerema.pdf) | Sujet du projet 20 (projet de commande entreprise, S7, 2026-2027) |
+| [presentation_projet20_cerema.pdf](presentation_projet20_cerema.pdf) | Présentation du projet |
+| [20_synthese_PCE_2026_v2.pdf](20_synthese_PCE_2026_v2.pdf) | **Document de synthèse en vigueur** (version 2, après la réunion du 02/10/2026) |
+| [20_synthese_PCE_2026.pdf](20_synthese_PCE_2026.pdf) | Version 1, conservée pour mémoire |
+| [document_synthese/](document_synthese) | Sources LaTeX de la synthèse (copie de l'Overleaf partagé au 08/10/2026) |
 
-## Document de synthèse
+## Vision embarquée
 
-- [20_synthese_PCE_2026_v2.pdf](20_synthese_PCE_2026_v2.pdf) : **version en vigueur** (version 2, qui prend en compte la réunion du 02/10/2026)
-- [20_synthese_PCE_2026.pdf](20_synthese_PCE_2026.pdf) : version 1, conservée pour mémoire
-- [document_synthese/](document_synthese) : sources LaTeX, copie de l'Overleaf partagé au 08/10/2026 (fichier principal : `src/tp_latex_lab_006.tex`, une section par fichier dans `src/sections/`)
+| | |
+|---|---|
+| [architecture_vision_embarquee.pdf](architecture_vision_embarquee.pdf) | Architecture proposée : veille, suivi, décideur, experts, fiche navire, alerte (05/10/2026) |
+| [repartition_travail.pdf](repartition_travail.pdf) | Répartition pour la démonstration du 12/10/2026 et contrats JSON entre les parties |
 
-## Revue de projet
+## Guides
 
-- [revue_de_projet/](revue_de_projet) : présentation du 19/10/2026 et tableau de suivi du projet (planning, risques, actions), mis à jour chaque semaine
-
-## Organisation de l'équipe
-
-- [plan_actions_USV-IA.pdf](plan_actions_USV-IA.pdf) : synthèse de l'atelier 6 de co-développement du 05/11/2026 et plan d'actions jusqu'à la fin du projet (tableau des tâches sur GitHub, un responsable du suivi par sous-groupe, points de début et de fin de séance, horaires fixes)
-
-## Vision embarquée (lot L2)
-
-- [architecture_vision_embarquee.pdf](architecture_vision_embarquee.pdf) : proposition d'architecture (veille, suivi, décideur, experts, fiche navire, alerte), document de travail du 05/10/2026
-- [repartition_travail.pdf](repartition_travail.pdf) : qui fait quoi pour la démonstration de la semaine du 12/10/2026, avec les trois contrats JSON entre les parties (observations, fiche navire, messages)
+| | |
+|---|---|
+| [guides/raspberry_pi/](guides/raspberry_pi) | Prise en main du Raspberry Pi et de la caméra IMX500 : connexion, détection YOLO, flux vidéo |
+| [guides/git.md](guides/git.md) | Travailler à plusieurs avec Git : branches, pull requests, conventions |

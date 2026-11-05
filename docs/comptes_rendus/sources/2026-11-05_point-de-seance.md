@@ -1,6 +1,6 @@
 # Point de séance du 05/11/2026
 
-Point de fin de séance avec toute l'équipe, comme prévu par le [plan d'actions](../../docs/plan_actions_USV-IA.pdf) (action A8) : chaque sous-groupe dit où il en est et ce que chacun prend pour la séance suivante.
+Point de fin de séance avec toute l'équipe, comme prévu par le [plan d'actions](../../plan_actions_USV-IA.pdf) (action A8) : chaque sous-groupe dit où il en est et ce que chacun prend pour la séance suivante.
 
 | | |
 |---|---|
@@ -46,7 +46,7 @@ Détail et priorités dans la [répartition des tâches IA du même jour](../202
 - **IA** : nouvelle [répartition des tâches](../2026-11-05_repartition-taches-vision.pdf).
 - **Plateforme** : un module GPS prêté par un autre groupe a fonctionné. On ne peut pas le garder, mais on a vu comment le GPS doit se comporter.
 - **Plateforme** : la liaison de télémétrie fonctionne.
-- **Équipe** : [plan d'actions](../../docs/plan_actions_USV-IA.pdf) de l'atelier 6 adopté (horaires, points de séance, tableau des tâches).
+- **Équipe** : [plan d'actions](../../plan_actions_USV-IA.pdf) de l'atelier 6 adopté (horaires, points de séance, tableau des tâches).
 
 ## Décisions
 

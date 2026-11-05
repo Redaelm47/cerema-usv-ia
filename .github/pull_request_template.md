@@ -12,4 +12,4 @@
 
 - [ ] Relu par un autre membre de l'équipe
 - [ ] Testé (sur ordinateur, sur Raspberry Pi ou sur le drone : préciser)
-- [ ] CHANGELOG.md mis à jour si l'évolution est importante
+- [ ] docs/CHANGELOG.md mis à jour si l'évolution est importante

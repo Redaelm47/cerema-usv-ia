@@ -1,21 +1,21 @@
 ---
 name: compte-rendu-reunion
-description: Transformer une transcription de réunion du projet 20 Cerema (USV-IA) en compte rendu PDF propre, daté, rangé dans comptes_rendus/ et poussé sur GitHub pour l'équipe. À utiliser dès que Reda colle une transcription (« Speaker 1 / Speaker 2 », « You: », résumé automatique), parle de point de séance, de réunion d'équipe, avec le Cerema ou les tuteurs, de répartition des tâches, de compte rendu, de « trace écrite », ou demande de « faire le document et le push ». Contient le format validé, le rangement du dossier, les noms de l'équipe, les pièges des transcriptions et les bonnes pratiques retenues.
+description: Transformer une transcription de réunion du projet 20 Cerema (USV-IA) en compte rendu PDF propre, daté, rangé dans docs/comptes_rendus/ et poussé sur GitHub pour l'équipe. À utiliser dès que Reda colle une transcription (« Speaker 1 / Speaker 2 », « You: », résumé automatique), parle de point de séance, de réunion d'équipe, avec le Cerema ou les tuteurs, de répartition des tâches, de compte rendu, de « trace écrite », ou demande de « faire le document et le push ». Contient le format validé, le rangement du dossier, les noms de l'équipe, les pièges des transcriptions et les bonnes pratiques retenues.
 ---
 
 # Compte rendu de réunion (projet 20 Cerema, USV-IA)
 
 Fixé avec Reda le 05/11/2026. Il colle une transcription ; je produis le compte rendu en **PDF**, je le range, je le date, je mets à jour le sommaire, je pousse sur `main` et je lui donne le lien. Il ne veut pas avoir à me réexpliquer tout ça.
 
-**Les camarades lisent des PDF, pas des `.md`.** Tout ce qui est fait pour les humains est un PDF à la racine de `comptes_rendus/` ; les fichiers de travail vont dans `comptes_rendus/sources/`.
+**Les camarades lisent des PDF, pas des `.md`.** Tout ce qui est fait pour les humains est un PDF à la racine de `docs/comptes_rendus/` ; les fichiers de travail vont dans `docs/comptes_rendus/sources/`.
 
 Pour le reste du projet (Git, LaTeX, Pi, équipe en détail), voir le skill `projet-cerema`.
 
 ## Où sont les choses
 
 - Dépôt d'équipe : `~/Desktop/imt/cerema/cerema-usv-ia`, GitHub `Redaelm47/cerema-usv-ia` (privé). Y ont accès : les membres de l'équipe (sauf Rana, pas encore ajoutée), Matthieu Arzel (`marzelbr`) et **le client Antoine Douchin (`ElNormando`)**, qui suit l'avancement. **Tout ce qui est poussé est lu par le client.**
-- `comptes_rendus/` : **seulement** les PDF, le `README.md` (sommaire, affiché par GitHub sous la liste) et `sources/`.
-- `comptes_rendus/sources/` : un `.tex` par compte rendu, `style_cr.sty` (style commun : couleurs, en-tête, cartes `personne`, tableaux), les versions texte `.md` anciennes, les modèles `modele_point_de_seance.md` et `modele_compte_rendu.md`.
+- `docs/comptes_rendus/` : **seulement** les PDF, le `README.md` (sommaire, affiché par GitHub sous la liste) et `sources/`.
+- `docs/comptes_rendus/sources/` : un `.tex` par compte rendu, `style_cr.sty` (style commun : couleurs, en-tête, cartes `personne`, tableaux), les versions texte `.md` anciennes, les modèles `modele_point_de_seance.md` et `modele_compte_rendu.md`.
 - `docs/plan_actions_USV-IA.pdf` : plan d'actions de l'atelier 6 (05/11/2026). Il impose un point à six à 8h30 et à 11h40, et un compte rendu du point de fin après chaque séance (action A8, Reda).
 
 ## Étapes
@@ -25,8 +25,8 @@ Pour le reste du projet (Git, LaTeX, Pi, équipe en détail), voir le skill `pro
 3. **Attribuer chaque tâche à une personne nommée.** Les transcriptions mélangent les voix (voir plus bas). Ce que je ne peux pas déduire de façon sûre : une seule série de questions groupées à Reda (`AskUserQuestion`, 4 questions max). S'il ne sait pas, la tâche va dans le PDF avec « responsable à confirmer », jamais sous un nom deviné.
 4. **Reprendre le compte rendu précédent** (via le sommaire) : l'état de ses actions (fait, en cours, en retard, abandonné) ouvre le nouveau.
 5. **Écrire le `.tex` dans `sources/`** en copiant le compte rendu précédent du même genre (il utilise `\usepackage{style_cr}`). Formats ci-dessous.
-6. **Compiler et regarder** : `cd comptes_rendus/sources && tectonic -o .. <nom>.tex`, puis `pdftoppm -r 70 -png ../<nom>.pdf <scratchpad>/apercu` et lire les images. Corriger : titre seul en bas de page (`\needspace`), note de bas de page seule sur une page, texte qui déborde d'un cadre, étiquettes de schéma qui chevauchent. Répartition d'un sous-groupe : 1 page. Point de séance : 2 pages au plus.
-7. **Mettre à jour le sommaire** `comptes_rendus/README.md` : « Dernier en date », le tableau « Répartition des tâches en cours » si elle change, une ligne en haut de « Tous les comptes rendus ». Ajouter une entrée datée dans `CHANGELOG.md`. Vérifier que les liens relatifs existent.
+6. **Compiler et regarder** : `cd docs/comptes_rendus/sources && tectonic -o .. <nom>.tex`, puis `pdftoppm -r 70 -png ../<nom>.pdf <scratchpad>/apercu` et lire les images. Corriger : titre seul en bas de page (`\needspace`), note de bas de page seule sur une page, texte qui déborde d'un cadre, étiquettes de schéma qui chevauchent. Répartition d'un sous-groupe : 1 page. Point de séance : 2 pages au plus.
+7. **Mettre à jour le sommaire** `docs/comptes_rendus/README.md` : « Dernier en date », le tableau « Répartition des tâches en cours » si elle change, une ligne en haut de « Tous les comptes rendus ». Ajouter une entrée datée dans `docs/CHANGELOG.md`. Vérifier que les liens relatifs existent.
 8. **Pousser** depuis un worktree de `main` (voir « Git » plus bas), `git fetch` juste avant.
 9. **Répondre à Reda en quelques lignes** : lien GitHub du PDF, puis ce qu'il doit vérifier (attributions incertaines, date supposée, ce qui a été adouci). S'il veut voir : `open "<url GitHub>"`.
 
@@ -100,7 +100,7 @@ Modèle : `sources/2026-10-21_point-etape-gps-vision.tex`. Ordre du jour ou En b
 - Chaque action : qui (une personne nommée), quoi (un verbe concret), quand. Sans responsable, ce n'est qu'un souhait.
 - Reprendre au début de chaque compte rendu l'état des actions du précédent.
 - Diffuser vite : le jour même, au plus tard sous 24 h.
-- Un seul endroit, classé par date : le sommaire de `comptes_rendus/`.
+- Un seul endroit, classé par date : le sommaire de `docs/comptes_rendus/`.
 - Suivre risques, blocages et dépendances entre sous-groupes (version légère d'un registre RAID).
 
 Sources : [Fireflies](https://fireflies.ai/blog/tips-for-taking-meeting-minutes), [resolution.de](https://www.resolution.de/?p=77175), [Reflect](https://reflect.app/blog/perfect-meeting-minutes-template), [Wrike (fr)](https://www.wrike.com/fr/blog/modele-de-compte-rendu-de-reunion-guide-avec-exemples-et-points-daction/), [Slite (fr)](https://slite.com/fr/learn/proces-verbal-de-reunion), [UW CSE 403](https://courses.cs.washington.edu/courses/cse403/23au/project/index.html), [Asana, RAID log](https://asana.com/sv/resources/raid-log.md).
