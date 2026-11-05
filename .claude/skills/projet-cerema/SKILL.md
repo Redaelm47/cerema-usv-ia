@@ -11,7 +11,8 @@ Ce que Reda m'a déjà dit, pour ne pas avoir à le redire. Pour les comptes ren
 
 - Projet de commande entreprise (PCE 2A, sujet 20), IMT Atlantique × Cerema, 2026-2027. Il prend la suite du projet 2025 (groupe 11, « Micro drone de surface »).
 - But : un drone de surface (USV) de surveillance maritime qui détecte et identifie les navires (catégorie, immatriculation par OCR, suivi) et envoie des alertes.
-- **Client et tuteur entreprise** : Antoine Douchin, Cerema (DTecREM, pôle drone et traitement de données, Plouzané). **Tuteur école** : Matthieu Arzel, deux t (GitHub `marzelbr`, il a accès au dépôt).
+- **Client et tuteur entreprise** : Antoine Douchin, Cerema (DTecREM, pôle drone et traitement de données, Plouzané), GitHub `ElNormando`. **Tuteur école** : Matthieu Arzel, deux t, GitHub `marzelbr`.
+- **Les deux ont accès au dépôt pour suivre l'avancement.** Ne jamais les assigner, les mentionner (`@`) ni leur envoyer quoi que ce soit, et n'écrire dans le dépôt que ce qu'ils peuvent lire.
 - **Exigence de fond** : le drone est vraiment autonome. L'approche d'un navire est décidée et exécutée à bord, sans validation de l'opérateur, qui reçoit les alertes et peut reprendre la main. Ne pas proposer d'architecture où une décision de mission attend un humain ; prévoir plutôt des garde-fous embarqués.
 
 ## Équipe
@@ -21,6 +22,8 @@ Ce que Reda m'a déjà dit, pour ne pas avoir à le redire. Pour les comptes ren
 | L1 Plateforme (bateau, matériel) | Ewen Gourmelen, Rana Brini, Selma Ben-Abdelkader | Ewen : matériel et responsable du suivi plateforme · Rana : matériel · Selma : livrables |
 | L2 Vision embarquée (IA) | Reda El Mekkaoui, Guillaume Leroy, Adam-Sabri Hlaoua | Reda : communication client et responsable du suivi IA · Guillaume : responsable projet · Adam-Sabri : comptes rendus |
 | L0 Gestion de projet, L3 Intégration | toute l'équipe | |
+
+Rana n'est pas encore dans le dépôt GitHub.
 
 **Qui fait quoi en ce moment** : toujours dans `cerema-usv-ia/comptes_rendus/README.md` (tableau « Répartition des tâches en cours »). Ne pas recopier les tâches ici, elles changent à chaque séance.
 
@@ -50,6 +53,7 @@ Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ig
 ## Git (dépôt d'équipe)
 
 - Ne pousser que quand Reda le demande.
+- Le client et le tuteur école lisent le dépôt : chaque fichier poussé doit pouvoir être lu par eux.
 - La copie locale est souvent sur une branche de travail (`ia/chaine-squelette`, non fusionnée) avec des modifications non commitées : ne jamais faire de checkout ni de stash dessus. Pour écrire sur `main`, passer par un worktree temporaire dans le scratchpad (commandes dans le skill `compte-rendu-reunion`), puis `git branch -f main origin/main`.
 - Le README demande des branches et des pull requests pour le code. Les documents et les comptes rendus vont directement sur `main` quand Reda le demande.
 - `git fetch` juste avant de pousser : les autres poussent aussi.

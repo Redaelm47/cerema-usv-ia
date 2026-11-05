@@ -13,7 +13,7 @@ Pour le reste du projet (Git, LaTeX, Pi, équipe en détail), voir le skill `pro
 
 ## Où sont les choses
 
-- Dépôt d'équipe : `~/Desktop/imt/cerema/cerema-usv-ia`, GitHub `Redaelm47/cerema-usv-ia` (privé). Y ont accès : les six membres et Matthieu Arzel (`marzelbr`).
+- Dépôt d'équipe : `~/Desktop/imt/cerema/cerema-usv-ia`, GitHub `Redaelm47/cerema-usv-ia` (privé). Y ont accès : les membres de l'équipe (sauf Rana, pas encore ajoutée), Matthieu Arzel (`marzelbr`) et **le client Antoine Douchin (`ElNormando`)**, qui suit l'avancement. **Tout ce qui est poussé est lu par le client.**
 - `comptes_rendus/` : **seulement** les PDF, le `README.md` (sommaire, affiché par GitHub sous la liste) et `sources/`.
 - `comptes_rendus/sources/` : un `.tex` par compte rendu, `style_cr.sty` (style commun : couleurs, en-tête, cartes `personne`, tableaux), les versions texte `.md` anciennes, les modèles `modele_point_de_seance.md` et `modele_compte_rendu.md`.
 - `docs/plan_actions_USV-IA.pdf` : plan d'actions de l'atelier 6 (05/11/2026). Il impose un point à six à 8h30 et à 11h40, et un compte rendu du point de fin après chaque séance (action A8, Reda).
@@ -70,7 +70,7 @@ Modèle : `sources/2026-10-21_point-etape-gps-vision.tex`. Ordre du jour ou En b
 - Français, phrases courtes et claires, pas de tiret cadratin.
 - **Ne rien inventer.** Chaque information vient de la transcription, du dépôt ou de Reda. Pas de date, de lieu ou de chiffre ajouté pour faire joli.
 - **Les corrections de Reda passent avant la transcription** (le 05/11 : « sans GPS » voulait dire « avec GPS » ; « moi » sur l'IA, c'est Reda).
-- **Tact** : le dépôt est lu par Matthieu Arzel et peut l'être par le client. Reformuler les jugements sur des personnes (« idées absurdes » devient « certaines ne sont pas réalisables »). Jamais d'avis sur un camarade.
+- **Tact : le dépôt est lu par le client (Antoine Douchin) et par Matthieu Arzel.** N'écrire sur eux que ce qu'on leur dirait en face. Pas de jugement sur leurs idées ou leurs compétences (« ce n'est pas son domaine », « idées infaisables ») : écrire ce qu'ils demandent, et ce que l'équipe a décidé d'en faire et pourquoi. Jamais d'avis sur un camarade.
 - Prénoms dans le corps du texte. Antoine Douchin et Matthieu Arzel en entier.
 
 ## Transcriptions : pièges connus
@@ -123,7 +123,9 @@ Sources : [Fireflies](https://fireflies.ai/blog/tips-for-taking-meeting-minutes)
 
 Le plan prévoit un tableau GitHub Projects lié au dépôt (colonnes À faire, En cours, Fait ; une étiquette par sous-groupe), une issue par tâche, assignée, avec échéance. Au 05/11/2026 il n'existe pas : le jeton `gh` n'a pas le droit `project` (Reda doit lancer `gh auth refresh -s project`). Créer des issues assignées envoie une notification aux personnes : demander l'accord de Reda la première fois. Une fois le tableau en place, mettre le numéro d'issue (`#12`) en face de chaque tâche du compte rendu.
 
-Comptes GitHub : Reda `Redaelm47`, Guillaume `guillaumeleroy76`, Adam-Sabri `a04Hlaoua`, Ewen `ewengourmelen-gif`, Selma `selma876`, Rana probablement `ElNormando` (déduit par élimination, à confirmer avant d'assigner), Matthieu Arzel `marzelbr`.
+Comptes GitHub de l'équipe : Reda `Redaelm47`, Guillaume `guillaumeleroy76`, Adam-Sabri `a04Hlaoua`, Ewen `ewengourmelen-gif`, Selma `selma876`. Rana n'est pas encore dans le dépôt : demander son identifiant à Reda avant de lui assigner quoi que ce soit.
+
+**Ne jamais assigner, mentionner (`@`) ni notifier** `ElNormando` (Antoine Douchin, le client) ni `marzelbr` (Matthieu Arzel, tuteur école) : ils ont accès pour suivre l'avancement, pas pour recevoir des tâches ou des messages.
 
 ## Erreurs déjà faites
 
@@ -131,4 +133,6 @@ Comptes GitHub : Reda `Redaelm47`, Guillaume `guillaumeleroy76`, Adam-Sabri `a04
 - Ranger la répartition de la plateforme dans le point de séance seulement : chaque sous-groupe a son PDF, visible dans le sommaire.
 - Se fier aux noms « Speaker N » du résumé automatique.
 - Écrire « Mathieu » au lieu de « Matthieu ».
+- Oublier que le client lit le dépôt : un passage du compte rendu IA du 05/11 disait que la vision « n'est pas son domaine » et que certaines de ses idées « ne sont pas réalisables ».
+- Deviner un compte GitHub par élimination (`ElNormando` n'était pas Rana, c'est le client).
 - Laisser un titre seul en bas de page ou la note de bas de page seule sur une page : toujours regarder les aperçus.
