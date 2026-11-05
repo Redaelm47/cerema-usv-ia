@@ -17,6 +17,10 @@ Rapports, présentations et documents de travail du projet.
 
 - [revue_de_projet/](revue_de_projet) : présentation du 19/10/2026 et tableau de suivi du projet (planning, risques, actions), mis à jour chaque semaine
 
+## Organisation de l'équipe
+
+- [plan_actions_USV-IA.pdf](plan_actions_USV-IA.pdf) : synthèse de l'atelier 6 de co-développement du 05/11/2026 et plan d'actions jusqu'à la fin du projet (tableau des tâches sur GitHub, un responsable du suivi par sous-groupe, points de début et de fin de séance, horaires fixes)
+
 ## Vision embarquée (lot L2)
 
 - [architecture_vision_embarquee.pdf](architecture_vision_embarquee.pdf) : proposition d'architecture (veille, suivi, décideur, experts, fiche navire, alerte), document de travail du 05/10/2026
