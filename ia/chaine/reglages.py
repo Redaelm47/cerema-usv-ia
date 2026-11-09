@@ -46,6 +46,10 @@ class Reglages:
     champ_horizontal_deg: float = 66.0
     largeur_image_px: int = 4056        # utilisée quand aucune image n'est fournie
 
+    # Ré-identification (actives seulement si la chaîne a une mémoire des navires, option --reid)
+    reid_eviter_reapproche: bool = True   # navire reconnu avec certitude et déjà identifié : pas de nouvelle approche
+    reid_valider_une_lecture: bool = True # une lecture égale à l'immatriculation reconnue suffit au vote
+
     # Messages
     periode_etat_s: float = 1.0         # un message d'état du drone par période
 

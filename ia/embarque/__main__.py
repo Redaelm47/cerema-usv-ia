@@ -10,7 +10,7 @@ Les deux parties ne se parlent que par le contrat 1 : `Chaine.pas(observations, 
 """
 import argparse
 
-from chaine.__main__ import derouler
+from chaine.__main__ import ajouter_options_reid, creer_reid, derouler
 from chaine.experts import DroneSimule
 from chaine.reglages import Reglages
 from suivi.__main__ import ajouter_options, creer_suivi
@@ -29,6 +29,7 @@ def main() -> None:
     parser.add_argument("--journal", default="runs/journal.jsonl", help="journal des décisions")
     parser.add_argument("--messages", default="runs/messages.jsonl", help="copie des messages du contrat 3")
     parser.add_argument("--sortie", help="vidéo annotée à écrire (.mp4) ; à éviter sur le Pi")
+    ajouter_options_reid(parser)
     args = parser.parse_args()
 
     reglages = Reglages()
@@ -41,7 +42,8 @@ def main() -> None:
     if args.station:
         messages.append(args.station.rstrip("/") + "/message")
     derouler(creer_suivi(args, enregistrer=args.observations), reglages, DroneSimule(), vrais_experts=True,
-             fils=args.fils, journal=args.journal, messages=messages, sortie=args.sortie)
+             fils=args.fils, journal=args.journal, messages=messages, sortie=args.sortie,
+             reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires)
 
 
 if __name__ == "__main__":

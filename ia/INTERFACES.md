@@ -65,7 +65,7 @@ Un objet JSON par message, envoyé par `POST http://<mac>:8000/message`. Aucune 
 |---|---|---|
 | `etat` | une fois par seconde | `mode` (`patrouille` ou `approche`), `batterie` (0 à 1, simulée), `navires_suivis`, `temperature_pi` (`null` ailleurs que sur le Pi) |
 | `decision` | à chaque décision | `id_piste`, `action` (`expert_type`, `expert_ocr`, `approche`, `alerte_complete`, `alerte_partielle`), `raison` |
-| `alerte` | quand un navire est traité | `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation`, `raison`, et `textes_lus` quand du texte a été lu sur la coque sans être une immatriculation française |
+| `alerte` | quand un navire est traité | `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation`, `raison`, et `textes_lus` quand du texte a été lu sur la coque sans être une immatriculation française, et `deja_vu` quand la ré-identification (option `--reid`) reconnaît un navire déjà signalé |
 
 Une alerte donne deux messages : la décision (`alerte_complete` ou `alerte_partielle`), puis l'alerte.
 

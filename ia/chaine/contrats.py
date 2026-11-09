@@ -39,14 +39,17 @@ def lire_observations(message: dict[str, Any]) -> tuple[float, list[Observation]
 
 
 def message_alerte(t: float, fiche: FicheNavire, complete: bool, raison: str,
-                   textes_lus: list[str] | None = None) -> dict[str, Any]:
-    """Alerte du contrat 3. `textes_lus` est un ajout au contrat, présent seulement s'il n'est pas vide :
-    ce qui a été lu sur la coque sans être une immatriculation française (nom, immatriculation étrangère)."""
+                   textes_lus: list[str] | None = None, deja_vu: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Alerte du contrat 3. Deux ajouts au contrat, présents seulement s'ils ne sont pas vides :
+    `textes_lus`, ce qui a été lu sur la coque sans être une immatriculation française (nom, immatriculation
+    étrangère) ; `deja_vu`, le navire déjà signalé que la ré-identification reconnaît (voir reidentification.py)."""
     message = {"genre": "alerte", "t": round(t, 2), "id_piste": fiche.id_piste, "complete": complete,
                "types": list(fiche.experts.types), "immatriculation": fiche.experts.immatriculation,
                "confiance_immatriculation": round(fiche.experts.confiance_immatriculation, 2), "raison": raison}
     if textes_lus:
         message["textes_lus"] = list(textes_lus)
+    if deja_vu:
+        message["deja_vu"] = dict(deja_vu)
     return message
 
 

@@ -106,6 +106,23 @@ function rendreDrone() {
   temperature.className = "valeur " + (mesuree ? niveau(d.temperature_pi, 70, 80, true) : "");
 }
 
+// Ré-identification (champ facultatif de l'alerte) : navire déjà signalé auquel celui-ci ressemble.
+// L'apparence ne prouve pas l'identité : « probablement », jamais une immatriculation affirmée.
+function dejaVu(d) {
+  if (!d || typeof d !== "object") return null;
+  const qui = d.immatriculation ? el("span", "immat", d.immatriculation) : "un navire sans immatriculation lue";
+  const quand = typeof d.premiere_alerte_t === "number" ? `, signalé à ${secondes(d.premiere_alerte_t)}` : "";
+  const sim = typeof d.similarite === "number" ? ` (ressemblance ${pourcent(d.similarite)})` : "";
+  if (d.niveau === "immatriculation") {
+    if (d.apparence_coherente === false) {
+      return el("p", "deja-vu incoherent", "Attention : ", qui, " déjà signalé avec une autre apparence", sim, quand);
+    }
+    return el("p", "deja-vu", "Déjà signalé", quand, sim);
+  }
+  const certitude = d.niveau === "sur" ? "Très probablement " : "Peut-être ";
+  return el("p", "deja-vu", "Déjà vu ? ", certitude, qui, sim, quand);
+}
+
 function rendreAlertes() {
   const liste = $("alertes");
   liste.replaceChildren(...etat.alertes.slice().reverse().map((a, i) => {
@@ -119,6 +136,7 @@ function rendreAlertes() {
       el("p", null, "Immatriculation : ",
         a.immatriculation ? el("span", "immat", a.immatriculation) : "non lue", confiance),
       a.textes_lus && a.textes_lus.length ? el("p", null, "Texte lu sur la coque : ", a.textes_lus.join(", ")) : null,
+      dejaVu(a.deja_vu),
       el("p", "raison", a.raison));
   }));
   alertesDejaVues = etat.alertes.length;

@@ -3,7 +3,7 @@
 Aucune étape n'attend un humain : chaque image est traitée jusqu'au bout avec ce que l'on sait.
 """
 import time
-from typing import Any, Iterable, Protocol
+from typing import TYPE_CHECKING, Any, Iterable, Protocol
 
 from . import contrats
 from .decideur import Action, actualiser_etat, decider
@@ -12,6 +12,9 @@ from .fiche import Boite, Etat, FicheNavire, Observation
 from .journal import Journal
 from .messages import Emetteur, EmetteurMemoire
 from .reglages import Contexte, Reglages
+
+if TYPE_CHECKING:  # NumPy n'est demandé que si la ré-identification est active
+    from .reidentification import MemoireNavires
 
 EXPERT_DE_L_ACTION = {Action.EXPERT_TYPE: "type", Action.EXPERT_OCR: "ocr", Action.APPROCHE: "approche"}
 REGARDENT_L_IMAGE = ("type", "ocr")  # experts précédés du filtre qualité
@@ -32,8 +35,10 @@ class Drone(Protocol):
 
 class Chaine:
     def __init__(self, experts: Iterable[Expert], reglages: Reglages | None = None,
-                 journal: Journal | None = None, emetteur: Emetteur | None = None, drone: Drone | None = None):
+                 journal: Journal | None = None, emetteur: Emetteur | None = None, drone: Drone | None = None,
+                 reid: "MemoireNavires | None" = None):
         self.experts = {e.nom: e for e in experts}
+        self.reid = reid  # mémoire des navires déjà signalés ; None : pas de ré-identification
         self.reglages = reglages or Reglages()
         self.journal = journal or Journal()
         self.emetteur = emetteur or EmetteurMemoire()
@@ -92,6 +97,8 @@ class Chaine:
                 fiche.decision.etat == Etat.PERDUE and decider(fiche, t, Contexte(), self.reglages)[0] == Action.ATTENDRE)
             if oubliable and t - fiche.suivi.derniere_vue > self.reglages.delai_oubli_s:
                 del self.fiches[id_piste]
+                if self.reid is not None:
+                    self.reid.oublier(id_piste)
 
     def _reprendre(self, t: float, obs: Observation, vues: set[int]) -> FicheNavire | None:
         """Le suivi a donné un nouveau numéro à un navire déjà suivi : la fiche continue sous ce numéro.
@@ -119,6 +126,8 @@ class Chaine:
         for expert in self.experts.values():
             if hasattr(expert, "renommer"):
                 expert.renommer(ancien, obs.id_piste)
+        if self.reid is not None:
+            self.reid.renommer(ancien, obs.id_piste)
         if self.drone is not None and getattr(self.drone, "cible", None) == ancien:
             self.drone.cible = obs.id_piste
         self._noter(t, fiche, "reprise_piste", f"la piste {ancien} continue sous le numéro {obs.id_piste}")
@@ -186,12 +195,17 @@ class Chaine:
         duree_ms = (time.perf_counter() - debut) * 1000
 
         valeurs = dict(resultat.valeurs)
+        signature, largeur_recadrage = valeurs.pop("signature", None), valeurs.pop("largeur_recadrage", None)
         if nette:
             valeurs["image_lue_t"] = round(nette[0], 2)  # date de l'image choisie, la plus nette
         if nom == "type" and resultat.reussi:
             fiche.experts.types = list(valeurs["types"])
             fiche.experts.confiance_type = float(valeurs.get("confiance", 0.0))
+            if signature is not None:
+                self._reidentifier(t, fiche, signature, largeur_recadrage or fiche.largeur_px)
         elif nom == "ocr":
+            if not resultat.reussi:
+                resultat = self._lecture_confirmee_par_reid(fiche, resultat, valeurs)
             if resultat.reussi:
                 fiche.experts.immatriculation = valeurs["immatriculation"]
                 fiche.experts.confiance_immatriculation = float(valeurs.get("confiance", 0.0))
@@ -226,16 +240,79 @@ class Chaine:
             if hasattr(expert, "oublier"):
                 expert.oublier(fiche.id_piste)
         complete = action == Action.ALERTE_COMPLETE
+        lue = fiche.experts.immatriculation if complete else None  # seule une immatriculation validée prouve l'identité
         if not complete and fiche.interne.lecture_candidate and not fiche.immatriculation_connue:
             # Lecture non validée par le vote : transmise telle quelle, avec sa confiance, dans l'alerte partielle.
             fiche.experts.immatriculation = fiche.interne.lecture_candidate
             fiche.experts.confiance_immatriculation = fiche.interne.confiance_candidate
         fiche.decision.etat = Etat.ALERTEE
-        alerte = contrats.message_alerte(t, fiche, complete, raison, self._textes_hors_format(fiche))
+        deja_vu = self._memoriser(t, fiche, lue)
+        alerte = contrats.message_alerte(t, fiche, complete, raison, self._textes_hors_format(fiche),
+                                         deja_vu.message() if deja_vu else None)
         self.alertes.append(alerte)
         self.emetteur.envoyer(contrats.message_decision(t, fiche.id_piste, action.value, raison))
         self.emetteur.envoyer(alerte)
         self._noter(t, fiche, action.value, raison)
+
+    # Ré-identification
+
+    def _pistes_visibles(self, sauf: int) -> set[int]:
+        """Pistes vues pendant la vie de la piste `sauf` : deux navires vus en même temps sont deux navires,
+        quelle que soit leur ressemblance. Intervalles de vie qui se chevauchent, pas seulement l'image courante."""
+        fiche = self.fiches.get(sauf)
+        if fiche is None:
+            return set()
+        debut, fin = fiche.suivi.premiere_vue, fiche.suivi.derniere_vue
+        return {f.id_piste for f in self.fiches.values()
+                if f.id_piste != sauf and f.suivi.premiere_vue <= fin and debut <= f.suivi.derniere_vue}
+
+    def _reidentifier(self, t: float, fiche: FicheNavire, signature: Any, largeur_px: float) -> None:
+        """Nouvelle signature de la piste : cherche si elle ressemble à un navire déjà signalé."""
+        if self.reid is None or not self.reid.ajouter_vue(fiche.id_piste, signature, largeur_px):
+            return
+        avant = fiche.interne.deja_vu
+        apres = self.reid.rechercher(fiche.id_piste, fiche.experts.types, self._pistes_visibles(fiche.id_piste))
+        fiche.interne.deja_vu = apres
+        if apres is not None and (avant is None or avant.navire.numero != apres.navire.numero
+                                  or avant.niveau != apres.niveau):
+            self._noter(t, fiche, "reidentification",
+                        f"ressemble au navire {apres.navire.immatriculation or 'sans immatriculation'} "
+                        f"({apres.niveau}, {apres.similarite:.2f})", details=apres.journal())
+        elif apres is None and avant is not None:
+            self._noter(t, fiche, "reidentification", "ne ressemble plus assez à un navire déjà signalé")
+
+    def _lecture_confirmee_par_reid(self, fiche: FicheNavire, resultat: Resultat,
+                                    valeurs: dict[str, Any]) -> Resultat:
+        """Une lecture seule ne suffit pas au vote ; elle suffit si elle donne exactement l'immatriculation
+        du navire que l'apparence reconnaît : deux indices indépendants concordent."""
+        deja_vu, lue = fiche.interne.deja_vu, valeurs.get("lue")
+        if (self.reid is None or not self.reglages.reid_valider_une_lecture or deja_vu is None
+                or deja_vu.navire.immatriculation is None or lue is None
+                or lue != deja_vu.navire.immatriculation or valeurs.get("candidate") != lue):
+            return resultat
+        valeurs["immatriculation"] = lue
+        valeurs["raison"] = "lecture confirmée par la ré-identification"
+        return Resultat(True, valeurs)
+
+    def _memoriser(self, t: float, fiche: FicheNavire, immatriculation: str | None) -> Any:
+        """À l'alerte : ce que la mémoire sait déjà de ce navire, puis le navire entre en mémoire.
+
+        Immatriculation validée : on vérifie que le navire qui la portait déjà lui ressemble. Sinon, on
+        cherche par l'apparence seule (le résultat ne sert qu'à informer, jamais à fusionner).
+        """
+        if self.reid is None:
+            return None
+        if immatriculation is not None:
+            deja_vu = self.reid.verifier(fiche.id_piste, immatriculation)
+            if deja_vu is not None and deja_vu.apparence_coherente is False:
+                self._noter(t, fiche, "reidentification",
+                            f"{immatriculation} déjà signalé sur un navire d'apparence différente",
+                            reussi=False, details=deja_vu.journal())
+        else:
+            deja_vu = self.reid.rechercher(fiche.id_piste, fiche.experts.types,
+                                           self._pistes_visibles(fiche.id_piste))
+        self.reid.enregistrer(fiche.id_piste, t, immatriculation, list(fiche.experts.types), deja_vu)
+        return deja_vu
 
     def _textes_hors_format(self, fiche: FicheNavire) -> list[str]:
         """Textes lus plusieurs fois sur la coque sans être l'immatriculation : nom, immatriculation étrangère."""

@@ -64,7 +64,7 @@ Un objet JSON par message, aucune image.
 
 | Genre | Champs |
 |---|---|
-| `alerte` | `t`, `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation` (ou `null`), `raison`, et parfois `textes_lus` (liste des textes lus sur la coque qui ne sont pas une immatriculation française) |
+| `alerte` | `t`, `id_piste`, `complete`, `types` (liste, vide si inconnu), `immatriculation` (ou `null`), `confiance_immatriculation` (ou `null`), `raison`, et parfois `textes_lus` (liste des textes lus sur la coque qui ne sont pas une immatriculation française) et `deja_vu` (navire déjà signalé reconnu par la ré-identification, voir `ia/chaine/REIDENTIFICATION.md`) |
 | `decision` | `t`, `id_piste`, `action`, `raison` |
 | `etat` | `t`, `mode`, `batterie` (simulée, entre 0 et 1), `navires_suivis`, `temperature_pi` (`null` ailleurs que sur le Pi) |
 

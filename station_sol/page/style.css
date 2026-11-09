@@ -112,6 +112,8 @@ main {
 .alerte-tete .t { font-weight: 400; color: var(--discret); font-size: .85rem; }
 .alerte p { margin: .2rem 0 0; }
 .alerte .raison { color: var(--discret); font-size: .85rem; }
+.alerte .deja-vu { color: var(--accent); }
+.alerte .deja-vu.incoherent { color: var(--attention); font-weight: 600; }
 .immat { font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
 .nouvelle { animation: eclat 1.2s ease-out; }
 @keyframes eclat { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }

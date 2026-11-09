@@ -79,6 +79,10 @@ def decider(fiche: FicheNavire, t: float, contexte: Contexte, reglages: Reglages
         if contexte.cible is not None and contexte.cible != fiche.id_piste:
             return Action.ATTENDRE, "une autre approche est en cours"
         autorisee, raison = approche_autorisee(fiche, contexte, reglages)
+        deja_vu = fiche.interne.deja_vu
+        if (autorisee and reglages.reid_eviter_reapproche and deja_vu is not None and deja_vu.niveau == "sur"
+                and deja_vu.navire.immatriculation is not None):
+            return Action.ALERTE_PARTIELLE, f"navire reconnu ({deja_vu.navire.immatriculation}), pas de nouvelle approche"
         if autorisee:
             return Action.APPROCHE, "navire trop petit pour lire"
         return Action.ALERTE_PARTIELLE, raison

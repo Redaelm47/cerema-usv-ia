@@ -30,6 +30,9 @@ Chaque lancement écrit le journal des décisions dans `runs/journal.jsonl` et l
 | `--seuil-ocr PX` | largeur du navire à partir de laquelle on tente de lire (600 px par défaut, pensé pour l'image de 12 Mpx) |
 | `--taille-detection PX` | côté de l'image vue par le détecteur du suivi de remplacement (640 par défaut) |
 | `--largeur-vue PX` | largeur de l'image fournie à la chaîne ; plus petite que la vidéo, le zoom de l'approche simulée apporte du vrai détail |
+| `--reid` | ré-identification : reconnaît un navire déjà signalé (voir `REIDENTIFICATION.md`) |
+| `--memoire-navires CHEMIN` | garde la mémoire des navires d'une mission à l'autre (implique `--reid`) |
+| `--reid-reapprocher` | approche quand même un navire reconnu avec certitude et déjà identifié |
 | `--vitesse-approche`, `--sans-zoom`, `--factices`, `--fils` | drone simulé, experts factices sur vidéo, fils d'ONNX Runtime |
 
 ## Les trois contrats
@@ -149,6 +152,7 @@ Ce que le calcul ne dit pas : pendant qu'un expert occupe les quatre cœurs, le 
 | `messages.py`, `journal.py` | Envoi des messages (fichier, HTTP, UDP) ; journal des décisions |
 | `sources.py` | Scénario simulé, suivi de remplacement sur vidéo, observations rejouées |
 | `reglages.py` | Tous les seuils, et l'état du drone lu par le décideur |
+| `reidentification.py` | Mémoire des navires déjà signalés, reconnaissance par la signature visuelle (`REIDENTIFICATION.md`) |
 | `outils/` | Téléchargement des modèles et des photos, entraînement de la tête, mesures, incrustation |
 | `modeles/` | Modèles (non versionnés) et tête de l'expert type (versionnée) |
 
@@ -170,6 +174,6 @@ Ce que le calcul ne dit pas : pendant qu'un expert occupe les quatre cœurs, le 
 
 - La liste des quartiers maritimes est écrite de mémoire : à vérifier. Un quartier inconnu n'est accepté que lu sans correction, avec une confiance réduite.
 - L'expert type est entraîné sur des photos de Commons, pas sur des images du drone ni sur la scène Blender ; « peche » y veut surtout dire chalutier.
-- La reprise de piste ne regarde que la position. Après une coupure de la vidéo ou un long masquage, le même navire revient comme un nouveau navire : c'est le rôle de la ré-identification, prévue ensuite (la signature de l'expert type est déjà calculée).
+- La reprise de piste ne regarde que la position. Après une coupure de la vidéo ou un long masquage, le même navire revient comme un nouveau navire. Avec `--reid`, son alerte dit à quel navire déjà signalé il ressemble (`REIDENTIFICATION.md`), sans fusionner les fiches.
 - Deux navires dans la même boîte : l'OCR peut lire l'immatriculation du voisin.
 - La distance estimée suppose le navire vu de côté ; de face ou de l'arrière, elle est surestimée.

@@ -120,6 +120,8 @@ La chaîne ne rattache deux numéros que dans un cas : un nouveau numéro appara
 
 La signature visuelle de l'expert type pourrait servir à reconnaître un navire déjà vu, mais **elle ne suffit pas à fusionner deux fiches**. Mesuré sur 25 photos réelles de navires de pêche : au seuil de similarité 0,85, le même navire est reconnu dans 82 % des paires, et deux navires différents sont confondus dans 1 % des paires ; au seuil 0,9, aucune confusion mais seulement 55 % de reconnaissance. Deux fileyeurs bleus se ressemblent trop. Fusionner à tort ferait disparaître un navire : la chaîne ne le fait donc jamais sur la seule apparence. La seule preuve d'identité est l'immatriculation lue.
 
+La ré-identification (`reidentification.py`, option `--reid`) se sert de la signature sans rien fusionner : elle informe l'alerte (`deja_vu`), permet de valider une immatriculation sur une seule lecture quand elle confirme la ressemblance, et évite de réapprocher un navire reconnu avec certitude. Détail et mesure : `REIDENTIFICATION.md`.
+
 ## Écarts avec la proposition d'origine
 
 | Proposition | Code | Raison |
@@ -131,5 +133,5 @@ La signature visuelle de l'expert type pourrait servir à reconnaître un navire
 | DINO sans précision de version | DINOv2 par défaut, DINOv3 en option | Résultats égaux, licence plus simple |
 | Alerte sans texte libre | `textes_lus` si quelque chose a été lu | Navires étrangers, nom du navire |
 | Approche par MAVLink | Drone simulé | Hors périmètre pour l'instant |
-| Ré-identification « ensuite » | Reprise par position seulement | La signature seule confond des navires |
+| Ré-identification « ensuite » | Reprise par position ; mémoire des navires qui informe sans fusionner (`--reid`) | La signature seule confond des navires |
 | Décideur appris (étape 2) | Non fait | Il faut d'abord des journaux |

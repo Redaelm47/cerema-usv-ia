@@ -63,6 +63,7 @@ class Interne:
     largeur_debut_approche: float = 0.0
     batterie_debut_approche: float = 1.0
     consigne: dict[str, Any] | None = None    # dernière consigne d'approche
+    deja_vu: Any = None                       # ré-identification : navire déjà signalé auquel celui-ci ressemble
 
 
 @dataclass

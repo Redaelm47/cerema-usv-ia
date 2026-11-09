@@ -1,0 +1,26 @@
+{"genre": "etat", "t": 0.0, "mode": "patrouille", "batterie": 0.95, "navires_suivis": 0, "temperature_pi": 52.0}
+{"genre": "decision", "t": 1.0, "id_piste": 3, "action": "expert_type", "raison": "type inconnu"}
+{"genre": "etat", "t": 2.0, "mode": "patrouille", "batterie": 0.95, "navires_suivis": 1, "temperature_pi": 54.0}
+{"genre": "decision", "t": 2.5, "id_piste": 3, "action": "expert_ocr", "raison": "navire assez gros pour lire"}
+{"genre": "decision", "t": 3.5, "id_piste": 3, "action": "alerte_complete", "raison": "immatriculation lue"}
+{"genre": "alerte", "t": 3.5, "id_piste": 3, "complete": true, "types": ["peche"], "immatriculation": "GV 642410", "confiance_immatriculation": 0.96, "raison": "immatriculation lue"}
+{"genre": "etat", "t": 5.0, "mode": "patrouille", "batterie": 0.94, "navires_suivis": 0, "temperature_pi": 55.0}
+{"genre": "decision", "t": 7.0, "id_piste": 12, "action": "expert_type", "raison": "type inconnu"}
+{"genre": "decision", "t": 8.0, "id_piste": 12, "action": "alerte_partielle", "raison": "navire reconnu (GV 642410), pas de nouvelle approche"}
+{"genre": "alerte", "t": 8.0, "id_piste": 12, "complete": false, "types": ["peche"], "immatriculation": null, "confiance_immatriculation": 0.0, "raison": "navire reconnu (GV 642410), pas de nouvelle approche", "deja_vu": {"immatriculation": "GV 642410", "niveau": "sur", "similarite": 0.934, "premiere_alerte_t": 3.5}}
+{"genre": "etat", "t": 9.0, "mode": "patrouille", "batterie": 0.94, "navires_suivis": 1, "temperature_pi": 55.5}
+{"genre": "decision", "t": 10.0, "id_piste": 15, "action": "expert_type", "raison": "type inconnu"}
+{"genre": "decision", "t": 11.0, "id_piste": 15, "action": "expert_ocr", "raison": "navire assez gros pour lire"}
+{"genre": "decision", "t": 11.5, "id_piste": 15, "action": "alerte_complete", "raison": "immatriculation lue"}
+{"genre": "alerte", "t": 11.5, "id_piste": 15, "complete": true, "types": ["peche"], "immatriculation": "GV 642410", "confiance_immatriculation": 0.88, "raison": "immatriculation lue", "deja_vu": {"immatriculation": "GV 642410", "niveau": "immatriculation", "similarite": 0.951, "premiere_alerte_t": 3.5, "apparence_coherente": true}}
+{"genre": "etat", "t": 13.0, "mode": "patrouille", "batterie": 0.93, "navires_suivis": 1, "temperature_pi": 56.0}
+{"genre": "decision", "t": 14.0, "id_piste": 21, "action": "expert_type", "raison": "type inconnu"}
+{"genre": "decision", "t": 15.0, "id_piste": 21, "action": "approche", "raison": "navire trop petit pour lire"}
+{"genre": "etat", "t": 16.0, "mode": "approche", "batterie": 0.92, "navires_suivis": 1, "temperature_pi": 58.0}
+{"genre": "decision", "t": 18.0, "id_piste": 21, "action": "alerte_partielle", "raison": "piste perdue"}
+{"genre": "alerte", "t": 18.0, "id_piste": 21, "complete": false, "types": ["voilier", "vedette"], "immatriculation": null, "confiance_immatriculation": 0.0, "raison": "piste perdue", "deja_vu": {"immatriculation": null, "niveau": "probable", "similarite": 0.872, "premiere_alerte_t": 6.2}}
+{"genre": "etat", "t": 19.0, "mode": "patrouille", "batterie": 0.91, "navires_suivis": 1, "temperature_pi": 57.0}
+{"genre": "decision", "t": 20.0, "id_piste": 25, "action": "expert_ocr", "raison": "navire assez gros pour lire"}
+{"genre": "decision", "t": 21.0, "id_piste": 25, "action": "alerte_complete", "raison": "immatriculation lue"}
+{"genre": "alerte", "t": 21.0, "id_piste": 25, "complete": true, "types": ["cargo"], "immatriculation": "GV 642410", "confiance_immatriculation": 0.81, "raison": "immatriculation lue", "deja_vu": {"immatriculation": "GV 642410", "niveau": "immatriculation", "similarite": 0.31, "premiere_alerte_t": 3.5, "apparence_coherente": false}}
+{"genre": "etat", "t": 22.0, "mode": "patrouille", "batterie": 0.91, "navires_suivis": 0, "temperature_pi": 55.0}

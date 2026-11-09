@@ -35,6 +35,7 @@ def main() -> None:
     parser.add_argument("--taille-detection", type=int, default=640, metavar="PX",
                         help="avec --video : côté de l'image vue par le détecteur du suivi de remplacement")
     parser.add_argument("--fils", type=int, help="nombre de fils d'ONNX Runtime")
+    ajouter_options_reid(parser)
     parser.add_argument("--sortie", help="avec --video : chemin de la vidéo annotée à écrire (.mp4)")
     parser.add_argument("--journal", default="runs/journal.jsonl", help="fichier du journal des décisions")
     parser.add_argument("--messages", action="append", metavar="ADRESSE",
@@ -58,13 +59,44 @@ def main() -> None:
 
     derouler(source, reglages, drone, vrais_experts=bool(args.video) and not args.factices, fils=args.fils,
              reseau_type=args.reseau_type, journal=args.journal, messages=args.messages or ["runs/messages.jsonl"],
-             sortie=args.sortie if args.video else None)
+             sortie=args.sortie if args.video else None, reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires)
+
+
+def ajouter_options_reid(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--reid", action="store_true",
+                        help="ré-identification : reconnaître un navire déjà signalé (champ deja_vu des alertes)")
+    parser.add_argument("--memoire-navires", metavar="CHEMIN",
+                        help="ré-identification gardée d'une mission à l'autre : relue au départ si elle existe, "
+                             "écrite à la fin (CHEMIN.json et CHEMIN.npz) ; implique --reid")
+    parser.add_argument("--reid-reapprocher", action="store_true",
+                        help="approcher quand même un navire reconnu avec certitude et déjà identifié")
+
+
+def creer_reid(args: argparse.Namespace, reglages: Reglages):
+    """Mémoire des navires selon les options : None sans --reid ni --memoire-navires."""
+    reglages.reid_eviter_reapproche = not args.reid_reapprocher
+    if not (args.reid or args.memoire_navires):
+        return None
+    from .reidentification import MemoireNavires  # NumPy seulement si demandé
+    if args.memoire_navires:
+        from pathlib import Path
+        chemin = Path(args.memoire_navires)
+        if chemin.with_suffix(".json").exists():
+            memoire = MemoireNavires.charger(chemin)
+            print(f"mémoire des navires relue : {len(memoire.navires)} navire(s) déjà connus")
+            return memoire
+    return MemoireNavires()
 
 
 def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool, fils: int | None = None,
              reseau_type: str = "dinov2", journal: str = "runs/journal.jsonl", messages: list[str] | None = None,
-             sortie: str | None = None) -> Chaine:
-    """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement."""
+             sortie: str | None = None, reid=None,
+             memoire_navires: str | None = None) -> Chaine:
+    """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement.
+
+    `reid` : mémoire des navires (ré-identification), sauvée dans `memoire_navires` à la fin si donné.
+    Avec les experts factices, aucune signature n'est calculée : la ré-identification ne voit rien.
+    """
     messages = messages or ["runs/messages.jsonl"]
     experts = [ExpertApprocheSimulee(drone, reglages)]
     if vrais_experts:
@@ -78,7 +110,7 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
 
     chemin_journal, journal = journal, Journal(journal)
     emetteur = Emetteurs([creer_emetteur(adresse) for adresse in messages])
-    chaine = Chaine(experts, reglages, journal, emetteur, drone)
+    chaine = Chaine(experts, reglages, journal, emetteur, drone, reid=reid)
     video_annotee = None
     if sortie:
         from .affichage import VideoAnnotee
@@ -100,6 +132,9 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
     chaine.cloturer(t)
     for ligne in journal.lignes[deja_affiche:]:
         afficher(ligne)
+    if reid is not None and memoire_navires:
+        reid.sauver(memoire_navires)
+        print(f"mémoire des navires écrite : {len(reid.navires)} navire(s) dans {memoire_navires}.json/.npz")
     journal.fermer()
     emetteur.fermer()
     if video_annotee is not None:

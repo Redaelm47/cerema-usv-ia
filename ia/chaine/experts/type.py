@@ -84,13 +84,16 @@ class ExpertType:
         recadrage = recadrer(image, fiche.suivi.boite, self.marge)
         if min(recadrage.shape[:2], default=0) < 2:
             return Resultat(False, {"raison": "recadrage vide"})
-        probabilites = self.tete.probabilites(self.signature.calculer(recadrage))
+        signature = self.signature.calculer(recadrage)
+        probabilites = self.tete.probabilites(signature)
         somme, essais = self.cumuls.get(fiche.id_piste, (np.zeros_like(probabilites), 0))
         somme, essais = somme + probabilites, essais + 1
         self.cumuls[fiche.id_piste] = (somme, essais)
         moyenne = somme / essais  # moyenne sur les essais de la même piste
         return Resultat(True, {"types": self.tete.ensemble(moyenne), "confiance": round(float(moyenne.max()), 3),
-                               "probabilites": {t: round(float(p), 3) for t, p in zip(self.tete.types, moyenne)}})
+                               "probabilites": {t: round(float(p), 3) for t, p in zip(self.tete.types, moyenne)},
+                               # pour la ré-identification ; retirée par la chaîne avant le journal
+                               "signature": signature, "largeur_recadrage": int(recadrage.shape[1])})
 
     def oublier(self, id_piste: int) -> None:
         self.cumuls.pop(id_piste, None)
