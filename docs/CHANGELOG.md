@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-11-09
+
+- Compte rendu du point de fin de séance du 09/11 (`docs/comptes_rendus/2026-11-09_point-de-seance.pdf`) : premier moteur testé, GPS bloqué faute d'adaptateur 10 broches, nouveau modèle de détection sur images dégradées, mémoire des bateaux déjà vus pour la ré-identification. Sommaire des comptes rendus mis à jour.
+
 ## 2026-11-05
 
 - Rangement du dépôt : page d'accueil d'une page ; comptes rendus, guides (Raspberry Pi, ex-`sandbox/`, et Git, ex-README) et historique regroupés dans `docs/` ; `detections.json` déplacé en exemple dans `ia/raspberry_pi/` et ignoré à la racine ; branches déjà fusionnées supprimées.

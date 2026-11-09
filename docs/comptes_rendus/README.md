@@ -2,14 +2,14 @@
 
 Tous les comptes rendus sont ici, **en PDF**. Les fichiers de travail (textes, sources LaTeX, modèles) sont rangés à part dans [sources/](sources).
 
-> **Dernier en date : [point de séance du 05/11/2026](2026-11-05_point-de-seance.pdf)**
+> **Dernier en date : [point de séance du 09/11/2026](2026-11-09_point-de-seance.pdf)**
 
 ## Répartition des tâches en cours
 
 | Sous-groupe | Qui fait quoi | PDF |
 |---|---|---|
-| **Plateforme** (lot L1) | Ewen : GPS et télémétrie · Rana : moteurs et ESC · Selma : ArduPilot et QGroundControl | [Répartition plateforme](2026-11-05_repartition-taches-plateforme.pdf) |
-| **IA** (lot L2) | Guillaume : dégradation et caméra · Reda : hallucination et experts · Adam-Sabri : ré-identification | [Répartition IA](2026-11-05_repartition-taches-vision.pdf) |
+| **Plateforme** (lot L1) | Ewen : GPS (adaptateur 10 broches), puis missions et liaison Raspberry Pi–Pixhawk · Rana et Selma : moteurs (direction le 12/11) · Selma : ArduPilot et QGroundControl | [Répartition plateforme](2026-11-05_repartition-taches-plateforme.pdf), [point du 09/11](2026-11-09_point-de-seance.pdf) |
+| **IA** (lot L2) | Guillaume : nouveau modèle entraîné sur images dégradées, caméra · Reda : hallucination et experts · Adam-Sabri : ré-identification (mémoire des bateaux déjà vus) | [Répartition IA](2026-11-05_repartition-taches-vision.pdf), [point du 09/11](2026-11-09_point-de-seance.pdf) |
 
 ## Tous les comptes rendus
 
@@ -17,6 +17,7 @@ Du plus récent au plus ancien.
 
 | Date | Compte rendu | Ce qu'on y trouve |
 |---|---|---|
+| 09/11/2026 | [Point de fin de séance](2026-11-09_point-de-seance.pdf) | Premier moteur testé, GPS bloqué par un adaptateur, nouveau modèle de détection, mémoire des bateaux déjà vus |
 | 05/11/2026 | [Point de fin de séance](2026-11-05_point-de-seance.pdf) | Où en est chaque sous-groupe, qui fait quoi, décision sur le GPS |
 | 05/11/2026 | [Répartition des tâches plateforme](2026-11-05_repartition-taches-plateforme.pdf) | Dernière tentative sur le GPS, moteurs et ESC, ArduPilot et QGroundControl |
 | 05/11/2026 | [Répartition des tâches IA](2026-11-05_repartition-taches-vision.pdf) | Priorités du lot vision, cadrage avec le client, vision nocturne, mode d'emploi |

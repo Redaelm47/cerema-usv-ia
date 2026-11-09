@@ -1,0 +1,96 @@
+% Point de fin de séance à six du 09/11/2026 (action A8 du plan d'actions).
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-09_point-de-seance.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point de séance du 09/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, point de fin de séance}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT DE FIN DE SÉANCE À SIX \quad·\quad 09/11/2026}
+       {Point de séance du 09/11/2026}
+       {Où en est chaque sous-groupe, et qui fait quoi pour la séance du jeudi 12/11.}
+       {Participants : les six membres de l'équipe \quad·\quad Rédacteur : Reda El Mekkaoui \quad·\quad Prochain point : jeudi 12/11/2026, 8h30}
+
+\begin{enbref}
+\begin{itemize}
+  \item \textbf{Plateforme} : le premier moteur (propulsion) est testé ; le deuxième (direction) se fait jeudi. Le module GPS et son antenne fonctionnent : ce qui bloque, c'est le branchement au Pixhawk, faute d'adaptateur 10 broches.
+  \item \textbf{IA} : le modèle de détection de base analyse mal certaines images dégradées et hallucine sur les gouttes d'eau ; Guillaume va entraîner un nouveau modèle. La ré-identification a maintenant une mémoire des bateaux déjà vus.
+  \item \textbf{Ensuite} : moteur de direction, puis configuration des missions avec le GPS, puis liaison Raspberry Pi–Pixhawk.
+\end{itemize}
+\end{enbref}
+
+\section{Suivi des actions du 05/11}
+\begin{tableau}{p{5.0cm} >{\bfseries}p{2.1cm} L}
+\entetetab{\textbf{Action} & Qui & \textbf{État}}
+GPS : dernière tentative sur le port GPS1 & Ewen & En cours, bloqué. Le module et l'antenne fonctionnent ; il manque un adaptateur 10 broches entre le module et le Pixhawk.\\\hline
+Branchement des moteurs et des ESC & Rana & En cours : premier moteur testé, avec Selma.\\\hline
+Tests de dégradation d'image & Guillaume & Fait. Résultat : le modèle de base analyse mal certaines images modifiées et hallucine sur les gouttes d'eau.\\\hline
+Améliorer l'existant, en particulier les experts & Reda & En cours : recherche faite, tests jeudi.\\\hline
+Ré-identification & Adam-Sabri & En cours : première version de la mémoire des bateaux déjà vus.\\\hline
+Retester le modèle (« Base 4 ») & \mdseries\itshape à confirmer & Pas abordé sous ce nom. Les tests de Guillaume portent sur le modèle de détection de base.\\\hline
+Télémétrie (Ewen), ArduPilot et QGroundControl (Selma), tests caméra (Guillaume), tests d'hallucination et petite boîte compacte (Reda) & \mdseries\itshape plusieurs & Non abordés ce jour. Selma a travaillé sur le moteur avec Rana. Point à faire jeudi à 8h30.\\\hline
+\end{tableau}
+
+\section{Qui fait quoi pour jeudi 12/11}
+\groupe{cPlat}{Plateforme (lot L1)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Rana & Moteur de direction & Brancher et tester le deuxième moteur, celui de la direction. Avec Selma.\\\hline
+Selma & Moteur de direction & Avec Rana, comme pour le premier moteur.\\\hline
+Ewen & GPS : brancher le module au Pixhawk & Trouver un adaptateur 10 broches. En attendant, emprunter le GPS de l'autre groupe si on en a besoin.\\\hline
+Ewen & Configuration des missions & Dès qu'un GPS est branché, le nôtre ou celui de l'autre groupe.\\\hline
+\end{tableau}
+
+\needspace{8\baselineskip}
+\vspace{0.6em}
+\groupe{cIA}{IA (lot L2)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Guillaume & Nouveau modèle de détection & L'entraîner davantage sur des images dégradées, gouttes d'eau en particulier, pour qu'il n'hallucine plus dessus.\\\hline
+Reda & Tester les pistes d'amélioration des experts & Pistes trouvées depuis le 05/11. Les tester toutes.\\\hline
+Adam-Sabri & Ré-identification & Suite non précisée en séance : à dire au point de 8h30.\\\hline
+\end{tableau}
+
+\section{Fait depuis la dernière séance}
+\begin{itemize}
+  \item \textbf{Plateforme} : Rana et Selma ont testé le premier moteur, celui de la propulsion. Ewen a vérifié que le module GPS et l'antenne fonctionnent ; seule la liaison entre le module et le Pixhawk ne marche pas.
+  \item \textbf{IA} : Guillaume a testé le modèle de détection de base sur des images dégradées. Reda a cherché des pistes pour améliorer les experts. Adam-Sabri a ajouté à la ré-identification une mémoire des bateaux déjà vus :
+  \begin{itemize}
+    \item pour chaque bateau, on garde son immatriculation, son type et quelques signatures qui permettent de le reconnaître s'il sort de l'image puis réapparaît ;
+    \item on sait ainsi qu'un bateau a déjà été vu, ce qui évite une approche inutile et permet de valider l'immatriculation plus vite ;
+    \item on peut aussi repérer les incohérences.
+  \end{itemize}
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item \textbf{Ordre de travail de la plateforme} : moteur de direction, puis configuration des missions avec le GPS, puis liaison Raspberry Pi–Pixhawk, surtout une fois une première mission faite. Toute l'équipe est d'accord.
+  \item \textbf{GPS en attendant} : tant que notre module n'est pas branché au Pixhawk, on emprunte le GPS de l'autre groupe quand on en a besoin.
+\end{enumerate}
+
+\section{Points ouverts et blocages}
+\begin{itemize}
+  \item \textbf{Adaptateur 10 broches} (module GPS vers Pixhawk) : on n'en a pas trouvé. Le Cerema n'en a pas non plus, et Ewen ne pense pas en trouver rapidement.
+  \item \textbf{Si notre GPS ne marche pas au final} : on demandera probablement un autre module à Antoine Douchin. Rien n'est encore demandé.
+  \item \textbf{Dépendance} : pour configurer les missions, il faut un GPS qui marche, le nôtre ou celui de l'autre groupe.
+\end{itemize}
+
+\section{Pour la suite}
+\begin{itemize}
+  \item \textbf{Plateforme} : après les missions, Ewen s'occupera de la liaison entre la Raspberry Pi et le Pixhawk. Elle a déjà été un peu regardée ; on s'y mettra surtout après une première mission.
+\end{itemize}
+
+\section{Suivi du plan d'actions}
+\begin{tableau}{p{6.4cm} L}
+\entetetab{\textbf{Indicateur} & \textbf{Ce jour}}
+Tableau des tâches GitHub (A1) & Non abordé. En attendant, les tâches sont listées ici.\\\hline
+Point de début de séance à 8h30 (A6) & Non relevé.\\\hline
+Point de fin de séance (A7) & Fait : c'est ce compte rendu.\\\hline
+Retards à l'arrivée ou après la pause (A10) & Non relevés.\\\hline
+\end{tableau}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique, sans séparation fiable des voix : les interventions sont attribuées d'après l'ordre de parole (Guillaume, Reda, Adam-Sabri, Selma et Rana, Ewen). Corrections : « peak scope » → Pixhawk, « Serema » → Cerema, « ils ont fait la conclusion » → la propulsion (premier moteur). Une erreur ? Dites-le, on corrige.}
+
+\end{document}
