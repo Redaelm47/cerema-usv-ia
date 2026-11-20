@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-11-20
+
+- Compte rendu du point de fin de séance du 20/11 (`docs/comptes_rendus/2026-11-20_point-de-seance.pdf`) : nouveau GPS fonctionnel, tests de missions par manettes virtuelles, recherche d'immatriculation de 50 à 10 s en simulation, caméra nocturne seule retenue, simulation 3D, réunion du 26/11 avec le Cerema. Sommaire des comptes rendus mis à jour.
+
 ## 2026-11-09
 
 - Compte rendu du point de fin de séance du 09/11 (`docs/comptes_rendus/2026-11-09_point-de-seance.pdf`) : premier moteur testé, GPS bloqué faute d'adaptateur 10 broches, nouveau modèle de détection sur images dégradées, mémoire des bateaux déjà vus pour la ré-identification. Sommaire des comptes rendus mis à jour.
