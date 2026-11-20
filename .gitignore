@@ -13,7 +13,6 @@ venv/
 datasets/
 data/
 runs/
-*.pt
 *.onnx
 *.tflite
 *.mp4
