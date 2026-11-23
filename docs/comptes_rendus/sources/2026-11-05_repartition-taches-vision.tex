@@ -1,0 +1,158 @@
+% Compte rendu de la réunion d'équipe vision du 05/11/2026 : nouvelle répartition des tâches.
+% Compiler : tectonic 2026-11-05_repartition-taches-vision.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.8cm,top=1.4cm,bottom=1.5cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+                           ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\usepackage[french]{babel}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,babel}
+\usepackage{fontawesome5}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+
+% Mêmes couleurs que la répartition d'octobre : Guillaume, Adam-Sabri, Reda
+\definecolor{cCam}{HTML}{0D9488}
+\definecolor{cPi}{HTML}{4F46E5}
+\definecolor{cExp}{HTML}{EA580C}
+\definecolor{cExt}{HTML}{64748B}
+\definecolor{cDec}{HTML}{0F172A}
+\definecolor{muted}{HTML}{64748B}
+\definecolor{hair}{HTML}{CBD5E1}
+\definecolor{wait}{HTML}{B45309}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\titleformat{\section}{\large\bfseries\color{cDec}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.1em}{0.35em}
+\setlist{itemsep=0.25em,topsep=0.2em,parsep=0pt,leftmargin=1.2em}
+\setlist[itemize]{label={\color{muted}\textbullet}}
+
+% Carte d'une personne : couleur, nom, rôle, contenu
+\newtcolorbox{personne}[3]{enhanced, colback=white, colframe=#1!35, boxrule=0.5pt, arc=6pt,
+  left=8pt, right=8pt, top=6pt, bottom=7pt, height=4.05cm, valign=top, before upper=\RaggedRight,
+  borderline north={2.6pt}{0pt}{#1},
+  title={{\small\bfseries\color{#1}#2}\par\vspace{1pt}{\scriptsize\color{muted}#3}},
+  coltitle=cDec, colbacktitle=white, toptitle=4pt, bottomtitle=0pt, titlerule=0pt}
+
+% Une tâche dans une carte
+\newcommand{\tache}[2]{{\small\textbf{#1}}\par\vspace{-1pt}{\footnotesize\color{muted}#2}\par\vspace{5pt}}
+
+\hypersetup{pdftitle={Répartition des tâches vision, 05/11/2026},
+            pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, lot L2 Vision embarquée}}
+
+\begin{document}
+\RaggedRight
+
+{\scriptsize\bfseries\color{muted} PROJET 20 CEREMA \quad·\quad LOT L2 VISION EMBARQUÉE \quad·\quad RÉUNION D'ÉQUIPE DU 05/11/2026\par}
+\vspace{0.5em}
+{\fontsize{21}{24}\selectfont\bfseries\color{cDec} Nouvelle répartition des tâches\par}
+\vspace{0.25em}
+{\color{muted} Vision et alertes fonctionnelles d'abord, ré-identification ensuite, mode d'emploi en dernier livrable.\par}
+\vspace{0.2em}
+{\footnotesize\color{muted} Présents : Reda, Guillaume, Adam-Sabri\par}
+
+\begin{tcolorbox}[enhanced, colback=cDec!4, colframe=cDec!4, arc=6pt, left=10pt, right=10pt, top=7pt, bottom=7pt]
+{\small\bfseries\color{cDec} En bref}\par\vspace{2pt}
+\begin{itemize}
+  \item Le tuteur d'entreprise veut avant tout \textbf{un système fonctionnel qui reconnaît des bateaux}. On se recadre sur l'alerte.
+  \item \textbf{Priorité} : une vision et des alertes parfaitement fonctionnelles. La ré-identification vient ensuite.
+  \item Guillaume teste la dégradation d'image et la caméra, Reda les experts et la boîte, Adam-Sabri cherche comment faire la ré-identification.
+  \item Répartition de \textbf{court terme} : on la réajustera ensuite.
+\end{itemize}
+\end{tcolorbox}
+
+\section{Ordre des priorités}
+
+\begin{center}
+\begin{tikzpicture}[
+    etape/.style={rectangle, rounded corners=6pt, draw=#1!40, line width=0.5pt, fill=#1!6,
+                  minimum width=3.75cm, minimum height=1.55cm, align=center, inner sep=4pt},
+    num/.style={circle, fill=#1, text=white, font=\scriptsize\bfseries, minimum size=0.44cm, inner sep=0pt},
+    quand/.style={font=\scriptsize\bfseries, text=#1},
+    fl/.style={-{Stealth[length=5pt,width=4.5pt,round]}, draw=cExt, line width=0.8pt},
+  ]
+  \node[etape=cDec] (a) at (0,0)    {\small\textbf{Vision et alertes}\\[-1pt]{\footnotesize\color{muted}fiables à la perfection}};
+  \node[etape=cPi]  (b) at (4.35,0) {\small\textbf{Ré-identification}\\[-1pt]{\footnotesize\color{muted}la partie la plus dure}};
+  \node[etape=cExt] (c) at (8.7,0)  {\small\textbf{Vision nocturne}\\[-1pt]{\footnotesize\color{muted}après le reste}};
+  \node[etape=wait] (d) at (13.05,0){\small\textbf{Mode d'emploi}\\[-1pt]{\footnotesize\color{muted}dernier livrable}};
+  \draw[fl] (a) -- (b); \draw[fl] (b) -- (c); \draw[fl] (c) -- (d);
+  \node[quand=cDec, above=3pt] at (a.north) {\tikz[baseline=(n.base)]\node[num=cDec](n){1};\enspace MAINTENANT};
+  \node[quand=cPi,  above=3pt] at (b.north) {\tikz[baseline=(n.base)]\node[num=cPi](n){2};\enspace ENSUITE};
+  \node[quand=cExt, above=3pt] at (c.north) {\tikz[baseline=(n.base)]\node[num=cExt](n){3};\enspace PLUS TARD};
+  \node[quand=wait, above=3pt] at (d.north) {\tikz[baseline=(n.base)]\node[num=wait](n){4};\enspace EN DERNIER};
+\end{tikzpicture}
+\end{center}
+{\footnotesize\color{muted} La recherche sur la ré-identification commence dès maintenant, mais on ne s'y consacre pleinement qu'une fois la vision et les alertes au point.\par}
+
+\section{Qui fait quoi}
+
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cCam}{GUILLAUME}{modèle et caméra}
+\tache{Tests de dégradation d'image}{Gouttes d'eau, pixels noirs aléatoires. Une séance maximum estimée.}
+\tache{Tests caméra}{Il les continue.}
+\end{personne}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cExp}{REDA}{experts et boîtier}
+\tache{Améliorer les experts existants}{Ceux qu'il a lui-même développés.}
+\tache{Tests d'hallucination}{Avec les experts.}
+\tache{Petite boîte compacte}{La fabriquer.}
+\end{personne}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\begin{personne}{cPi}{ADAM-SABRI}{ré-identification}
+\tache{Rechercher comment ré-identifier un bateau}{Reconnaître un bateau déjà vu. C'est la partie agents, qu'il a choisie.}
+\end{personne}
+\end{minipage}
+
+\vspace{0.6em}
+\begin{tcolorbox}[enhanced, colback=wait!7, colframe=wait!45, boxrule=0.5pt, arc=6pt, left=10pt, right=10pt, top=5pt, bottom=5pt]
+{\small\color{wait}\faQuestionCircle\enspace\textbf{Responsable à confirmer}}\par\vspace{1pt}
+{\small Retester le modèle (« base 4 » dans la transcription) et, si besoin, ajouter à la base de données des images avec d'autres caractéristiques. Qui s'en charge ?}
+\end{tcolorbox}
+
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item Priorité à une vision et des alertes parfaitement fonctionnelles, avant la ré-identification.
+  \item Le mode d'emploi sera le dernier livrable.
+  \item La répartition est de court terme : on la réajustera ensuite.
+\end{enumerate}
+
+\newpage
+
+\section{Cadrage du projet}
+\begin{itemize}
+  \item \textbf{Ce que veut le tuteur d'entreprise} : un système fonctionnel qui reconnaît des bateaux. Il nous a proposé de nombreuses pistes : on les garde en tête, mais on se concentre d'abord sur ce besoin central.
+  \item Il souhaite la \textbf{ré-identification} des bateaux. C'est la partie la plus difficile, et un plus.
+  \item \textbf{À quoi servent les images} : reconnaître un bateau quand son immatriculation n'est pas lisible, ou la vérifier. Pour un bateau déjà connu, elles évitent de refaire tout l'OCR. Du bon côté du bateau, on voit en général bien la plaque.
+  \item Le cœur du projet reste l'\textbf{envoi d'alertes} : on le rend parfaitement fiable avant d'élargir.
+  \item \textbf{Objectif} : laisser au groupe suivant une vision complète. Si elle n'est pas finie, le reste ne sert à rien.
+  \item La base de données viendra plus tard.
+\end{itemize}
+
+\section{Matériel et retours}
+\begin{itemize}
+  \item \textbf{SSD} : promis par le tuteur d'entreprise à la réunion précédente, pas encore livré. Il faut le lui rappeler. À réception, réfléchir à la façon de l'utiliser, pas seulement à le paramétrer.
+  \item \textbf{Tests radio} : non prioritaires selon le tuteur d'entreprise.
+  \item \textbf{Matthieu Arzel} : surpris que la détection fonctionne quasiment de A à Z. Ses retours étaient surtout organisationnels.
+\end{itemize}
+
+\section{Plus tard}
+\begin{itemize}
+  \item \textbf{Vision nocturne}, après le reste : voir d'abord ce qu'affiche la caméra, puis entraîner le modèle sur fond noir (le bateau apparaissant par exemple en vert). Piste : deux caméras à bord, avec un switch pour activer l'une ou l'autre selon le besoin.
+  \item \textbf{Mode d'emploi}, dernier livrable : se connecter en Wi-Fi, accéder à la boîte pour la paramétrer sur le réseau du client.
+\end{itemize}
+
+\vfill
+{\footnotesize\color{muted} Rédigé par Reda El Mekkaoui d'après la transcription automatique de la réunion. Les voix y étaient mal séparées : les responsables ont été vérifiés à la main. Si quelque chose est faux, dites-le, on corrige.\par}
+
+\end{document}

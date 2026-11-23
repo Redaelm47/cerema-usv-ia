@@ -1,0 +1,17 @@
+{"t": 0.6, "pistes": []}
+{"t": 7.8, "pistes": []}
+{"t": 9.8, "pistes": []}
+{"t": 11.8, "pistes": []}
+{"t": 13.9, "pistes": []}
+{"t": 15.9, "pistes": [{"id_piste": 0, "type": "keyboard", "boite": [221, 294, 639, 479], "confiance": 0.72}, {"id_piste": 1, "type": "tv", "boite": [48, 0, 640, 478], "confiance": 0.63}]}
+{"t": 17.9, "pistes": [{"id_piste": 0, "type": "keyboard", "boite": [199, 247, 639, 479], "confiance": 0.67}, {"id_piste": 1, "type": "tv", "boite": [2, 0, 630, 478], "confiance": 0.67}]}
+{"t": 19.9, "pistes": [{"id_piste": 0, "type": "laptop", "boite": [3, 0, 639, 479], "confiance": 0.63}]}
+{"t": 21.9, "pistes": []}
+{"t": 24.0, "pistes": []}
+{"t": 26.0, "pistes": [{"id_piste": 0, "type": "person", "boite": [110, 26, 639, 479], "confiance": 0.81}]}
+{"t": 28.0, "pistes": [{"id_piste": 0, "type": "person", "boite": [97, 30, 637, 478], "confiance": 0.92}]}
+{"t": 30.1, "pistes": [{"id_piste": 2, "type": "person", "boite": [92, 30, 637, 478], "confiance": 0.91}]}
+{"t": 32.1, "pistes": [{"id_piste": 2, "type": "person", "boite": [89, 27, 639, 478], "confiance": 0.9}]}
+{"t": 34.1, "pistes": [{"id_piste": 2, "type": "person", "boite": [88, 32, 638, 478], "confiance": 0.9}]}
+{"t": 36.1, "pistes": [{"id_piste": 2, "type": "person", "boite": [79, 23, 635, 478], "confiance": 0.89}]}
+{"t": 38.2, "pistes": []}

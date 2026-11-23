@@ -1,0 +1,98 @@
+% Point de fin de séance du 20/11/2026 (action A8 du plan d'actions).
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-20_point-de-seance.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point de séance du 20/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, point de fin de séance}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT DE FIN DE SÉANCE \quad·\quad 20/11/2026}
+       {Point de séance du 20/11/2026}
+       {Où en est chaque sous-groupe, qui fait quoi pour lundi 23/11, et la réunion du jeudi 26/11 avec le Cerema.}
+       {Participants : Guillaume, Adam-Sabri, sous-groupe plateforme \quad·\quad Rédacteur : Reda El Mekkaoui \quad·\quad Prochain point : lundi 23/11/2026}
+
+\begin{enbref}
+\begin{itemize}
+  \item \textbf{Plateforme} : le nouveau GPS est testé et fonctionne. L'équipe a trouvé comment tester les missions, moteurs compris, avec des manettes virtuelles.
+  \item \textbf{IA} : la recherche d'immatriculation passe de 50 à 10 secondes en simulation. On n'utilisera plus que la caméra nocturne, qui bascule seule entre jour et nuit. Reda prépare une simulation 3D du bateau.
+  \item \textbf{Ensuite} : tests de missions lundi ; point d'avancement lundi pour préparer la réunion du jeudi 26/11 avec Antoine Douchin.
+\end{itemize}
+\end{enbref}
+
+\section{Suivi des actions du 09/11}
+\begin{tableau}{p{5.0cm} >{\bfseries}p{2.1cm} L}
+\entetetab{\textbf{Action} & Qui & \textbf{État}}
+GPS : brancher le module au Pixhawk & Ewen & Fait autrement : un nouveau GPS a été testé, et il fonctionne.\\\hline
+Configuration des missions & Ewen & En cours : méthode de test trouvée (manettes virtuelles), tests à la prochaine séance.\\\hline
+Moteur de direction & Rana, Selma & Non détaillé en séance. Le montage est cité ; les tests de missions prévus incluent les moteurs.\\\hline
+Nouveau modèle de détection (images dégradées) & Guillaume & Non présenté en séance. Résultats d'entraînement poussés sur le dépôt le 20/11 (« best détection »).\\\hline
+Tester les pistes d'amélioration des experts & Reda & Non abordé. Reda travaille maintenant sur la simulation 3D.\\\hline
+Ré-identification & Adam-Sabri & En cours : mémoire enrichie, recherche d'immatriculation accélérée (voir plus bas).\\\hline
+\end{tableau}
+
+\section{Qui fait quoi pour lundi 23/11}
+\groupe{cPlat}{Plateforme (lot L1)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+\mdseries\itshape à confirmer & Tester des missions avec le nouveau GPS & Avec les moteurs, en pilotant par manettes virtuelles. Ewen, Selma ou Rana : à répartir lundi.\\\hline
+\end{tableau}
+
+\needspace{9\baselineskip}
+\vspace{0.6em}
+\groupe{cIA}{IA (lot L2)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Reda & Simulation 3D & Faire bouger le bateau en 3D pour gérer les différents cas, par exemple aller lire la plaque d'immatriculation d'un autre bateau.\\\hline
+Guillaume & Caméra nocturne & La tester concrètement, de jour et de nuit, puis voir comment l'intégrer à la simulation.\\\hline
+Adam-Sabri & Mémoire de ré-identification & Calibrer le poids de chaque indice. Il faut pour cela quelques images de chaque navire.\\\hline
+\end{tableau}
+
+\needspace{6\baselineskip}
+\vspace{0.6em}
+\groupe{cExt}{Équipe}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+\mdseries\itshape à confirmer & Mail à Antoine Douchin & Au sujet de la réunion du jeudi 26/11, après le point de lundi.\\\hline
+\end{tableau}
+
+\section{Fait depuis la dernière séance}
+\begin{itemize}
+  \item \textbf{Plateforme} : montage, test du nouveau GPS (il fonctionne), et une méthode pour tester les missions et les moteurs avec des manettes virtuelles.
+  \item \textbf{IA, ré-identification} (Adam-Sabri) :
+  \begin{itemize}
+    \item la recherche de l'immatriculation ne se lançait qu'à partir d'un bateau de 600 pixels de large ; ce seuil a été revu. En simulation, l'immatriculation est trouvée en 10 secondes au lieu de 50 ;
+    \item la mémoire des bateaux déjà vus utilise un indice visuel de plus, en plus des attributs déjà gardés (taille, couleur…) ;
+    \item tout fonctionne, sauf un test, qui porte sur le réseau et non sur la ré-identification.
+  \end{itemize}
+  \item \textbf{IA, caméra} (Guillaume) : la caméra nocturne bascule automatiquement entre jour et nuit.
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item \textbf{Une seule caméra} : on n'utilise plus que la caméra nocturne, puisqu'elle passe seule du mode jour au mode nuit. La caméra utilisée jusqu'ici reste disponible si besoin.
+  \item \textbf{Réunion du jeudi 26/11 avec Antoine Douchin} : lundi 23/11, l'équipe fait le point sur son avancement. Si les résultats ne suffisent pas pour une réunion utile, elle proposera une autre date à Antoine Douchin.
+\end{enumerate}
+
+\section{Points ouverts et blocages}
+\begin{itemize}
+  \item \textbf{Nouveau seuil de la recherche d'immatriculation} : la valeur qui remplace les 600 pixels est mal transcrite (« 30 pixels ») ; Adam-Sabri la précisera.
+  \item \textbf{Calibrage de la mémoire} : il manque des images des navires pour régler le poids des indices.
+  \item \textbf{Simulation et plateforme} : la simulation de Reda pourra intégrer le fonctionnement réel des moteurs. Les deux sous-groupes doivent se coordonner.
+  \item \textbf{Caméra nocturne} : comportement réel à vérifier, et intégration à la simulation à étudier.
+  \item \textbf{Rythme de travail} : l'équipe veut un vrai pas en avant d'ici la prochaine réunion avec le Cerema, et souhaite garder assez de séances de travail entre deux réunions.
+\end{itemize}
+
+\section{Suivi du plan d'actions}
+\begin{tableau}{p{6.4cm} L}
+\entetetab{\textbf{Indicateur} & \textbf{Ce jour}}
+Tableau des tâches GitHub (A1) & Non abordé. En attendant, les tâches sont listées ici.\\\hline
+Point de début de séance à 8h30 (A6) & Non relevé.\\\hline
+Point de fin de séance (A7) & Fait : c'est ce compte rendu.\\\hline
+Retards à l'arrivée ou après la pause (A10) & Non relevés.\\\hline
+\end{tableau}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique, sans séparation fiable des voix. Attributions d'après les précisions de Guillaume : Guillaume (caméra), Adam-Sabri (ré-identification), Selma, Ewen et Rana (plateforme, GPS). Corrections : « Antoine Bouchard » → Antoine Douchin, « plage d'immatriculation » → plaque d'immatriculation, « indice virtuel » → indice visuel. Une erreur ? Dites-le, on corrige.}
+
+\end{document}
