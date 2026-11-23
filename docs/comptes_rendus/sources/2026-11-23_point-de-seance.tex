@@ -1,0 +1,95 @@
+% Point de séance du 23/11/2026 (action A8 du plan d'actions).
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-23_point-de-seance.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point de séance du 23/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, point de séance}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT DE SÉANCE À SIX \quad·\quad 23/11/2026}
+       {Point de séance du 23/11/2026}
+       {Où en est chaque sous-groupe, qui fait quoi pour jeudi 26/11, et la réunion avec le Cerema reportée.}
+       {Participants : les six \quad·\quad Rédacteur : Reda El Mekkaoui \quad·\quad Prochain point : jeudi 26/11/2026}
+
+\begin{enbref}
+\begin{itemize}
+  \item \textbf{Plateforme} : le GPS donne une position, à une dizaine de mètres près pour l'instant. Tous les moteurs tournent : le pas à pas de la gouverne et la propulsion.
+  \item \textbf{IA} : la simulation de Reda a bien avancé, il reste quelques soucis. Le modèle de détection pose encore problème. La caméra nocturne est montée mais pas encore testée.
+  \item \textbf{Ensuite} : pas de réunion avec Antoine Douchin jeudi 26/11 ; la séance sert à avancer, notamment au premier test de suivi de zone. Une autre date lui sera proposée.
+\end{itemize}
+\end{enbref}
+
+\section{Suivi des actions du 20/11}
+\begin{tableau}{p{5.0cm} >{\bfseries}p{2.1cm} L}
+\entetetab{\textbf{Action} & Qui & \textbf{État}}
+Tester des missions avec le nouveau GPS & Ewen, Selma, Rana & En partie : les moteurs fonctionnent et le GPS donne une position. Le test de mission (suivi de zone) est prévu jeudi 26/11.\\\hline
+Simulation 3D & Reda & En cours : bien avancée, quelques soucis à régler.\\\hline
+Caméra nocturne & Guillaume & En cours : montée, pas encore vraiment testée.\\\hline
+Mémoire de ré-identification & Adam-Sabri & Non abordé en séance.\\\hline
+Mail à Antoine Douchin & Adam-Sabri & Décidé en séance : il envoie le mail aujourd'hui (voir Décisions).\\\hline
+\end{tableau}
+
+\section{Qui fait quoi pour jeudi 26/11}
+\groupe{cPlat}{Plateforme (lot L1)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Ewen, Selma, Rana & Test de suivi de zone & Lancer une mission sur une zone, déplacer le bateau et tourner le Pixhawk (donc le compas) : le moteur de direction doit corriger le cap.\\\hline
+Ewen, Selma, Rana & Propulsion et direction ensemble & Après le test de zone : vérifier que les deux moteurs fonctionnent en même temps et que le bateau suit.\\\hline
+Ewen, Selma, Rana & Précision du GPS & Le tester dehors et vérifier si l'antenne explique l'écart d'une dizaine de mètres.\\\hline
+Ewen, Selma, Rana & Alimentation du Pixhawk & Demander un deuxième ESC, ou un adaptateur qui alimente en 5~V la ligne du milieu du Pixhawk.\\\hline
+\end{tableau}
+
+\needspace{9\baselineskip}
+\vspace{0.6em}
+\groupe{cIA}{IA (lot L2)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Reda & Simulation & Régler les soucis restants avant de la montrer à Antoine Douchin.\\\hline
+Guillaume & Caméra nocturne & La prendre en main et voir concrètement comment elle fonctionne.\\\hline
+\mdseries\itshape à confirmer & Modèle de détection & Le retravailler : il pose encore des problèmes.\\\hline
+\end{tableau}
+
+\needspace{6\baselineskip}
+\vspace{0.6em}
+\groupe{cExt}{Équipe}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Adam-Sabri & Mail à Antoine Douchin & Aujourd'hui, en tant que responsable communication : pas de réunion jeudi 26/11, pour avancer et présenter des résultats plus concrets ; proposer une autre date.\\\hline
+\end{tableau}
+
+\section{Fait depuis la dernière séance}
+\begin{itemize}
+  \item \textbf{Plateforme} (Ewen, Selma, Rana) : GPS en fonctionnement, position obtenue ; tous les moteurs tournent, le pas à pas fourni fonctionne directement.
+  \item \textbf{IA} : simulation de Reda bien avancée ; caméra nocturne montée (Guillaume).
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item \textbf{Pas de réunion avec Antoine Douchin le jeudi 26/11} : l'équipe garde la séance pour avancer et lui présenter des avancées plus concrètes. Adam-Sabri lui écrit aujourd'hui et lui proposera une autre date.
+  \item \textbf{Motorisation (rappel)} : une propulsion et une gouverne. La gouverne est un moteur pas à pas, la propulsion un moteur classique piloté par un ESC. C'était déjà acté.
+  \item \textbf{Missions limitées à une zone} (principe retenu par le sous-groupe plateforme) : en mission, le bateau ne sort pas de la zone qui lui est donnée. Sans cette limite, il pourrait poursuivre sans fin un bateau qui avance dans la même direction que lui.
+\end{enumerate}
+
+\section{Points ouverts et blocages}
+\begin{itemize}
+  \item \textbf{Précision du GPS} : une dizaine de mètres d'écart lors du premier essai, peut-être à cause de l'antenne. Gênant pour des zones petites ; suffisant a priori pour les tests.
+  \item \textbf{Puissance du pas à pas} : il risque de ne pas être assez puissant pour tourner face aux vagues ou au courant.
+  \item \textbf{ESC} : il sert pour l'instant seulement à alimenter le Pixhawk, pas à piloter un moteur. Deux ESC (un par moteur) seront probablement nécessaires, ou un adaptateur 5~V.
+  \item \textbf{Modèle de détection} : problèmes encore présents ; responsable à confirmer.
+  \item \textbf{Nouvelle date avec le Cerema} : pas encore fixée. Le jeudi 03/12 est pris par la simulation d'entretiens de stage.
+\end{itemize}
+
+\section{Suivi du plan d'actions}
+\begin{tableau}{p{6.4cm} L}
+\entetetab{\textbf{Indicateur} & \textbf{Ce jour}}
+Tableau des tâches GitHub (A1) & Non abordé. En attendant, les tâches sont listées ici.\\\hline
+Point de début de séance à 8h30 (A6) & Non relevé.\\\hline
+Point à six (A7) & Fait : c'est ce compte rendu.\\\hline
+Retards à l'arrivée ou après la pause (A10) & Non relevés.\\\hline
+\end{tableau}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique, sans séparation fiable des voix. Attributions d'après les rôles de chacun et les précisions de Reda. Corrections : « Papa et Propulsion » → pas à pas et propulsion, « Pix Hawk » → Pixhawk, « Douchin » → Antoine Douchin. Une erreur ? Dites-le, on corrige.}
+
+\end{document}
