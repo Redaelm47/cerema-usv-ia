@@ -10,6 +10,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+from ..couleur import signature_couleur_bandes
 from ..fiche import FicheNavire
 from .base import Image, Resultat, recadrer
 from .ocr import MODELES, session
@@ -93,7 +94,8 @@ class ExpertType:
         return Resultat(True, {"types": self.tete.ensemble(moyenne), "confiance": round(float(moyenne.max()), 3),
                                "probabilites": {t: round(float(p), 3) for t, p in zip(self.tete.types, moyenne)},
                                # pour la ré-identification ; retirée par la chaîne avant le journal
-                               "signature": signature, "largeur_recadrage": int(recadrage.shape[1])})
+                               "signature": signature, "largeur_recadrage": int(recadrage.shape[1]),
+                               "couleur": signature_couleur_bandes(recadrage)})
 
     def oublier(self, id_piste: int) -> None:
         self.cumuls.pop(id_piste, None)

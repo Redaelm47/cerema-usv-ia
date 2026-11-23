@@ -37,6 +37,8 @@ def main() -> None:
     parser.add_argument("--fils", type=int, help="nombre de fils d'ONNX Runtime")
     ajouter_options_reid(parser)
     parser.add_argument("--sortie", help="avec --video : chemin de la vidéo annotée à écrire (.mp4)")
+    parser.add_argument("--afficher", action="store_true",
+                        help="avec --video : montrer les images annotées en direct (Q dans la fenêtre pour arrêter)")
     parser.add_argument("--journal", default="runs/journal.jsonl", help="fichier du journal des décisions")
     parser.add_argument("--messages", action="append", metavar="ADRESSE",
                         help="où envoyer les messages du contrat 3 : fichier .jsonl, http://hôte:port/chemin ou "
@@ -59,7 +61,8 @@ def main() -> None:
 
     derouler(source, reglages, drone, vrais_experts=bool(args.video) and not args.factices, fils=args.fils,
              reseau_type=args.reseau_type, journal=args.journal, messages=args.messages or ["runs/messages.jsonl"],
-             sortie=args.sortie if args.video else None, reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires)
+             sortie=args.sortie if args.video else None, reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires,
+             afficher_direct=args.afficher and bool(args.video))
 
 
 def ajouter_options_reid(parser: argparse.ArgumentParser) -> None:
@@ -91,7 +94,7 @@ def creer_reid(args: argparse.Namespace, reglages: Reglages):
 def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool, fils: int | None = None,
              reseau_type: str = "dinov2", journal: str = "runs/journal.jsonl", messages: list[str] | None = None,
              sortie: str | None = None, reid=None,
-             memoire_navires: str | None = None) -> Chaine:
+             memoire_navires: str | None = None, afficher_direct: bool = False) -> Chaine:
     """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement.
 
     `reid` : mémoire des navires (ré-identification), sauvée dans `memoire_navires` à la fin si donné.
@@ -111,18 +114,26 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
     chemin_journal, journal = journal, Journal(journal)
     emetteur = Emetteurs([creer_emetteur(adresse) for adresse in messages])
     chaine = Chaine(experts, reglages, journal, emetteur, drone, reid=reid)
-    video_annotee = None
+    video_annotee = fenetre = None
     if sortie:
         from .affichage import VideoAnnotee
         video_annotee = VideoAnnotee(sortie, source.images_par_s)
+    if afficher_direct:
+        from .affichage import FenetreDirecte
+        fenetre = FenetreDirecte()
 
     deja_affiche, images, t, debut = 0, 0, 0.0, time.perf_counter()
     try:
         for observations, image in source:
             chaine.pas(observations, image)
             images, t = images + 1, observations["t"]
-            if video_annotee is not None:
-                video_annotee.ecrire(image, list(chaine.fiches.values()), observations["t"], drone)
+            if image is not None and (video_annotee is not None or fenetre is not None):
+                from .affichage import annoter
+                image_annotee = annoter(image, list(chaine.fiches.values()), observations["t"], drone)
+                if video_annotee is not None:
+                    video_annotee.ecrire(image_annotee)
+                if fenetre is not None:
+                    fenetre.montrer(image_annotee)
             for ligne in journal.lignes[deja_affiche:]:
                 afficher(ligne)
             deja_affiche = len(journal.lignes)
@@ -140,6 +151,8 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
     if video_annotee is not None:
         video_annotee.fermer()
         print(f"vidéo annotée écrite dans {sortie}")
+    if fenetre is not None:
+        fenetre.fermer()
 
     print(f"\n{images} images en {duree:.1f} s ({images / max(duree, 1e-9):.1f} images/s, détection et suivi compris)")
     durees = defaultdict(list)

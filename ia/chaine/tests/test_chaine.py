@@ -1,4 +1,4 @@
-import json
+﻿import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,7 +18,7 @@ from .outils import observations
 
 
 def chaine_factice(reglages=None, **experts):
-    reglages = reglages or Reglages()
+    reglages = reglages or Reglages(seuil_ocr_essai_px=float("inf"))
     liste = [experts.pop("type", ExpertTypeFactice()), experts.pop("ocr", ExpertOCRFactice(reglages)),
              experts.pop("approche", ExpertApprocheFactice()), *experts.values()]
     return Chaine(liste, reglages)
@@ -39,7 +39,7 @@ class ExpertScripte:
 
 class TestScenario(unittest.TestCase):
     def test_scenario_simule_de_bout_en_bout(self):
-        reglages, drone = Reglages(), DroneSimule()
+        reglages, drone = Reglages(seuil_ocr_essai_px=float("inf")), DroneSimule()
         chaine = Chaine([ExpertTypeFactice(), ExpertOCRFactice(reglages), ExpertApprocheSimulee(drone, reglages)],
                         reglages, drone=drone)
         for message, image in ScenarioSimule(drone):
@@ -52,7 +52,7 @@ class TestScenario(unittest.TestCase):
                          ["expert_type", "approche", "expert_ocr", "alerte_complete"])
 
     def test_messages_du_contrat_3(self):
-        reglages, drone = Reglages(), DroneSimule()
+        reglages, drone = Reglages(seuil_ocr_essai_px=float("inf")), DroneSimule()
         chaine = Chaine([ExpertTypeFactice(), ExpertOCRFactice(reglages), ExpertApprocheSimulee(drone, reglages)],
                         reglages, drone=drone)
         for message, image in ScenarioSimule(drone):
@@ -78,7 +78,7 @@ class TestScenario(unittest.TestCase):
     def test_journal_ecrit_dans_un_fichier(self):
         with tempfile.TemporaryDirectory() as dossier:
             chemin = Path(dossier) / "journal.jsonl"
-            reglages = Reglages()
+            reglages = Reglages(seuil_ocr_essai_px=float("inf"))
             chaine = Chaine([ExpertTypeFactice(), ExpertOCRFactice(reglages), ExpertApprocheFactice()], reglages,
                             Journal(chemin))
             for i in range(8):
@@ -148,7 +148,7 @@ class TestRegles(unittest.TestCase):
         self.assertEqual(terminees, [1])
 
     def test_type_hesitant_transmis_dans_l_alerte(self):
-        reglages = Reglages()
+        reglages = Reglages(seuil_ocr_essai_px=float("inf"))
         chaine = chaine_factice(reglages, type=ExpertTypeFactice(("chalutier", "vedette"), 0.55))
         for i in range(12):
             chaine.pas(observations(i * 0.5, (1, 700.0)))
@@ -157,7 +157,7 @@ class TestRegles(unittest.TestCase):
         self.assertEqual(chaine.fiches[1].decision.tentatives["type"], reglages.max_tentatives_type)
 
     def test_lecture_non_validee_transmise_dans_l_alerte_partielle(self):
-        reglages = Reglages()
+        reglages = Reglages(seuil_ocr_essai_px=float("inf"))
         ocr = ExpertScripte("ocr", Resultat(False, {"candidate": "GV 123456", "confiance": 0.4, "raison": "vote en cours"}))
         chaine = chaine_factice(reglages, ocr=ocr)
         for i in range(30):
@@ -287,7 +287,7 @@ class TestReprisePiste(unittest.TestCase):
         self.assertEqual(chaine.journal.lignes[-1]["action"], "reprise_piste")
 
     def test_changement_de_numero_pendant_l_approche(self):
-        reglages, drone = Reglages(), DroneSimule()
+        reglages, drone = Reglages(seuil_ocr_essai_px=float("inf")), DroneSimule()
         chaine = Chaine([ExpertTypeFactice(), ExpertOCRFactice(reglages), ExpertApprocheSimulee(drone, reglages)],
                         reglages, drone=drone)
         for i in range(5):
@@ -330,7 +330,7 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
     IMAGE = np.zeros((400, 1000, 3), np.uint8)
 
     def test_image_rejetee_expert_non_lance(self):
-        reglages = Reglages()
+        reglages = Reglages(seuil_ocr_essai_px=float("inf"))
         type_ = ExpertScripte("type", Resultat(True, {"types": ["chalutier"], "confiance": 0.9}))
         qualite = ExpertScripte("qualite", Resultat(False, {"raison": "image floue", "nettete": 3.0}),
                                 Resultat(True, {"nettete": 80.0}))
@@ -354,7 +354,7 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
                          [(1, "filtre_qualite"), (2, "expert_type")])
 
     def test_images_toujours_floues_la_chaine_finit_par_alerter(self):
-        reglages = Reglages()
+        reglages = Reglages(seuil_ocr_essai_px=float("inf"))
         qualite = ExpertScripte("qualite", Resultat(False, {"raison": "image floue", "nettete": 3.0}))
         chaine = chaine_factice(reglages, qualite=qualite)
         t = 0.0

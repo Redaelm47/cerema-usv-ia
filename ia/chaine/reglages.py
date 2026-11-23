@@ -15,7 +15,11 @@ class Reglages:
 
     # Décideur
     largeur_min_type_px: float = 64.0   # en dessous, le navire est trop petit pour être classé
-    seuil_ocr_px: float = 600.0         # largeur du navire à partir de laquelle on tente de lire
+    seuil_ocr_px: float = 600.0         # largeur du navire à partir de laquelle on tente de lire ; cible de l'approche
+    # Essais précoces : on tente aussi de lire avant ce seuil, sans attendre que le navire soit gros. Sur la scène
+    # Blender la plaque est lue dès ~120-145 px, soit 10 s plus tôt qu'à 300 px (jamais à 600 px sans zoom).
+    seuil_ocr_essai_px: float = 120.0
+    max_essais_ocr_precoces: int = 4    # budget à part : un échec sur un petit navire ne prive pas des essais à 600 px
     max_tentatives_type: int = 2
     max_tentatives_ocr: int = 6
     intervalle_essais_s: float = 0.4    # entre deux essais du même expert sur le même navire
@@ -63,3 +67,8 @@ class Contexte:
     cible: int | None = None            # numéro de la piste approchée
     distance_m: float | None = None     # distance estimée au navire approché
     temperature_pi: float | None = None
+    # Mesures facultatives du drone, pour la taille réelle et la trajectoire des navires (indices.py). Absentes
+    # (None) dans la simulation : la distance estimée par l'approche vient d'une longueur supposée, elle ne mesure rien.
+    position_m: tuple[float, float] | None = None   # position du drone (est, nord), repère de la mission
+    cap_deg: float | None = None                    # cap du drone depuis le nord, sens horaire
+    distance_navire_m: float | None = None          # distance MESURÉE au navire `cible` (radar, télémètre, AIS...)

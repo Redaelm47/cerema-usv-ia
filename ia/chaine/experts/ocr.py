@@ -1,4 +1,4 @@
-"""Expert OCR : localise le texte sur le navire puis le lit, avec les modèles mobiles de PaddleOCR.
+﻿"""Expert OCR : localise le texte sur le navire puis le lit, avec les modèles mobiles de PaddleOCR.
 
 Les deux modèles tournent sur ONNX Runtime ; les traitements avant et après sont réécrits ici avec
 NumPy et OpenCV, sans PaddlePaddle. La lecture est ensuite contrôlée (format français) et votée sur
@@ -54,6 +54,13 @@ class LecteurDeTexte:
         self.caracteres = [""] + dictionnaire + [" "]
         self.admis = np.array([i == 0 or c in CARACTERES_ADMIS for i, c in enumerate(self.caracteres)])
         self.durees_ms = {"detection": 0.0, "lecture": 0.0}
+        self._prechauffer()
+
+    def _prechauffer(self) -> None:
+        """Un premier passage à vide : le premier appel d'ONNX Runtime est nettement plus lent que les suivants."""
+        self.localiser(np.zeros((self.cote_min, self.cote_min, 3), np.uint8))
+        facteur = np.zeros((1, 3, 48, 160), np.float32)
+        self.lecture.run(None, {self.lecture.get_inputs()[0].name: facteur})
 
     def lire(self, image: Image) -> list[Texte]:
         debut = time.perf_counter()

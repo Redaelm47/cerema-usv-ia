@@ -39,6 +39,26 @@ Une signature est le vecteur de 768 nombres que l'expert type calcule déjà ave
 
 Dans tous les cas, l'immatriculation de l'alerte reste celle que l'OCR a lue (ou `null`). Une ressemblance ne la remplit jamais.
 
+## Indices complémentaires (`indices.py`)
+
+La signature DINOv2 ne suffit pas à séparer deux navires de même modèle. La mémoire garde aussi, pour chaque navire :
+
+| Indice | Rôle | Source |
+|---|---|---|
+| **Nom** lu sur la coque (« KOFRIGAN ») | score : +0,06 si le même nom est retrouvé (moitié si lu une fois), −0,03 si deux noms bien lus diffèrent | textes hors format de l'OCR |
+| **Fragment d'immatriculation** (« BR5387 ») | score : +0,04 s'il est compatible avec l'immatriculation du navire en mémoire (même quartier, au moins 4 chiffres, une faute tolérée). Jamais de malus : un fragment mal lu ne doit pas écarter le bon navire | textes hors format de l'OCR |
+| **Couleur par bandes** (superstructure, flanc, coque) | score : de −0,04 à +0,02 autour d'une similarité de 0,85 | `couleur.signature_couleur_bandes`, calculée avec la signature |
+| **Longueur réelle** | veto si les longueurs minimales diffèrent de plus de 1,8 fois | distance mesurée par le drone |
+| **Trajet** | veto si le navire aurait dû dépasser 20 m/s pour passer de sa dernière position à la nouvelle | position, cap et distance mesurée du drone |
+
+Règles : la somme des bonus est plafonnée à 0,08 ; sous 0,75 de ressemblance visuelle rien ne rattrape un candidat ; les indices corrigent la ressemblance (qui sert aux seuils `probable` et `sur`) et ne la remplacent pas. Le détail de chaque indice est dans le champ `indices` du journal.
+
+**Taille et trajet demandent des mesures que le drone doit fournir** : `Contexte.distance_navire_m` (distance mesurée à la cible), `position_m` et `cap_deg`. La distance de l'approche simulée est déduite d'une longueur supposée par type : s'en servir pour mesurer le navire serait circulaire. Sans ces mesures, ces deux indices sont inactifs.
+
+Tous les poids sont des valeurs de départ **non recalées** (`ReglagesReid`). Les recaler demande des images de plusieurs navires : `outils/mesurer_reid.py`. La mémoire sauvée passe en version 2 ; la version 1 se relit.
+
+Quand l'OCR lit un navire assez gros, la chaîne prend aussi sa signature et sa couleur de près si la mémoire n'en a aucune (le type est souvent passé quand le navire est trop petit pour une signature).
+
 ## Les garde-fous
 
 1. **Deux seuils.** Le niveau `probable` s'applique à partir d'une ressemblance de 0,85, le niveau `sur` à partir de 0,90. Seul `sur` peut éviter une approche.

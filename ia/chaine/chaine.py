@@ -9,6 +9,7 @@ from . import contrats
 from .decideur import Action, actualiser_etat, decider
 from .experts.base import Expert, Image, Resultat, recadrer
 from .fiche import Boite, Etat, FicheNavire, Observation
+from .indices import Mesure, estimer_mesure
 from .journal import Journal
 from .messages import Emetteur, EmetteurMemoire
 from .reglages import Contexte, Reglages
@@ -153,9 +154,12 @@ class Chaine:
             return
         r = self.reglages
         for fiche in self.fiches.values():
+            essais = fiche.decision.tentatives
             a_lire = (fiche.decision.etat in (Etat.CONFIRMEE, Etat.EN_APPROCHE) and fiche.suivi.derniere_vue == t
-                      and fiche.largeur_px >= r.seuil_ocr_px and not fiche.immatriculation_connue
-                      and fiche.decision.tentatives.get("ocr", 0) < r.max_tentatives_ocr)
+                      and not fiche.immatriculation_connue
+                      and ((fiche.largeur_px >= r.seuil_ocr_px and essais.get("ocr", 0) < r.max_tentatives_ocr)
+                           or (r.seuil_ocr_essai_px <= fiche.largeur_px < r.seuil_ocr_px
+                               and essais.get("ocr_precoce", 0) < r.max_essais_ocr_precoces)))
             if not a_lire:
                 self._plus_nettes.pop(fiche.id_piste, None)
                 continue
@@ -196,13 +200,15 @@ class Chaine:
 
         valeurs = dict(resultat.valeurs)
         signature, largeur_recadrage = valeurs.pop("signature", None), valeurs.pop("largeur_recadrage", None)
+        couleur = valeurs.pop("couleur", None)
         if nette:
             valeurs["image_lue_t"] = round(nette[0], 2)  # date de l'image choisie, la plus nette
         if nom == "type" and resultat.reussi:
             fiche.experts.types = list(valeurs["types"])
             fiche.experts.confiance_type = float(valeurs.get("confiance", 0.0))
             if signature is not None:
-                self._reidentifier(t, fiche, signature, largeur_recadrage or fiche.largeur_px)
+                self._reidentifier(t, fiche, signature, largeur_recadrage or fiche.largeur_px, couleur,
+                                   self._mesure(t, fiche, image, contexte))
         elif nom == "ocr":
             if not resultat.reussi:
                 resultat = self._lecture_confirmee_par_reid(fiche, resultat, valeurs)
@@ -214,6 +220,11 @@ class Chaine:
                     interne.textes_lus[texte] = interne.textes_lus.get(texte, 0) + 1
             interne.lecture_candidate = valeurs.get("candidate", valeurs.get("immatriculation"))
             interne.confiance_candidate = float(valeurs.get("confiance", 0.0))
+            if self.reid is not None:   # noms et débuts d'immatriculation lus : indices de plus pour la mémoire
+                self.reid.noter_piste(fiche.id_piste, textes=interne.textes_lus,
+                                      mesure=self._mesure(t, fiche, image, contexte))
+                self._signature_de_pres(t, fiche, image, contexte)
+                self._rechercher_reid(t, fiche)
         elif nom == "approche" and resultat.reussi:
             decision.etat = Etat.EN_APPROCHE
             decision.debut_approche = t
@@ -227,6 +238,8 @@ class Chaine:
         return True
 
     def _compter_tentative(self, fiche: FicheNavire, nom: str) -> None:
+        if nom == "ocr" and fiche.largeur_px < self.reglages.seuil_ocr_px:
+            nom = "ocr_precoce"  # budget à part, voir Reglages.max_essais_ocr_precoces
         fiche.decision.tentatives[nom] = fiche.decision.tentatives.get(nom, 0) + 1
         if nom == "type":
             fiche.interne.largeur_dernier_type = fiche.largeur_px
@@ -266,10 +279,42 @@ class Chaine:
         return {f.id_piste for f in self.fiches.values()
                 if f.id_piste != sauf and f.suivi.premiere_vue <= fin and debut <= f.suivi.derniere_vue}
 
-    def _reidentifier(self, t: float, fiche: FicheNavire, signature: Any, largeur_px: float) -> None:
-        """Nouvelle signature de la piste : cherche si elle ressemble à un navire déjà signalé."""
-        if self.reid is None or not self.reid.ajouter_vue(fiche.id_piste, signature, largeur_px):
+    def _mesure(self, t: float, fiche: FicheNavire, image: Image, contexte: Contexte) -> Mesure | None:
+        """Position et longueur du navire d'après la distance MESURÉE par le drone, None s'il n'y en a pas
+        (simulation : la distance de l'approche vient d'une longueur supposée, voir indices.py)."""
+        if contexte.cible != fiche.id_piste or not contexte.distance_navire_m:
+            return None
+        largeur_image = image.shape[1] if image is not None else self.reglages.largeur_image_px
+        return estimer_mesure(t, fiche.suivi.boite, largeur_image, self.reglages.champ_horizontal_deg,
+                              contexte.position_m, contexte.cap_deg, contexte.distance_navire_m)
+
+    def _signature_de_pres(self, t: float, fiche: FicheNavire, image: Image, contexte: Contexte) -> None:
+        """Le navire est assez gros pour être lu, donc assez gros pour une bonne signature : si la mémoire n'en a
+        encore aucune (le type est souvent passé quand le navire est trop petit), on en prend une, avec la couleur.
+        Sans cela, un navire dont l'immatriculation est lue entrerait en mémoire sans rien pour le reconnaître."""
+        expert = self.experts.get("type")
+        if (self.reid is None or image is None or expert is None or len(self.reid.signatures(fiche.id_piste))
+                or fiche.largeur_px < self.reid.reglages.largeur_min_px):
             return
+        resultat = expert.lancer(fiche, image)
+        signature = resultat.valeurs.get("signature") if resultat.reussi else None
+        if signature is not None:
+            self._reidentifier(t, fiche, signature, resultat.valeurs.get("largeur_recadrage") or fiche.largeur_px,
+                               resultat.valeurs.get("couleur"), self._mesure(t, fiche, image, contexte))
+
+    def _reidentifier(self, t: float, fiche: FicheNavire, signature: Any, largeur_px: float,
+                      couleur: Any = None, mesure: Mesure | None = None) -> None:
+        """Nouvelle signature de la piste : cherche si elle ressemble à un navire déjà signalé."""
+        if self.reid is None:
+            return
+        if mesure is not None:
+            self.reid.noter_piste(fiche.id_piste, mesure=mesure)
+        if not self.reid.ajouter_vue(fiche.id_piste, signature, largeur_px, couleur):
+            return
+        self._rechercher_reid(t, fiche)
+
+    def _rechercher_reid(self, t: float, fiche: FicheNavire) -> None:
+        """Cherche si la piste, avec tout ce que l'on sait d'elle, ressemble à un navire déjà signalé."""
         avant = fiche.interne.deja_vu
         apres = self.reid.rechercher(fiche.id_piste, fiche.experts.types, self._pistes_visibles(fiche.id_piste))
         fiche.interne.deja_vu = apres

@@ -66,6 +66,10 @@ def decider(fiche: FicheNavire, t: float, contexte: Contexte, reglages: Reglages
     assez_gros = fiche.largeur_px >= reglages.seuil_ocr_px
     if assez_gros and tentatives.get("ocr", 0) < reglages.max_tentatives_ocr:
         return essayer(Action.EXPERT_OCR, "ocr", "navire assez gros pour lire")
+    # Essai précoce : la plaque est parfois déjà lisible bien avant le seuil d'approche.
+    if (not assez_gros and fiche.largeur_px >= reglages.seuil_ocr_essai_px
+            and tentatives.get("ocr_precoce", 0) < reglages.max_essais_ocr_precoces):
+        return essayer(Action.EXPERT_OCR, "ocr", "essai de lecture précoce")
 
     # 4. Approche permise par les garde-fous ?
     if etat == Etat.EN_APPROCHE:

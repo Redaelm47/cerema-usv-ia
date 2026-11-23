@@ -1,11 +1,11 @@
-import unittest
+﻿import unittest
 
 from chaine.experts.approche import DroneSimule, ExpertApprocheSimulee, estimer_cap_et_distance
 from chaine.reglages import Reglages
 
 from .outils import fiche_confirmee
 
-R = Reglages()
+R = Reglages(seuil_ocr_essai_px=float("inf"))
 
 
 def fiche_a(x, largeur):

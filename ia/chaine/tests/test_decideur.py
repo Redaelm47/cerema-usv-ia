@@ -1,4 +1,4 @@
-import unittest
+﻿import unittest
 
 from chaine.decideur import Action, actualiser_etat, decider
 from chaine.fiche import Etat, FicheNavire, Observation
@@ -7,7 +7,7 @@ from chaine.reglages import Contexte, Reglages
 
 from .outils import fiche_confirmee
 
-R = Reglages()
+R = Reglages(seuil_ocr_essai_px=float("inf"))
 T = 1.0
 
 
@@ -28,6 +28,34 @@ def fiche_en_approche(largeur=200.0, debut=T, t=T):
     fiche.decision.tentatives["approche"] = 1
     fiche.interne.largeur_debut_approche = 200.0
     return fiche
+
+
+class TestLecturePrecoce(unittest.TestCase):
+    """On tente de lire avant le seuil d'approche, avec un budget d'essais à part."""
+    P = Reglages()
+
+    def test_essai_precoce_sur_un_navire_moyen(self):
+        fiche = fiche_typee(largeur=150.0)
+        self.assertEqual(action(fiche, reglages=self.P)[0], Action.EXPERT_OCR)
+
+    def test_pas_d_essai_sous_le_seuil_precoce(self):
+        fiche = fiche_typee(largeur=self.P.seuil_ocr_essai_px - 10)
+        self.assertEqual(action(fiche, reglages=self.P)[0], Action.APPROCHE)
+
+    def test_budget_precoce_epuise_puis_approche(self):
+        fiche = fiche_typee(largeur=150.0)
+        fiche.decision.tentatives["ocr_precoce"] = self.P.max_essais_ocr_precoces
+        self.assertEqual(action(fiche, reglages=self.P)[0], Action.APPROCHE)
+
+    def test_les_essais_precoces_ne_privent_pas_des_essais_a_gros_navire(self):
+        fiche = fiche_typee(largeur=self.P.seuil_ocr_px)
+        fiche.decision.tentatives["ocr_precoce"] = self.P.max_essais_ocr_precoces
+        self.assertEqual(action(fiche, reglages=self.P)[0], Action.EXPERT_OCR)
+
+    def test_immatriculation_lue_tot_evite_l_approche(self):
+        fiche = fiche_typee(largeur=150.0)
+        fiche.experts.immatriculation = "BR 538217"
+        self.assertEqual(action(fiche, reglages=self.P)[0], Action.ALERTE_COMPLETE)
 
 
 class TestEtats(unittest.TestCase):
