@@ -4,6 +4,10 @@ Le réseau figé donne une signature du navire (768 nombres). La tête linéaire
 d'images (`outils/entrainer_tete_type.py`), en tire une probabilité par type. La prédiction conforme
 garde tous les types dont la probabilité dépasse un seuil calibré : un seul type si l'expert est sûr,
 plusieurs s'il hésite.
+
+Si la tête a aussi appris la classe `pas_navire` (recadrages de vagues, reflets, côte), l'expert dit en plus
+si c'est un navire : ce n'en est pas un quand `pas_navire` est seul dans l'ensemble. Dès qu'un type de navire
+y reste, on le garde comme navire : rater un vrai navire coûte plus cher qu'une alerte de trop.
 """
 from pathlib import Path
 
@@ -17,6 +21,7 @@ from .ocr import MODELES, session
 COTE = 224
 # Réseaux figés possibles : fichier ONNX, et nombre de jetons avant ceux de l'image (classe, puis registres).
 RESEAUX = {"dinov2": ("dinov2_vits14.onnx", 1), "dinov3": ("dinov3_vits16/model.onnx", 5)}
+PAS_NAVIRE = "pas_navire"  # classe des recadrages sans navire, quand la tête l'a apprise
 MOYENNE = np.array([0.485, 0.456, 0.406], np.float32)  # normalisation d'ImageNet, en RVB
 ECART = np.array([0.229, 0.224, 0.225], np.float32)
 
@@ -89,7 +94,10 @@ class ExpertType:
         somme, essais = somme + probabilites, essais + 1
         self.cumuls[fiche.id_piste] = (somme, essais)
         moyenne = somme / essais  # moyenne sur les essais de la même piste
-        return Resultat(True, {"types": self.tete.ensemble(moyenne), "confiance": round(float(moyenne.max()), 3),
+        types = [t for t in self.tete.ensemble(moyenne) if t != PAS_NAVIRE]
+        navire = [i for i, t in enumerate(self.tete.types) if t != PAS_NAVIRE]
+        return Resultat(True, {"types": types, "navire": bool(types), "essais": essais,
+                               "confiance": round(float(moyenne[navire].max()), 3),
                                "probabilites": {t: round(float(p), 3) for t, p in zip(self.tete.types, moyenne)}})
 
     def oublier(self, id_piste: int) -> None:

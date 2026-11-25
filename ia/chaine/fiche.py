@@ -15,6 +15,7 @@ class Etat(str, Enum):
     EN_APPROCHE = "en_approche"  # le drone se rapproche pour mieux voir
     ALERTEE = "alertee"          # alerte envoyée, plus rien à faire
     PERDUE = "perdue"            # plus vue depuis trop longtemps
+    ECARTEE = "ecartee"          # pas un navire selon l'expert type (vague, reflet, côte) : ni alerte ni approche
 
 
 @dataclass

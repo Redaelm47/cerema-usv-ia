@@ -88,7 +88,7 @@ class Chaine:
             if id_piste not in vues:
                 fiche.manquer()
             actualiser_etat(fiche, t, self.reglages)
-            oubliable = fiche.decision.etat in (Etat.ALERTEE, Etat.NOUVELLE) or (
+            oubliable = fiche.decision.etat in (Etat.ALERTEE, Etat.ECARTEE, Etat.NOUVELLE) or (
                 fiche.decision.etat == Etat.PERDUE and decider(fiche, t, Contexte(), self.reglages)[0] == Action.ATTENDRE)
             if oubliable and t - fiche.suivi.derniere_vue > self.reglages.delai_oubli_s:
                 del self.fiches[id_piste]
@@ -210,7 +210,20 @@ class Chaine:
         self.emetteur.envoyer(contrats.message_decision(t, fiche.id_piste, action.value, raison))
         self._noter(t, fiche, action.value, raison, reussi=resultat.reussi, duree_ms=round(duree_ms, 2),
                     details=valeurs)
+        if nom == "type" and resultat.reussi and not valeurs.get("navire", True) \
+                and valeurs.get("essais", 1) >= self.reglages.essais_pour_ecarter:
+            self._ecarter(t, fiche, valeurs["essais"])
         return True
+
+    def _ecarter(self, t: float, fiche: FicheNavire, essais: int) -> None:
+        """L'expert type a dit « pas un navire » sur assez d'essais : ni alerte, ni approche, rien vers la station sol."""
+        if fiche.decision.debut_approche is not None and hasattr(self.experts.get("approche"), "terminer"):
+            self.experts["approche"].terminer(fiche)
+        for expert in self.experts.values():
+            if hasattr(expert, "oublier"):
+                expert.oublier(fiche.id_piste)
+        fiche.decision.etat = Etat.ECARTEE
+        self._noter(t, fiche, "ecartee", f"pas un navire selon l'expert type ({essais} essais)")
 
     def _compter_tentative(self, fiche: FicheNavire, nom: str) -> None:
         fiche.decision.tentatives[nom] = fiche.decision.tentatives.get(nom, 0) + 1

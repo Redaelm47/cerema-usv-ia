@@ -24,7 +24,8 @@ class VideoAnnotee:
         cv2.putText(image, texte, origine, cv2.FONT_HERSHEY_SIMPLEX, 0.55 * echelle, couleur,
                     max(int(1.5 * echelle), 1), cv2.LINE_AA)
 
-    def ecrire(self, image, fiches: list[FicheNavire], t: float, drone=None) -> None:
+    def annoter(self, image, fiches: list[FicheNavire], t: float, drone=None):
+        """Rend une copie de l'image avec la boîte et la fiche de chaque navire vu à cet instant."""
         image = image.copy()
         echelle = max(image.shape[1] / 1280, 0.5)
         for fiche in fiches:
@@ -44,6 +45,10 @@ class VideoAnnotee:
             if drone.distance_m is not None:
                 bandeau += f"   distance {drone.distance_m:.0f} m"
             self._texte(image, bandeau, (int(12 * echelle), int(26 * echelle)), (255, 255, 255), echelle)
+        return image
+
+    def ecrire(self, image, fiches: list[FicheNavire], t: float, drone=None) -> None:
+        image = self.annoter(image, fiches, t, drone)
         if self._ecrivain is None:
             hauteur_image, largeur_image = image.shape[:2]
             self._ecrivain = cv2.VideoWriter(self.chemin, cv2.VideoWriter_fourcc(*"mp4v"), self.images_par_s,
@@ -53,3 +58,21 @@ class VideoAnnotee:
     def fermer(self) -> None:
         if self._ecrivain is not None:
             self._ecrivain.release()
+
+
+class FluxAnnote(VideoAnnotee):
+    """Vue en direct : écrit chaque image annotée en JPEG sur un flux binaire (à lire avec `ffplay -f mjpeg`)."""
+
+    def __init__(self, flux, largeur: int = 1280, qualite: int = 75):
+        super().__init__("")
+        self.flux, self.largeur, self.qualite = flux, largeur, qualite
+
+    def ecrire(self, image, fiches: list[FicheNavire], t: float, drone=None) -> None:
+        image = self.annoter(image, fiches, t, drone)
+        if image.shape[1] > self.largeur:
+            echelle = self.largeur / image.shape[1]
+            image = cv2.resize(image, None, fx=echelle, fy=echelle, interpolation=cv2.INTER_AREA)
+        reussi, jpeg = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, self.qualite])
+        if reussi:
+            self.flux.write(jpeg.tobytes())
+            self.flux.flush()

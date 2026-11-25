@@ -27,7 +27,7 @@ def actualiser_etat(fiche: FicheNavire, t: float, reglages: Reglages) -> None:
                  and suivi.confiance >= reglages.confiance_confirmation)
     if decision.etat in (Etat.NOUVELLE, Etat.PERDUE) and assez_vue:
         decision.etat = Etat.CONFIRMEE
-    elif decision.etat != Etat.ALERTEE and t - suivi.derniere_vue > reglages.delai_perte_s:
+    elif decision.etat not in (Etat.ALERTEE, Etat.ECARTEE) and t - suivi.derniere_vue > reglages.delai_perte_s:
         decision.etat = Etat.PERDUE
 
 
@@ -37,6 +37,8 @@ def decider(fiche: FicheNavire, t: float, contexte: Contexte, reglages: Reglages
         return Action.ATTENDRE, "piste non confirmée"
     if etat == Etat.ALERTEE:
         return Action.ATTENDRE, "alerte déjà envoyée"
+    if etat == Etat.ECARTEE:
+        return Action.ATTENDRE, "pas un navire"
     if etat == Etat.PERDUE:
         # Un navire perdu en cours d'identification : on dit ce que l'on sait.
         if fiche.experts.types or fiche.interne.lecture_candidate or fiche.decision.debut_approche is not None:

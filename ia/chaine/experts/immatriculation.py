@@ -7,10 +7,13 @@ import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-# Quartiers maritimes. Liste écrite de mémoire, À VÉRIFIER avec le Cerema ou les Affaires maritimes :
-# un quartier absent de la liste baisse la confiance de la lecture mais ne la rejette pas.
+# Quartiers d'immatriculation (anciens quartiers maritimes), d'après la liste officielle « Initiales des quartiers
+# d'immatriculation » de la préfecture du Morbihan (PDF de mars 2010, 45 codes), vérifiée le 16/11/2026 :
+# https://www.morbihan.gouv.fr/contenu/telechargement/22003/176160/file/Initiales_des_quartiers_d_immatriculation.pdf
+# Wikipédia ajoute BY (Saint-Barthélemy) et DI (Mayotte), sur la foi d'un site privé : non repris.
+# Un quartier absent de la liste baisse la confiance de la lecture mais ne la rejette pas.
 QUARTIERS = {
-    "DK": "Dunkerque", "BL": "Boulogne-sur-Mer", "DP": "Dieppe", "FC": "Fécamp", "LH": "Le Havre",
+    "DK": "Dunkerque", "BL": "Boulogne-sur-Mer", "DP": "Dieppe", "FC": "Fécamp", "LH": "Le Havre", "RO": "Rouen",
     "CN": "Caen", "CH": "Cherbourg", "SM": "Saint-Malo", "SB": "Saint-Brieuc", "PL": "Paimpol",
     "MX": "Morlaix", "BR": "Brest", "CM": "Camaret", "DZ": "Douarnenez", "AD": "Audierne",
     "GV": "Le Guilvinec", "CC": "Concarneau", "LO": "Lorient", "AY": "Auray", "VA": "Vannes",

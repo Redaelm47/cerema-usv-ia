@@ -17,6 +17,7 @@ class Reglages:
     largeur_min_type_px: float = 64.0   # en dessous, le navire est trop petit pour être classé
     seuil_ocr_px: float = 600.0         # largeur du navire à partir de laquelle on tente de lire
     max_tentatives_type: int = 2
+    essais_pour_ecarter: int = 2        # essais de l'expert type qui doivent dire « pas un navire » avant d'écarter la piste
     max_tentatives_ocr: int = 6
     intervalle_essais_s: float = 0.4    # entre deux essais du même expert sur le même navire
     croissance_nouvel_essai_type: float = 1.5  # type hésitant : nouvel essai si le navire a grossi d'autant

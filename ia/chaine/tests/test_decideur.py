@@ -80,6 +80,13 @@ class TestEtats(unittest.TestCase):
         self.assertEqual(fiche.decision.etat, Etat.ALERTEE)
         self.assertEqual(action(fiche, 100.0), (Action.ATTENDRE, "alerte déjà envoyée"))
 
+    def test_ecartee_ne_change_plus(self):
+        fiche = fiche_confirmee()
+        fiche.decision.etat = Etat.ECARTEE
+        actualiser_etat(fiche, 100.0, R)
+        self.assertEqual(fiche.decision.etat, Etat.ECARTEE)
+        self.assertEqual(action(fiche, 100.0), (Action.ATTENDRE, "pas un navire"))
+
     def test_piste_perdue_sans_rien_savoir(self):
         fiche = fiche_confirmee()
         fiche.decision.etat = Etat.PERDUE

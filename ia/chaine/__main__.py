@@ -5,6 +5,8 @@
     python3 -m chaine --video v.mp4 --sortie runs/annotee.mp4 --messages http://127.0.0.1:8000/messages
 """
 import argparse
+import os
+import sys
 import time
 from collections import defaultdict
 
@@ -63,8 +65,11 @@ def main() -> None:
 
 def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool, fils: int | None = None,
              reseau_type: str = "dinov2", journal: str = "runs/journal.jsonl", messages: list[str] | None = None,
-             sortie: str | None = None) -> Chaine:
-    """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement."""
+             sortie: str | None = None, direct=None) -> Chaine:
+    """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement.
+
+    `direct` : flux binaire où écrire les images annotées en JPEG. Sa fermeture par le lecteur arrête la chaîne.
+    """
     messages = messages or ["runs/messages.jsonl"]
     experts = [ExpertApprocheSimulee(drone, reglages)]
     if vrais_experts:
@@ -83,6 +88,10 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
     if sortie:
         from .affichage import VideoAnnotee
         video_annotee = VideoAnnotee(sortie, source.images_par_s)
+    vue_directe = None
+    if direct is not None:
+        from .affichage import FluxAnnote
+        vue_directe = FluxAnnote(direct)
 
     deja_affiche, images, t, debut = 0, 0, 0.0, time.perf_counter()
     try:
@@ -91,10 +100,15 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
             images, t = images + 1, observations["t"]
             if video_annotee is not None:
                 video_annotee.ecrire(image, list(chaine.fiches.values()), observations["t"], drone)
+            if vue_directe is not None:
+                vue_directe.ecrire(image, list(chaine.fiches.values()), observations["t"], drone)
             for ligne in journal.lignes[deja_affiche:]:
                 afficher(ligne)
             deja_affiche = len(journal.lignes)
-    except KeyboardInterrupt:  # Ctrl+C devant une caméra : on clôt proprement, alertes en cours comprises
+    except (KeyboardInterrupt, BrokenPipeError) as arret:
+        # Ctrl+C devant une caméra, ou fenêtre du direct fermée : on clôt proprement, alertes en cours comprises
+        if isinstance(arret, BrokenPipeError):  # plus personne ne lit, le texte non plus : il ne doit pas gêner la clôture
+            sys.stdout = sys.stderr = open(os.devnull, "w")
         print("\narrêt demandé")
     duree = time.perf_counter() - debut
     chaine.cloturer(t)
