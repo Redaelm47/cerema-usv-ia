@@ -15,6 +15,9 @@ data/
 runs/
 *.pt
 *.onnx
+# Exception : les deux modèles de l'expert OCR (13 Mo en tout), pour tester sans téléchargement
+!ia/chaine/modeles/ocr_detection.onnx
+!ia/chaine/modeles/ocr_lecture.onnx
 *.tflite
 *.mp4
 *.avi
