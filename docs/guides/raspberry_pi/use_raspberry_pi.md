@@ -48,3 +48,8 @@ Depuis un terminal sur votre PC portable :
 ```
 scp pi@cerema-pi.local:Desktop/Yolo_test/demo1.avi .
 ```
+
+## 6. Etreindre le raspberry pi
+```
+sudo shutdown now
+```

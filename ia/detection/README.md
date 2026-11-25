@@ -43,6 +43,7 @@ ia/detection/
 │   ├── scene-blender-01.mp4                # Simulation réaliste Blender (forte houle et clapot)
 │   └── scene-blender-02.mp4                # Simulation réaliste Blender (vue dégagée)
 ├── programs/                               # Ensemble des bancs d'essai et scripts exécutables
+│   ├── live_pi_camera.py                   # Streaming direct de la caméra Pi sur PC (OpenCV / FFplay / YOLO)
 │   ├── test_model.py                       # Évaluation standard sur Dataset_Global (--model best4 / best4_2)
 │   ├── test_degradation_benchmark.py       # Benchmark quantitatif de robustesse multi-dégradations
 │   ├── test_degradation_gouttes.py         # Test visuel spécialisé gouttes d'eau jusqu'à 100% (--compare)
@@ -50,7 +51,7 @@ ia/detection/
 │   ├── donnee_training.py                  # Visualisation des courbes d'apprentissage (--run before / after)
 │   ├── yolo_detect.py                      # Détection unitaire (image, vidéo, caméra USB, Picamera)
 │   ├── yolo_tracking_test.py               # Tracking multi-objets avec affichage vidéo
-│   ├── tracking_test_json.py               # Tracking temps réel avec export de flux JSON horodaté
+│   ├── tracking_test_json.py               # Tracking avec validation spatio-temporelle (images consécutives) et export JSON
 │   ├── train_robust_model.py               # Fine-tuning à partir d'un modèle source (--weights best4)
 │   ├── modify_dataset_robust.py            # Injection de 10% de perturbations maritimes dans le dataset
 │   ├── image_degradation.py                # Moteur physique de simulation des dégradations maritimes
@@ -103,7 +104,13 @@ La détection du GPU (NVIDIA CUDA si disponible, sinon CPU) et la résolution de
 ## 🚀 Commandes d'exécution rapide (depuis `programs/`)
 
 ```bash
-# 1. Évaluer les métriques sur le test set :
+# 1. Lancer la caméra du Raspberry Pi en direct sur le PC :
+python live_pi_camera.py
+
+# 2. Lancer la caméra du Pi avec détection YOLO en direct sur le PC :
+python live_pi_camera.py --yolo --model best4_2
+
+# 3. Évaluer les métriques sur le test set :
 python test_model.py --model best4_2
 
 # 2. Visualiser les courbes d'apprentissage (pertes, mAP, P/R) :
@@ -124,5 +131,85 @@ python test_degradation_gouttes.py --compare
 # 7. Benchmark quantitatif de robustesse face aux 5 dégradations :
 python test_degradation_benchmark.py --model best4_2 --sample_size 50
 ```
+
+---
+
+## 🍓 Guide d'utilisation du Raspberry Pi en ligne de commande (Terminal / SSH)
+
+### 1. Se connecter au Raspberry Pi depuis le PC (SSH)
+
+Ouvrez un terminal (PowerShell ou Invite de commandes) sur votre PC :
+
+```bash
+# Connexion par câble Ethernet direct (IP par défaut) :
+ssh pi@192.168.137.200
+
+# Ou connexion via le réseau Wi-Fi local :
+ssh pi@raspberrypi.local
+```
+*(Remplacez `pi` par votre nom d'utilisateur si vous en avez configuré un personnalisé, puis entrez le mot de passe).*
+
+---
+
+### 2. Commandes utiles sur le Raspberry Pi
+
+Une fois connecté sur le terminal du Raspberry Pi :
+
+| Action | Commande | Description |
+|---|---|---|
+| **Température CPU** | `vcgencmd measure_temp` | Affiche la température en direct du processeur (indispensable pour surveiller la chauffe). |
+| **Tester la caméra** | `rpicam-hello --list-cameras` | Vérifie que la caméra est bien détectée sur le connecteur CSI. |
+| **Aperçu caméra (5s)** | `rpicam-hello -t 5000` | Lance un flux de test de 5 secondes. |
+| **Prendre une photo test** | `rpicam-still -o photo_test.jpg` | Enregistre un cliché pour vérifier l'exposition nocturne / IR. |
+| **Surveiller le système** | `htop` | Moniteur interactif des 4 cœurs CPU, de la RAM et des processus. |
+| **Espace disque libre** | `df -h` | Affiche l'espace disponible sur la carte micro-SD. |
+
+---
+
+### 3. Comment éteindre et redémarrer proprement le Raspberry Pi
+
+> [!CAUTION]
+> **Ne jamais débrancher l'alimentation électrique brutalement !**  
+> Couper le courant alors que Linux est en cours d'écriture sur la carte micro-SD peut corrompre le système de fichiers et rendre le Raspberry Pi inutilisable sans réinstallation.
+
+#### A. Éteindre proprement le système (*Shutdown*)
+```bash
+sudo shutdown -h now
+# ou alternative directe :
+sudo poweroff
+```
+* **Procédure sécurisée :**  
+  1. Tapez la commande et validez avec Entrée. La connexion SSH se coupe.
+  2. Observez la petite LED verte d'activité (**ACT**) sur le boîtier du Pi : elle clignote une dizaine de fois puis **s'éteint complètement**.
+  3. Dès qu'il ne reste plus que la LED rouge fixe allumée, le système est arrêté en toute sécurité : **vous pouvez alors couper l'alimentation de l'USV sans aucun risque**.
+
+#### B. Redémarrer proprement le système (*Reboot*)
+```bash
+sudo reboot
+```
+
+#### C. Annuler une extinction programmée
+```bash
+# Éteindre dans 10 minutes :
+sudo shutdown +10
+
+# Annuler une extinction en cours :
+sudo shutdown -c
+```
+
+---
+
+### 4. Transférer des fichiers entre le PC et le Raspberry Pi (SCP)
+
+Depuis un terminal sur votre **PC Windows** :
+```bash
+# Récupérer une photo prise par le Pi sur votre PC :
+scp pi@192.168.137.200:/home/pi/photo_test.jpg ./
+
+# Envoyer un script ou un fichier depuis le PC vers le Pi :
+scp mon_script.py pi@192.168.137.200:/home/pi/
+```
+
+---
 
 Pour le détail complet de chaque argument et option avancée, consultez **[programs/test.md](programs/test.md)**.
