@@ -22,7 +22,7 @@ class Action(str, Enum):
 def actualiser_etat(fiche: FicheNavire, t: float, reglages: Reglages) -> None:
     """Bloc decision : confirme une piste vue assez longtemps, déclare perdue une piste disparue."""
     decision, suivi = fiche.decision, fiche.suivi
-    assez_vue = (suivi.images_consecutives >= reglages.images_confirmation
+    assez_vue = (suivi.images_sures >= reglages.images_confirmation
                  and t - suivi.premiere_vue >= reglages.duree_confirmation_s
                  and suivi.confiance >= reglages.confiance_confirmation)
     if decision.etat in (Etat.NOUVELLE, Etat.PERDUE) and assez_vue:

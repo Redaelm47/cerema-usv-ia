@@ -68,7 +68,7 @@ Tant que la carte est ouverte, la simulation continue mais la vue 3D n'est pas d
 
 `bridge/chaine_cerema.py` fait tourner la chaîne telle qu'elle est dans le dépôt, sur les images du simulateur, sans la modifier :
 
-- détection : `yolo11n.pt`, le modèle COCO qui tourne sur la caméra IMX500, ou `--detecteur best4_2` (le modèle entraîné sur images dégradées, `ia/detection/best4/` ; dans le simulateur, il voit des navires dans les nuages et sur la mer vide) ;
+- détection et suivi : ceux de `ia/suivi`, comme sur le Pi. Par défaut `best4_2`, le modèle de Guillaume, avec ses réglages : détection sûre à 55 %, experts lancés après 5 détections sûres d'affilée. `--detecteur yolo11n` pour le modèle COCO qui tourne aujourd'hui sur l'IMX500. Dans le simulateur, `best4_2` voit encore des navires (60 à 77 %) sur les crêtes de vagues au bord de l'image, assez longtemps pour déclencher des approches : à mesurer sur le banc ;
 - suivi : `ia/suivi` (associateur, numéros de pistes), contrat 1 ;
 - décision et experts : `ia/chaine` (filtre qualité, type DINOv2, OCR, approche, garde-fous), contrat 3.
 
@@ -80,7 +80,7 @@ cd station_sol && python3 serveur.py                                            
 .venv/bin/python ia/simulateur/bridge/chaine_cerema.py --station http://localhost:8000   # 3. la chaîne
 ```
 
-Après une modification de la chaîne, il suffit d'arrêter (Ctrl+C) et de relancer la commande 3 : le simulateur se reconnecte tout seul. `--depot` permet de tester la chaîne d'une autre copie du dépôt (un worktree d'une autre branche). Puis ouvrir le simulateur avec `/?bridge=1` (ou l'icône « lien »). Si `websockets` manque dans le Python de la chaîne, le script le prend dans `bridge/.venv` (voir plus bas). Options : `--station http://localhost:8000` pour alimenter aussi la page de la station sol, `--detecteur best4_2`, `--reseau-type dinov3`.
+Après une modification de la chaîne, il suffit d'arrêter (Ctrl+C) et de relancer la commande 3 : le simulateur se reconnecte tout seul. `--depot` permet de tester la chaîne d'une autre copie du dépôt (un worktree d'une autre branche). Puis ouvrir le simulateur avec `/?bridge=1` (ou l'icône « lien »). Si `websockets` manque dans le Python de la chaîne, le script le prend dans `bridge/.venv` (voir plus bas). Options : `--station http://localhost:8000` pour alimenter aussi la page de la station sol, `--detecteur yolo11n`, `--reseau-type dinov3`.
 
 Quand la chaîne est branchée :
 

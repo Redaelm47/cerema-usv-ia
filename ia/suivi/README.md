@@ -6,22 +6,22 @@ Partie 1 de la chaîne (voir [INTERFACES.md](../INTERFACES.md)) : prend les imag
 python3 -m suivi --video ../data/scene-blender-01.mp4 --sortie runs/suivi.mp4    # sur le Mac
 python3 -m suivi --camera 0 --toutes-classes --duree 20                          # webcam, essai sans navire
 python3 -m suivi --pi --duree 20                                                 # caméra IMX500, sur le Pi
-python3 -m unittest discover -s suivi/tests -t .                                 # 16 tests
+python3 -m unittest discover -s suivi/tests -t .                                 # 21 tests
 ```
 
 | Fichier | Rôle |
 |---|---|
 | `associateur.py` | donne les numéros : principe de ByteTrack réécrit en NumPy, sans PyTorch |
-| `detecteur.py` | YOLO11n par Ultralytics, pour le Mac et les vidéos |
+| `detecteur.py` | YOLO par Ultralytics, pour le Mac, les vidéos et le simulateur : `best4_2` de Guillaume par défaut (détection sûre à 55 %), `yolo11n` (COCO) avec `--detecteur yolo11n` |
 | `camera_pi.py` | caméra IMX500 : la détection tourne dans le capteur. **Non essayé** |
 | `images.py` | fichier vidéo (image par image, ou en temps réel) et webcam |
-| `suivi.py` | assemble le tout et écrit le message du contrat 1 |
+| `suivi.py` | assemble le tout et écrit le message du contrat 1 ; `Suivi.pas` traite une image à la fois (simulateur) |
 
 ## Comment un numéro est donné
 
 1. Chaque piste prédit où sa boîte devrait être sur la nouvelle image (position et vitesse).
-2. Les détections sûres (confiance d'au moins 0,25) sont associées aux pistes : d'abord celles dont la boîte recouvre la prédiction, ensuite celles qui en sont seulement proches.
-3. Les détections douteuses (entre 0,05 et 0,25) ne peuvent que prolonger une piste existante. C'est ce qui garde le numéro d'un navire lointain, que le détecteur voit mal.
+2. Les détections sûres (au moins 55 % avec `best4_2`, le seuil optimal de Guillaume sur son jeu de test ; 25 % sans profil) sont associées aux pistes : d'abord celles dont la boîte recouvre la prédiction, ensuite celles qui en sont seulement proches.
+3. Les détections douteuses (entre 5 % et le seuil des détections sûres) ne peuvent que prolonger une piste existante. C'est ce qui garde le numéro d'un navire lointain, que le détecteur voit mal.
 4. Une détection sûre que rien n'explique ouvre une nouvelle piste, sauf si elle est posée sur un navire déjà suivi (le détecteur rend parfois une seconde boîte sur la cabine).
 5. Une piste qui n'est plus vue reste en mémoire 4 secondes et reprend son numéro si le navire réapparaît au même endroit, avec à peu près la même taille.
 
@@ -37,7 +37,9 @@ L'associateur ne regarde que la position et la taille, jamais l'apparence. Dans 
 | Alertes envoyées par la chaîne | 8 | 2 |
 | Navires confondus sous un même numéro | 0 | 0 |
 
-Le détecteur est le même dans les deux cas. Le gain vient des détections douteuses et de l'association par distance quand les boîtes ne se recouvrent pas. Compenser le mouvement de la caméra a été essayé et n'apportait rien de plus : ce n'est pas dans le code.
+Le détecteur est le même dans les deux cas. Le gain vient des détections douteuses et de l'association par distance quand les boîtes ne se recouvrent pas. Compenser le mouvement de la caméra a été essayé et n'apportait rien de plus : ce n'est pas dans le code. C'est pourquoi BoT-SORT, meilleur que le ByteTrack d'Ultralytics dans les essais de Guillaume grâce à cette compensation, n'a pas été repris : ce suivi fait déjà mieux que les deux sur cette scène.
+
+La chaîne (`ia/chaine`) ne lance les experts qu'après 5 détections sûres d'affilée (règle de Guillaume, `ia/detection/programs/test_expert_trigger.py`) : une vague ou un reflet ne tient pas aussi longtemps. Le seuil de la détection sûre suit le détecteur : 55 % avec `best4_2`, 30 % avec le modèle COCO de l'IMX500, pas encore calibré.
 
 Sur la vidéo Dingle (un navire, 960 images) : un seul numéro.
 

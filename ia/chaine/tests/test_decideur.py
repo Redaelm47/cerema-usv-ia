@@ -59,24 +59,38 @@ class TestLecturePrecoce(unittest.TestCase):
 
 
 class TestEtats(unittest.TestCase):
-    def test_confirmation_apres_trois_images(self):
+    def test_confirmation_apres_cinq_images_sures(self):
+        """Règle de Guillaume : les experts ne partent qu'après 5 détections sûres d'affilée."""
+        self.assertEqual(R.images_confirmation, 5)
         fiche = FicheNavire.creer(1, 0.0)
-        for i in range(3):
+        for i in range(R.images_confirmation):
             self.assertEqual(fiche.decision.etat, Etat.NOUVELLE)
             self.assertEqual(action(fiche, 0.2 * i)[0], Action.ATTENDRE)
-            fiche.observer(0.2 * i, Observation(1, (0, 0, 40, 13), 0.8))
+            fiche.observer(0.2 * i, Observation(1, (0, 0, 40, 13), 0.8), R.confiance_confirmation)
             actualiser_etat(fiche, 0.2 * i, R)
         self.assertEqual(fiche.decision.etat, Etat.CONFIRMEE)
 
-    def test_trois_images_trop_rapprochees_ne_confirment_pas(self):
-        """À 50 images par seconde, trois images durent 40 ms : une vague suffit à les produire."""
+    def test_images_trop_rapprochees_ne_confirment_pas(self):
+        """À 50 images par seconde, cinq images durent 80 ms : une vague suffit à les produire."""
         fiche = FicheNavire.creer(1, 0.0)
-        for i in range(3):
-            fiche.observer(0.02 * i, Observation(1, (0, 0, 40, 13), 0.8))
+        for i in range(R.images_confirmation):
+            fiche.observer(0.02 * i, Observation(1, (0, 0, 40, 13), 0.8), R.confiance_confirmation)
             actualiser_etat(fiche, 0.02 * i, R)
         self.assertEqual(fiche.decision.etat, Etat.NOUVELLE)
-        fiche.observer(R.duree_confirmation_s, Observation(1, (0, 0, 40, 13), 0.8))
+        fiche.observer(R.duree_confirmation_s, Observation(1, (0, 0, 40, 13), 0.8), R.confiance_confirmation)
         actualiser_etat(fiche, R.duree_confirmation_s, R)
+        self.assertEqual(fiche.decision.etat, Etat.CONFIRMEE)
+
+    def test_une_detection_douteuse_remet_le_compte_a_zero(self):
+        """Une image où le navire n'est vu qu'à 40 % casse la série, même si la piste continue."""
+        fiche = FicheNavire.creer(1, 0.0)
+        confiances = [0.8, 0.8, 0.8, 0.4] + [0.8] * (R.images_confirmation - 1)
+        for i, c in enumerate(confiances):
+            fiche.observer(0.2 * i, Observation(1, (0, 0, 40, 13), c), R.confiance_confirmation)
+            actualiser_etat(fiche, 0.2 * i, R)
+        self.assertEqual(fiche.decision.etat, Etat.NOUVELLE)
+        fiche.observer(0.2 * len(confiances), Observation(1, (0, 0, 40, 13), 0.8), R.confiance_confirmation)
+        actualiser_etat(fiche, 0.2 * len(confiances), R)
         self.assertEqual(fiche.decision.etat, Etat.CONFIRMEE)
 
     def test_detection_peu_sure_ne_confirme_pas(self):

@@ -58,6 +58,7 @@ def main() -> None:
     if args.video and args.observations:
         source = SourceRejouee(args.video, args.observations)
     elif args.video:
+        reglages.confiance_confirmation = 0.3  # ce remplaçant détecte avec le YOLO11n COCO, pas avec best4_2
         source = SourceVideo(args.video, drone=None if args.sans_zoom else drone,
                              enregistrer=args.enregistrer_observations, largeur_vue=args.largeur_vue,
                              taille_detection=args.taille_detection)

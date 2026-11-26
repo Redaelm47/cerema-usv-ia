@@ -5,9 +5,11 @@ from dataclasses import dataclass
 @dataclass
 class Reglages:
     # Suivi
-    images_confirmation: int = 3        # images d'affilée avant de confirmer une piste
-    duree_confirmation_s: float = 0.2   # et durée minimale de la piste (à 50 images/s, trois images ne suffisent pas)
-    confiance_confirmation: float = 0.3 # confiance minimale de la détection pour confirmer
+    # Les experts ne partent que sur un navire détecté sûrement sur 5 images d'affilée : une vague, un caillou ou un
+    # reflet ne tient pas aussi longtemps (essais de Guillaume, ia/detection/programs/test_expert_trigger.py).
+    images_confirmation: int = 5        # images d'affilée, toutes sûres, avant de confirmer une piste
+    duree_confirmation_s: float = 0.2   # et durée minimale de la piste (à 50 images/s, cinq images durent 0,1 s)
+    confiance_confirmation: float = 0.55 # détection sûre : 55 % pour best4_2 ; le programme le règle selon le détecteur
     delai_perte_s: float = 5.0          # sans observation pendant ce délai, la piste est perdue
     delai_reprise_s: float = 2.0        # un nouveau numéro au même endroit dans ce délai reprend la fiche
     recouvrement_reprise: float = 0.3   # recouvrement minimal des boîtes (intersection sur union)

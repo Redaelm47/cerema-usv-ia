@@ -39,7 +39,7 @@ Pour un test de robustesse (gouttes, buée, contre-jour, brume, houle), changer 
 
 Le simulateur est client WebSocket de `ws://127.0.0.1:8765` (`?ws=` pour une autre adresse).
 
-- Détecteur par défaut : `yolo11n`, celui de la caméra IMX500. `best4_2` voit des navires dans les nuages et sur la mer vide du simulateur : à mesurer avant de s'en servir.
+- Détection et suivi : ceux de `ia/suivi` (`Suivi.pas`), comme sur le Pi. Détecteur par défaut `best4_2` avec les réglages de Guillaume (détection sûre à 55 %, 5 détections sûres d'affilée avant les experts) ; `--detecteur yolo11n` pour le modèle COCO de l'IMX500. Dans le simulateur, `best4_2` voit encore des navires sur les crêtes de vagues au bord de l'image.
 - `bridge/chaine_cerema.py` fait tourner la chaîne du projet (`ia/suivi`, `ia/chaine`) de cette copie du dépôt sur les images du simulateur. `--depot` sert seulement à tester une autre copie (un worktree d'une autre branche, par exemple). Ne jamais faire de checkout ni de stash dans la copie de travail de quelqu'un d'autre.
 - `bridge/pipeline_example.py` est un exemple minimal en boucle fermée, à copier pour brancher un autre pipeline.
 - Simulateur vers chaîne, environ 10 images/s : `[uint32 LE taille du JSON][JSON UTF-8][JPEG]`. Le JSON donne les intrinsèques de la caméra, sa pose, l'état du drone, la vérité terrain (boîtes en pixels, distance, relèvement, navire caché par la courbure ou le relief), l'AIS de tous les navires et l'environnement (soleil, vent, houle, nuages, brume, buée).

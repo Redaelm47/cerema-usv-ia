@@ -57,10 +57,12 @@ def main() -> None:
         reglages.seuil_ocr_px *= int(args.resolution.split("x")[0]) / reglages.largeur_image_px
     if args.sans_filtre_flou:
         reglages.nettete_min = 0.0  # la variance du laplacien n'est jamais négative : plus aucun rejet pour flou
+    suivi = creer_suivi(args, enregistrer=args.observations)
+    reglages.confiance_confirmation = suivi.confiance_confirmation  # 55 % avec best4_2, 30 % avec l'IMX500 (COCO)
     messages = [args.messages]
     if args.station:
         messages.append(args.station.rstrip("/") + "/message")
-    derouler(creer_suivi(args, enregistrer=args.observations), reglages, DroneSimule(), vrais_experts=True,
+    derouler(suivi, reglages, DroneSimule(), vrais_experts=True,
              fils=args.fils, journal=args.journal, messages=messages, sortie=args.sortie, direct=direct,
              reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires,
              afficher_direct=args.afficher, boite=args.boite)

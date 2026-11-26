@@ -101,10 +101,10 @@ class TestRegles(unittest.TestCase):
 
     def test_un_seul_expert_par_image(self):
         chaine = chaine_factice()
-        for i in range(3):
+        for i in range(5):   # les deux pistes sont confirmées à la 5e image : un seul expert part
             chaine.pas(observations(i * 0.2, (1, 100.0), (2, 100.0)))
         self.assertEqual(len(chaine.journal.lignes), 1)
-        chaine.pas(observations(0.6, (1, 100.0), (2, 100.0)))
+        chaine.pas(observations(1.0, (1, 100.0), (2, 100.0)))
         self.assertEqual(len(chaine.journal.lignes), 2)
 
     def test_observations_hors_contrat_refusees(self):
@@ -140,7 +140,7 @@ class TestRegles(unittest.TestCase):
     def test_navire_perdu_pendant_l_approche(self):
         terminees = []
         chaine = chaine_factice(approche=ExpertApprocheFactice(sur_fin=terminees.append))
-        for i in range(5):
+        for i in range(7):   # confirmée à la 5e image, puis l'approche
             chaine.pas(observations(i * 0.2, (1, 100.0)))
         self.assertEqual(chaine.fiches[1].decision.etat, Etat.EN_APPROCHE)
         chaine.pas(observations(10.0))
@@ -219,7 +219,7 @@ class TestImageLaPlusNette(unittest.TestCase):
     def test_l_ocr_lit_l_image_la_plus_nette_de_l_intervalle(self):
         ocr = ExpertOCRScripte(Resultat(False, {"candidate": None, "confiance": 0.0}))
         chaine = chaine_factice(Reglages(intervalle_essais_s=1.0), ocr=ocr, qualite=NetteteLue())
-        nettetes = [50, 60, 70, 55,          # piste confirmée à la 3e image ; premier essai à la 4e, sur la 3e (70)
+        nettetes = [30, 40, 50, 60, 70, 55,  # piste confirmée à la 5e image ; premier essai à la 6e, sur la 5e (70)
                     90, 60, 200, 80,         # une seconde plus tard : la plus nette de l'intervalle est 200
                     70, 60, 50, 120, 60, 60]
         for i, nettete in enumerate(nettetes):
@@ -228,7 +228,7 @@ class TestImageLaPlusNette(unittest.TestCase):
         self.assertEqual(lus[:2], [70, 200])
         self.assertEqual(lus[2], 120)
         lectures = [l for l in chaine.journal.lignes if l["action"] == "expert_ocr"]
-        self.assertEqual(lectures[1]["details"]["image_lue_t"], 1.5)     # l'image nette, pas celle du moment
+        self.assertEqual(lectures[1]["details"]["image_lue_t"], 2.0)     # l'image nette, pas celle du moment
         self.assertEqual(lectures[1]["nettete"], 200.0)
 
     def test_si_meme_la_plus_nette_est_floue_l_ocr_n_est_pas_lance(self):
@@ -290,10 +290,10 @@ class TestReprisePiste(unittest.TestCase):
         reglages, drone = Reglages(seuil_ocr_essai_px=float("inf")), DroneSimule()
         chaine = Chaine([ExpertTypeFactice(), ExpertOCRFactice(reglages), ExpertApprocheSimulee(drone, reglages)],
                         reglages, drone=drone)
-        for i in range(5):
+        for i in range(7):   # confirmée à la 5e image, type à la 6e, approche à la 7e
             chaine.pas(observations(i * 0.2, (1, 150.0)))
         self.assertEqual(drone.cible, 1)
-        chaine.pas(observations(1.0, (2, 152.0)))
+        chaine.pas(observations(1.4, (2, 152.0)))
         self.assertEqual(drone.cible, 2)                     # l'approche continue sur le même navire
         self.assertEqual(chaine.fiches[2].decision.tentatives, {"type": 1, "approche": 1})
 
@@ -335,12 +335,13 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
         qualite = ExpertScripte("qualite", Resultat(False, {"raison": "image floue", "nettete": 3.0}),
                                 Resultat(True, {"nettete": 80.0}))
         chaine = chaine_factice(reglages, type=type_, qualite=qualite)
-        for i in range(3):
+        n = reglages.images_confirmation   # la piste est confirmée à la n-ième image sûre
+        for i in range(n):
             chaine.pas(observations(i * 0.5, (1, 700.0)), self.IMAGE)
         self.assertEqual((type_.lancements, chaine.journal.lignes[0]["action"]), (0, "filtre_qualite"))
         self.assertEqual(chaine.fiches[1].decision.tentatives, {})
         self.assertEqual(chaine.emetteur.messages[-1]["genre"], "etat")   # un rejet n'est pas un message du contrat 3
-        chaine.pas(observations(1.5, (1, 700.0)), self.IMAGE)
+        chaine.pas(observations(n * 0.5, (1, 700.0)), self.IMAGE)
         self.assertEqual(type_.lancements, 1)
         self.assertEqual(chaine.journal.lignes[-1]["nettete"], 80.0)
 
@@ -348,7 +349,7 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
         type_ = ExpertScripte("type", Resultat(True, {"types": ["chalutier"], "confiance": 0.9}))
         qualite = ExpertScripte("qualite", Resultat(False, {"raison": "image floue"}), Resultat(True, {}))
         chaine = chaine_factice(type=type_, qualite=qualite)
-        for i in range(3):
+        for i in range(Reglages().images_confirmation):
             chaine.pas(observations(i * 0.5, (1, 700.0), (2, 700.0)), self.IMAGE)
         self.assertEqual([(l["piste"], l["action"]) for l in chaine.journal.lignes],
                          [(1, "filtre_qualite"), (2, "expert_type")])
@@ -373,7 +374,7 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
         type_ = ExpertScripte("type", Resultat(True, {"types": [], "navire": False, "confiance": 0.05, "essais": 1}),
                               Resultat(True, {"types": ["chalutier"], "navire": True, "confiance": 0.6, "essais": 2}))
         chaine = chaine_factice(type=type_)
-        for i in range(6):
+        for i in range(8):   # confirmée à la 5e image, puis deux essais du type
             chaine.pas(observations(i * 0.5, (1, 700.0)), self.IMAGE)
         self.assertEqual(len(chaine.alertes), 1)
         self.assertTrue(chaine.alertes[0]["complete"])

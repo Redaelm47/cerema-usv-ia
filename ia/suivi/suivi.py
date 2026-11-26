@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
-from .associateur import Associateur, Piste
+from .associateur import Associateur, Piste, ReglagesSuivi
 
 Image = Any
 
@@ -27,13 +27,29 @@ class Suivi:
     détecte dans le capteur et fournit directement ses boîtes.
     """
 
-    def __init__(self, images: Iterable, detecteur=None, associateur: Associateur | None = None,
+    def __init__(self, images: Iterable | None, detecteur=None, associateur: Associateur | None = None,
                  enregistrer: str | None = None):
         self.images = images
         self.detecteur = detecteur
-        self.associateur = associateur or Associateur()
+        if associateur is None:
+            # Une détection sûre ouvre une piste : le seuil est celui du modèle (55 % pour best4_2, voir detecteur.py).
+            seuil = getattr(detecteur, "confiance", None)
+            associateur = Associateur(ReglagesSuivi(confiance_haute=seuil)) if seuil is not None else Associateur()
+        self.associateur = associateur
         self.enregistrer = enregistrer
         self.images_par_s = getattr(images, "images_par_s", 15.0)
+
+    @property
+    def confiance_confirmation(self) -> float:
+        """Confiance d'une détection sûre pour ce détecteur : la chaîne s'en sert pour confirmer une piste."""
+        source = self.detecteur if self.detecteur is not None else self.images
+        return getattr(source, "confiance", 0.3)
+
+    def pas(self, t: float, image: Image, detections=None) -> dict[str, Any]:
+        """Une image -> message du contrat 1. Pour une source qui pousse ses images (le simulateur)."""
+        if detections is None:
+            detections = self.detecteur.detecter(image)
+        return observations(t, self.associateur.mettre_a_jour(detections, t))
 
     def __iter__(self) -> Iterator[tuple[dict, Image]]:
         fichier = None
@@ -42,9 +58,7 @@ class Suivi:
             fichier = open(self.enregistrer, "w", encoding="utf-8")
         try:
             for t, image, detections in self.images:
-                if detections is None:
-                    detections = self.detecteur.detecter(image)
-                message = observations(t, self.associateur.mettre_a_jour(detections, t))
+                message = self.pas(t, image, detections)
                 if fichier:
                     fichier.write(json.dumps(message) + "\n")
                     fichier.flush()
