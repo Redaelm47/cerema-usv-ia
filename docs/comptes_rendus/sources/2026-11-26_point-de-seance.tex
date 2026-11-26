@@ -1,0 +1,102 @@
+% Point de séance du 26/11/2026 (action A8 du plan d'actions).
+% Compiler depuis ce dossier : tectonic -o .. 2026-11-26_point-de-seance.tex
+\documentclass[10pt,a4paper]{article}
+\usepackage{style_cr}
+\hypersetup{pdftitle={Point de séance du 26/11/2026}, pdfauthor={Reda El Mekkaoui},
+            pdfsubject={Projet 20 Cerema, point de séance}}
+\newcommand{\groupe}[2]{{\small\bfseries\color{#1}\rule[-0.5pt]{2.4pt}{9pt}\enspace#2}\par\vspace{2pt}}
+
+\begin{document}
+
+\entete{PROJET 20 CEREMA \quad·\quad POINT DE SÉANCE À SIX \quad·\quad 26/11/2026}
+       {Point de séance du 26/11/2026}
+       {Premier essai du système complet en mission, et la démo de simulation pour Antoine Douchin lundi 30/11.}
+       {Participants : les six \quad·\quad Rédacteur : Reda El Mekkaoui \quad·\quad Prochain point : lundi 30/11/2026, réunion avec Antoine Douchin}
+
+\begin{enbref}
+\begin{itemize}
+  \item \textbf{Plateforme} : le système complet (télémétrie, GPS, moteurs) a été essayé avec des missions programmées sur le PC. Le point atteint est marqué validé. Le GPS reste peu cohérent et le moteur de direction manque de puissance.
+  \item \textbf{IA} : la démo de simulation est prête en grande partie. Reda lance des simulations de plusieurs milliers d'heures sur toute la chaîne. Les apports de Guillaume (détection, 5 images d'affilée) et d'Adam-Sabri (base de données SQLite) seront dans la simulation de lundi.
+  \item \textbf{Ensuite} : réunion avec Antoine Douchin lundi 30/11 pour lui montrer la simulation et les résultats. Adam-Sabri lui demande les pièces qui manquent pour le moteur pas à pas.
+\end{itemize}
+\end{enbref}
+
+\section{Suivi des actions du 23/11}
+\begin{tableau}{p{5.0cm} >{\bfseries}p{2.1cm} L}
+\entetetab{\textbf{Action} & Qui & \textbf{État}}
+Test de suivi de zone & Ewen, Selma, Rana & En partie : essai de mission fait, le point programmé est validé à l'arrivée. La correction du cap en tournant le Pixhawk n'a pas été détaillée en séance.\\\hline
+Propulsion et direction ensemble & Ewen, Selma, Rana & Fait : les deux moteurs tournent pendant l'essai. La direction manque de puissance.\\\hline
+Précision du GPS & Ewen, Selma, Rana & En cours : le GPS fonctionne, sa position reste peu cohérente.\\\hline
+Alimentation du Pixhawk & Ewen, Selma, Rana & Non abordé en séance.\\\hline
+Simulation & Reda & Presque fait : démo prête en grande partie, simulations longues lancées sur toute la chaîne.\\\hline
+Modèle de détection & Guillaume & Fait : amélioré (voir plus bas).\\\hline
+Caméra nocturne & Guillaume & Non abordé en séance.\\\hline
+Mémoire de ré-identification & Adam-Sabri & Non abordé en séance.\\\hline
+Mail à Antoine Douchin & Adam-Sabri & Fait : réunion fixée au lundi 30/11.\\\hline
+\end{tableau}
+
+\section{Qui fait quoi pour lundi 30/11}
+\groupe{cPlat}{Plateforme (lot L1)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Ewen, Selma, Rana & Moteur de direction & Passer la direction sur le moteur pas à pas, plus puissant, une fois les pièces reçues.\\\hline
+Ewen, Selma, Rana & Précision du GPS & La position reste peu cohérente : voir ce qui peut l'améliorer.\\\hline
+\end{tableau}
+
+\needspace{8\baselineskip}
+\vspace{0.6em}
+\groupe{cIA}{IA (lot L2)}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Reda & Simulations longues & Lancer des simulations de plusieurs milliers d'heures sur toute la chaîne, pour en tirer des résultats.\\\hline
+Reda & Démo pour Antoine Douchin & Finir la démo du 30/11 : le drone avance et s'approche d'un navire. Y intégrer les apports de Guillaume et d'Adam-Sabri.\\\hline
+\end{tableau}
+
+\needspace{6\baselineskip}
+\vspace{0.6em}
+\groupe{cExt}{Équipe}
+\begin{tableau}{>{\bfseries}p{2.1cm} p{4.0cm} L}
+\entetetab{Qui & \textbf{Tâche} & \textbf{Détail}}
+Adam-Sabri & Mail à Antoine Douchin & Lui demander s'il peut fournir les pièces qui manquent pour utiliser le moteur pas à pas en direction.\\\hline
+\end{tableau}
+
+\section{Fait depuis la dernière séance}
+\begin{itemize}
+  \item \textbf{Plateforme} (Ewen, Selma, Rana) : essai du système complet aujourd'hui, avec la télémétrie, le GPS, les moteurs et des missions programmées sur le PC. Ewen, Guillaume et Adam-Sabri portaient le système. À l'arrivée sur le point programmé, la mission le marque validé. Propulsion et direction tournent.
+  \item \textbf{Reda} : simulation. La démo pour Antoine Douchin est prête en grande partie : le drone suit sa route, s'approche d'un navire, puis reprend sa route.
+  \item \textbf{Guillaume} : améliorations de la détection et de l'identification. Modèle \texttt{best4\_2}, détection jugée sûre à partir de 55~\% de confiance, et experts lancés seulement après 5 détections sûres d'affilée, pour éviter les hallucinations.
+  \item \textbf{Adam-Sabri} : base de données SQLite. La boîte d'envoi garde les messages vers la station sol jusqu'à l'accusé de réception, même si la liaison coupe.
+\end{itemize}
+
+\section{Décisions}
+\begin{enumerate}[label={\color{cExp}\bfseries\arabic*.}]
+  \item \textbf{Réunion avec Antoine Douchin le lundi 30/11} : l'équipe lui montre la simulation (le drone qui avance et s'approche d'un navire) et les résultats obtenus sur toute la chaîne.
+  \item \textbf{Moteur pas à pas pour la direction} : le moteur de direction actuel manque de puissance. L'équipe veut utiliser le pas à pas, plus puissant. Adam-Sabri demande à Antoine Douchin les pièces qui manquent.
+\end{enumerate}
+
+\section{Points ouverts et blocages}
+\begin{itemize}
+  \item \textbf{Puissance de la direction} : le moteur actuel tourne mais reste peu puissant. Le passage au pas à pas attend les pièces.
+  \item \textbf{GPS} : il fonctionne, mais sa position n'est pas encore très cohérente.
+  \item \textbf{Échanges entre le Pixhawk et le Raspberry Pi} : le sous-groupe plateforme demande si le code de la vision prévoit de communiquer avec le Pixhawk. Pour l'instant tout est simulé côté IA ; c'est faisable et reste à prévoir.
+  \item \textbf{Alimentation du Pixhawk} (deuxième ESC ou adaptateur 5~V) : non abordée, toujours ouverte.
+\end{itemize}
+
+\section{Pour la suite}
+\begin{itemize}
+  \item \textbf{Lundi 30/11} : réunion avec Antoine Douchin, démo de la simulation et résultats.
+  \item \textbf{Séance suivante}, si la simulation est terminée : voir avec le sous-groupe plateforme comment intégrer le tout sur le Raspberry Pi, et leur montrer le code de la chaîne IA.
+\end{itemize}
+
+\section{Suivi du plan d'actions}
+\begin{tableau}{p{6.4cm} L}
+\entetetab{\textbf{Indicateur} & \textbf{Ce jour}}
+Tableau des tâches GitHub (A1) & Non abordé. En attendant, les tâches sont listées ici.\\\hline
+Point de début de séance à 8h30 (A6) & Non relevé.\\\hline
+Point à six (A7) & Fait : c'est ce compte rendu.\\\hline
+Retards à l'arrivée ou après la pause (A10) & Non relevés.\\\hline
+\end{tableau}
+
+\redige{Rédigé par Reda El Mekkaoui d'après la transcription automatique, sans séparation fiable des voix. Attributions d'après les rôles de chacun et les précisions de Reda ; détails techniques repris du dépôt. Corrections : « Antoine Duchamp » → Antoine Douchin, « Xbox » → Pixhawk, « stepper » → moteur pas à pas, « animations » → améliorations, « SQL » → SQLite. Une erreur ? Dites-le, on corrige.}
+
+\end{document}

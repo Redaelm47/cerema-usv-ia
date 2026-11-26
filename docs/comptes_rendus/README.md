@@ -2,14 +2,14 @@
 
 Tous les comptes rendus sont ici, **en PDF**. Les fichiers de travail (textes, sources LaTeX, modèles) sont rangés à part dans [sources/](sources).
 
-> **Dernier en date : [point de séance du 23/11/2026](2026-11-23_point-de-seance.pdf)**
+> **Dernier en date : [point de séance du 26/11/2026](2026-11-26_point-de-seance.pdf)**
 
 ## Répartition des tâches en cours
 
 | Sous-groupe | Qui fait quoi | PDF |
 |---|---|---|
-| **Plateforme** (lot L1) | Ewen, Selma, Rana : test de suivi de zone (correction du cap par la gouverne), propulsion et direction ensemble, précision du GPS, alimentation du Pixhawk (deuxième ESC ou adaptateur 5 V) | [Répartition plateforme](2026-11-05_repartition-taches-plateforme.pdf), [point du 23/11](2026-11-23_point-de-seance.pdf) |
-| **IA** (lot L2) | Reda : simulation (soucis restants) · Guillaume : caméra nocturne · Adam-Sabri : ré-identification, mail au Cerema · modèle de détection à retravailler (responsable à confirmer) | [Répartition IA](2026-11-05_repartition-taches-vision.pdf), [point du 23/11](2026-11-23_point-de-seance.pdf) |
+| **Plateforme** (lot L1) | Ewen, Selma, Rana : passer la direction sur le moteur pas à pas (pièces demandées au Cerema), précision du GPS, alimentation du Pixhawk (deuxième ESC ou adaptateur 5 V) | [Répartition plateforme](2026-11-05_repartition-taches-plateforme.pdf), [point du 26/11](2026-11-26_point-de-seance.pdf) |
+| **IA** (lot L2) | Reda : simulations longues sur toute la chaîne et démo du 30/11 pour Antoine Douchin · Guillaume : caméra nocturne · Adam-Sabri : ré-identification, mail au Cerema (pièces du pas à pas) | [Répartition IA](2026-11-05_repartition-taches-vision.pdf), [point du 26/11](2026-11-26_point-de-seance.pdf) |
 
 ## Tous les comptes rendus
 
@@ -17,6 +17,7 @@ Du plus récent au plus ancien.
 
 | Date | Compte rendu | Ce qu'on y trouve |
 |---|---|---|
+| 26/11/2026 | [Point de séance](2026-11-26_point-de-seance.pdf) | Premier essai du système complet en mission, direction à passer sur le pas à pas, démo de simulation et réunion avec le Cerema le 30/11 |
 | 23/11/2026 | [Point de séance](2026-11-23_point-de-seance.pdf) | GPS à une dizaine de mètres près, tous les moteurs tournent, missions limitées à une zone, réunion du 26/11 avec le Cerema reportée |
 | 20/11/2026 | [Point de fin de séance](2026-11-20_point-de-seance.pdf) | Nouveau GPS fonctionnel, immatriculation trouvée en 10 s au lieu de 50, caméra nocturne seule, simulation 3D, réunion du 26/11 avec le Cerema |
 | 09/11/2026 | [Point de fin de séance](2026-11-09_point-de-seance.pdf) | Premier moteur testé, GPS bloqué par un adaptateur, nouveau modèle de détection, mémoire des bateaux déjà vus |
