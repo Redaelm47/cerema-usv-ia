@@ -154,7 +154,8 @@ def main():
               f"{len(episodes)} épisodes, {sum(e['duree_simulee_s'] for e in episodes) / 3600:.2f} h simulées.", ""]
     if debits:
         lignes += [f"Débit moyen : {sum(d['heures_simulees_par_heure'] for d in debits) / len(debits):.2f} h simulées "
-                   f"par heure et par instance ({len(debits)} instance(s), détecteur {debits[0].get('detecteur')}).", ""]
+                   f"par heure et par instance ({len(debits)} instance(s), détecteur {debits[0].get('detecteur')} "
+                   f"sur {debits[0].get('appareil') or 'cpu'}).", ""]
     lignes += ["## Ensemble", "", tableau({"tout": resume(episodes)}, ""), "",
                "## Par météo", "", tableau({m: resume(g) for m, g in sorted(par_meteo.items())}, "météo"), "",
                "## Par nombre de navires", "",
