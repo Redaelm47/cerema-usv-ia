@@ -5,7 +5,8 @@
 #   PAR_GPU=2 ...   deux instances sur le même GPU (graines 1000 k et 1000 k + 500)
 #
 # Variables : EPISODES (10), DUREE (180 s simulées), IMG_S (5), DETECTEUR (best4_2), PAR_GPU (1),
-# CAMPAGNE (AAAA-MM-JJ_HHMM, commun aux tâches), DELAI (s, défaut calculé), et les chemins plus bas.
+# CAMPAGNE (AAAA-MM-JJ_HHMM, commun aux tâches), DELAI (s, défaut calculé), ARRET_A (HH:MM, arrêt propre),
+# et les chemins plus bas. Les résultats sont copiés sur le Drive toutes les 10 min (points de sauvegarde).
 #SBATCH --job-name=rech_usv_campagne
 #SBATCH --account=mee
 #SBATCH --qos=mee_short
@@ -45,7 +46,7 @@ echo "commit $(git -C "$DEPOT" rev-parse --short HEAD), $EPISODES épisodes de $
 lancer() {  # $1 nom de la tâche, $2 graine
   "$OUTILS/venv/bin/python" "$DEPOT/ia/simulateur/campagne/lancer.py" \
     --graine "$2" --episodes "$EPISODES" --duree "$DUREE" --img-s "$IMG_S" --detecteur "$DETECTEUR" \
-    --tache "$1" --campagne-nom "$CAMPAGNE" --travail "$TRAVAIL" ${DELAI:+--delai "$DELAI"} \
+    --tache "$1" --campagne-nom "$CAMPAGNE" --travail "$TRAVAIL" ${DELAI:+--delai "$DELAI"} ${ARRET_A:+--arret-a "$ARRET_A"} \
     --python-chaine "$PYTHON_CHAINE" --rclone "$RCLONE"
 }
 

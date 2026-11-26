@@ -28,6 +28,7 @@ EPISODES=20 DUREE=180 PAR_GPU=2 sbatch --array=1-4 --time=04:00:00 ia/simulateur
 - Variables : `EPISODES` (10), `DUREE` (180 s simulées par épisode), `IMG_S` (5), `DETECTEUR` (`best4_2`), `PAR_GPU` (1 ou 2), `CAMPAGNE` (nom du dossier, par défaut l'heure de soumission), `DELAI` (s).
 - La tâche k part de la graine 1000 k ; avec `PAR_GPU=2`, la deuxième instance (`tache_<k>b`) part de 1000 k + 500.
 - Ports choisis libres à chaque lancement : plusieurs instances partagent un GPU sans se gêner.
+- Points de sauvegarde : le dossier de la tâche est copié sur le Drive toutes les 10 min (`--copie-min`) ; `ARRET_A=06:35` (ou `--arret-a`) arrête proprement à cette heure, et un SIGTERM de Slurm aussi, avec une dernière copie.
 - Arrêt : fin de campagne (`CAMPAGNE FINIE`), erreur dans la page, passerelle arrêtée, rien qui avance pendant 10 min, ou délai dépassé (par défaut 10 s réelles par seconde simulée + 10 min). Code de sortie 0, 1 (erreur) ou 2 (délai).
 - Si le rendu WebGL est SwiftShader (pas de GPU dans le navigateur), la tâche s'arrête tout de suite.
 

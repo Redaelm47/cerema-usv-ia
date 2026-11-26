@@ -17,12 +17,13 @@ import argparse
 import json
 import os
 import shutil
+import signal
 import socket
 import subprocess
 import sys
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 ICI = Path(__file__).resolve().parent
@@ -119,6 +120,26 @@ def copier_drive(rclone: str, dossier: Path, dest: str) -> bool:
     return r.returncode == 0
 
 
+class Arret(Exception):
+    """SIGTERM de Slurm (fin de --time, scancel) : on s'arrête proprement et on copie ce qui est fait."""
+
+
+def sur_signal(num, _):
+    raise Arret(f"signal {signal.Signals(num).name}")
+
+
+def heure_limite(texte: str | None) -> float | None:
+    """« 06:45 » -> instant (time.time) de la prochaine occurrence de cette heure."""
+    if not texte:
+        return None
+    h, m = map(int, texte.split(":"))
+    now = datetime.now()
+    cible = now.replace(hour=h, minute=m, second=0, microsecond=0)
+    if cible <= now:
+        cible += timedelta(days=1)
+    return cible.timestamp()
+
+
 def main():
     ap = argparse.ArgumentParser(description="Une instance de campagne du simulateur, sans écran")
     ap.add_argument("--graine", type=int, default=1000, help="graine du premier épisode")
@@ -135,6 +156,10 @@ def main():
     ap.add_argument("--drive", default="gdrive:Minos/cerema-usv-ia/campagnes", help="« non » : pas de copie")
     ap.add_argument("--delai", type=float, default=None,
                     help="délai maximal en secondes (défaut : 10 s réelles par seconde simulée + 10 min)")
+    ap.add_argument("--arret-a", default=None, metavar="HH:MM",
+                    help="heure d'arrêt propre (les épisodes finis sont gardés et copiés)")
+    ap.add_argument("--copie-min", type=float, default=10,
+                    help="copie partielle sur le Drive toutes les N minutes (0 : seulement à la fin)")
     ap.add_argument("--sans-progres", type=float, default=600, help="arrêt si rien n'avance pendant ce temps (s)")
     ap.add_argument("--accepter-logiciel", action="store_true", help="continuer même si WebGL est SwiftShader")
     ap.add_argument("--mode-normal", type=float, default=None, metavar="SECONDES",
@@ -164,6 +189,8 @@ def main():
              "debut": datetime.now().isoformat(timespec="seconds"), "mode_normal_s": args.mode_normal}
     journal(f"tâche {args.tache} : {url}")
 
+    limite = heure_limite(args.arret_a)
+    signal.signal(signal.SIGTERM, sur_signal)
     web = subprocess.Popen([sys.executable, "-m", "http.server", str(p_web), "--bind", "127.0.0.1",
                             "--directory", str(args.dist)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     passerelle = Passerelle(args.python_chaine, p_ws, None if normal else dossier, args.detecteur,
@@ -187,9 +214,18 @@ def main():
                 raise RuntimeError("rendu WebGL logiciel (SwiftShader) : pas de GPU dans le navigateur")
             page.goto(url, wait_until="domcontentloaded")
             avance, t_avance = None, time.monotonic()
+            t_copie = time.monotonic()
             while True:
                 time.sleep(5)
                 ecoule = time.monotonic() - t0
+                if limite and time.time() >= limite:
+                    code, raison = 2, f"heure d'arrêt {args.arret_a} atteinte"
+                    break
+                if (args.drive != "non" and args.copie_min > 0 and not normal
+                        and time.monotonic() - t_copie > args.copie_min * 60):
+                    t_copie = time.monotonic()  # point de sauvegarde : episodes.jsonl et journaux déjà écrits
+                    threading.Thread(target=copier_drive, daemon=True,
+                                     args=(args.rclone, dossier, f"{args.drive}/{nom}/tache_{args.tache}")).start()
                 if passerelle.finie.is_set():
                     code, raison = 0, "campagne finie"
                     break
@@ -222,6 +258,8 @@ def main():
             except Exception:
                 pass
             nav.close()
+    except Arret as e:
+        code, raison = 2, raison or f"arrêt demandé ({e})"
     except Exception as e:
         raison = raison or f"{type(e).__name__} : {e}"
     finally:
