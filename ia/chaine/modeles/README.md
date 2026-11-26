@@ -1,6 +1,6 @@
 # Modèles
 
-Les fichiers `.onnx` et `.pt` ne sont pas versionnés. Pour les obtenir, depuis `ia/` :
+Les fichiers `.onnx` et `.pt` ne sont pas versionnés, sauf les deux modèles de l'OCR (`ocr_detection.onnx` et `ocr_lecture.onnx`, 13 Mo en tout), déjà dans le dépôt pour tester l'OCR sans rien télécharger. Pour obtenir les autres, depuis `ia/` :
 
 ```
 python3 -m chaine.outils.telecharger_modeles

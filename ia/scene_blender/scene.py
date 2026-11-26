@@ -3,6 +3,7 @@
     blender -b -P scene.py -- --apercu 200 /tmp/apercu.jpg      une image, en petit, pour vérifier
     blender -b -P scene.py -- --rendu                            toute la séquence, en suite d'images
     blender -b -P scene.py -- --rendu --debut 100 --fin 160      une partie seulement
+    blender -b -P scene.py -- --scenario 02 --rendu              la scène 02 (mer seule, puis un navire)
 
 La caméra est celle du drone : à 1,2 m de l'eau, 66° de champ, elle roule et tangue avec la mer.
 Le navire principal vient de loin sur la gauche, coupe le champ en biais sans jamais être bien
@@ -30,7 +31,8 @@ ETAT_MER = 3.5
 VAGUELETTES = 2.0   # facteur sur la hauteur des vaguelettes de mer.py
 RELIEF_FIN = 2.2    # force du relief fin de l'eau (1 dans mer.py)
 OBTURATION = 0.06  # part de l'intervalle entre deux images : 1/250 s à 15 images/s, plein jour
-SORTIE = os.path.normpath(os.path.join(ICI, "..", "..", "data", "blender", "rendu", "scene_01"))
+RENDUS = os.path.normpath(os.path.join(ICI, "..", "..", "data", "blender", "rendu"))
+SORTIE = os.path.join(RENDUS, "scene_01")
 
 # Chaque navire : route en ligne droite de `depart` à `arrivee` (x vers la droite, y devant la caméra, mètres).
 NAVIRES = [
@@ -39,6 +41,27 @@ NAVIRES = [
     dict(nom="AR MEN", immatriculation="CC 911290", longueur=12.0, couleur_coque=(0.45, 0.06, 0.05),
          depart=(150.0, 290.0), arrivee=(40.0, 250.0), graine=3),
 ]
+
+
+# Scénarios : la scène 01 reprend les constantes ci-dessus. La scène 02 (16/11/2026) sert aux tests
+# d'hallucination puis de lecture : mer seule pendant environ 14 s, soleil bas face à la caméra (chemin de
+# reflets, le pire cas pour le détecteur), mer formée ; puis un navire de pêche jamais vu par la chaîne entre
+# par la droite vers 38 m et sort par la gauche, au plus près vers 26 m, à 4 nœuds (vitesse de chalutage).
+SCENARIOS = {
+    "01": dict(duree_s=DUREE_S, etat_mer=ETAT_MER, couverture=0.4, heure=17.0, azimut_soleil_deg=None,
+               navires=NAVIRES),
+    "02": dict(duree_s=40.0, etat_mer=4.0, couverture=0.0, heure=17.0, azimut_soleil_deg=15.0, navires=[
+        dict(nom="KORRIGAN", immatriculation="BR 538217", longueur=12.0, couleur_coque=(0.04, 0.25, 0.12),
+             depart=(52.0, 45.0), arrivee=(-26.0, 25.0), graine=5)]),
+}
+
+
+def appliquer_scenario(nom: str) -> dict:
+    """Remplace durée, état de la mer et navires par ceux du scénario ; rend le scénario."""
+    global DUREE_S, ETAT_MER, NAVIRES
+    scenario = SCENARIOS[nom]
+    DUREE_S, ETAT_MER, NAVIRES = scenario["duree_s"], scenario["etat_mer"], scenario["navires"]
+    return scenario
 
 
 def poser_navire(navire: dict) -> list[tuple[float, float]]:
@@ -65,7 +88,8 @@ def poser_navire(navire: dict) -> list[tuple[float, float]]:
     return positions
 
 
-def construire(couverture: float, graine: int) -> dict:
+def construire(couverture: float, graine: int, heure: float = 17.0, azimut_soleil_deg: float | None = None,
+               scenario: str = "01") -> dict:
     mer.vider_scene()
     # Mer plus hachée que le réglage d'origine, qui donnait une surface trop lisse vue au ras de l'eau :
     # vaguelettes plus hautes et relief fin du matériau renforcé.
@@ -73,9 +97,9 @@ def construire(couverture: float, graine: int) -> dict:
         etat["hs_rides"] *= VAGUELETTES
     mer.creer_mer(etat=ETAT_MER, duree_s=DUREE_S, images_par_s=IMAGES_PAR_S, graine=graine)
     bpy.data.materials[mer.NOM_MATERIAU_EAU].node_tree.nodes["Rides"].inputs["Strength"].default_value = RELIEF_FIN
-    mer.creer_ciel(heure=17.0, couverture=couverture, graine=graine)
+    mer.creer_ciel(heure=heure, couverture=couverture, graine=graine, azimut_soleil_deg=azimut_soleil_deg)
     mer.creer_camera(duree_s=DUREE_S, images_par_s=IMAGES_PAR_S, etat=ETAT_MER, graine=graine)
-    verite = {"images_par_s": IMAGES_PAR_S, "duree_s": DUREE_S, "etat_mer": ETAT_MER, "couverture": couverture,
+    verite = {"scenario": scenario, "azimut_soleil_deg": azimut_soleil_deg, "images_par_s": IMAGES_PAR_S, "duree_s": DUREE_S, "etat_mer": ETAT_MER, "couverture": couverture,
               "champ_horizontal_deg": 66.0, "navires": []}
     for navire in NAVIRES:
         positions = poser_navire(navire)
@@ -95,12 +119,16 @@ def main() -> None:
     parser.add_argument("--largeur", type=int, default=2028)
     parser.add_argument("--hauteur", type=int, default=1520)
     parser.add_argument("--echantillons", type=int, help="échantillons Cycles par pixel (défaut : 40)")
-    parser.add_argument("--couverture", type=float, default=0.4, help="0 = ciel clair, 1 = couvert")
+    parser.add_argument("--scenario", choices=sorted(SCENARIOS), default="01")
+    parser.add_argument("--couverture", type=float, help="0 = ciel clair, 1 = couvert (défaut : celle du scénario)")
     parser.add_argument("--graine", type=int, default=0)
-    parser.add_argument("--sortie", default=SORTIE)
+    parser.add_argument("--sortie", help="dossier des images (défaut : data/blender/rendu/scene_<scénario>)")
     args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
+    scenario = appliquer_scenario(args.scenario)
+    args.sortie = args.sortie or os.path.join(RENDUS, f"scene_{args.scenario}")
+    couverture = scenario["couverture"] if args.couverture is None else args.couverture
 
-    verite = construire(args.couverture, args.graine)
+    verite = construire(couverture, args.graine, scenario["heure"], scenario["azimut_soleil_deg"], args.scenario)
     scene = bpy.context.scene
     if args.apercu:
         mer.regler_rendu(args.largeur, args.hauteur, IMAGES_PAR_S, qualite="finale", echantillons=args.echantillons)

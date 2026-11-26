@@ -17,7 +17,7 @@ python3 -m chaine.outils.telecharger_modeles          # une fois, 100 Mo dans ch
 python3 -m chaine                                     # scénario simulé, experts factices, aucune dépendance
 python3 -m chaine --video ../data/bateau-peche-dingle.webm --largeur-vue 960 --seuil-ocr 200 \
                   --sortie runs/dingle-annotee.mp4    # vidéo, vrais experts
-python3 -m unittest discover -s chaine/tests -t .     # 127 tests
+python3 -m unittest discover -s chaine/tests -t .     # 133 tests
 ```
 
 Chaque lancement écrit le journal des décisions dans `runs/journal.jsonl` et les messages du contrat 3 dans `runs/messages.jsonl` (dossier non versionné). Options utiles :
@@ -47,7 +47,7 @@ Quatre points à confirmer avec Adam-Sabri : le transport (HTTP POST et UDP sont
 
 `decideur.py` pose les quatre questions de l'arbre, dans l'ordre, sur chaque piste confirmée :
 
-1. Type encore inconnu ? → expert type. Seulement si le navire fait au moins 64 px ; deux essais, plus un si le type hésite encore et que le navire a grossi de moitié.
+1. Type encore inconnu ? → expert type. Seulement si le navire fait au moins 64 px ; deux essais, plus un si le type hésite encore et que le navire a grossi de moitié. Si les deux premiers essais disent « pas un navire », la piste est écartée : ni alerte ni approche, une ligne `ecartee` au journal, rien vers la station sol.
 2. Immatriculation déjà lue ? → alerte complète.
 3. Navire assez gros ? → expert OCR, jusqu'à six essais espacés de 0,4 s : c'est ce qui alimente le vote. Chaque essai lit l'image la plus nette de l'intervalle, pas celle qui tombe à ce moment-là.
 4. Approche permise par les garde-fous ? → approche ; sinon alerte partielle, avec ce que l'on sait.
@@ -63,7 +63,7 @@ Un seul expert est lancé par image. Tous ont la même interface : `nom` et `lan
 | Expert | Fichier | Ce qu'il fait |
 |---|---|---|
 | Filtre qualité | `experts/qualite.py` | Variance du laplacien et contraste du recadrage, sans réseau. Passe avant les experts type et OCR ; cinq rejets d'affilée comptent pour une tentative ratée. |
-| Type | `experts/type.py` | DINOv2 ViT-S/14 figé (ONNX ; DINOv3 en option), tête linéaire, prédiction conforme : un type s'il est sûr, plusieurs s'il hésite. Moyenne sur les essais de la même piste. Types : cargo, ferry, peche, pneumatique, vedette, voilier. |
+| Type | `experts/type.py` | DINOv2 ViT-S/14 figé (ONNX ; DINOv3 en option), tête linéaire, prédiction conforme : un type s'il est sûr, plusieurs s'il hésite. Moyenne sur les essais de la même piste. Types : cargo, ferry, peche, pneumatique, vedette, voilier, et une classe `pas_navire` (vague, reflet, côte) : ce n'est pas un navire quand elle reste seule dans l'ensemble. |
 | OCR | `experts/ocr.py`, `experts/immatriculation.py` | Localisation puis lecture du texte (PaddleOCR mobile en ONNX, traitements réécrits en NumPy et OpenCV). Contrôle du format français (deux lettres de quartier, six chiffres, confusions O/0, I/1... corrigées selon la position). Vote caractère par caractère : il faut deux lectures identiques sur deux images. |
 | Approche simulée | `experts/approche.py` | Cap et distance estimés depuis la boîte (sténopé, longueur supposée selon le type), consigne à un drone simulé qui avance, s'arrête à la distance de sécurité et consomme sa batterie. |
 
@@ -100,6 +100,18 @@ Chargement des modèles : 0,1 s. Mémoire maximale du processus : 1 Go.
 
 Vote faux : 0 sur 480 navires en conditions normales, 1 sur 360 avec dégradations doublées. Les images synthétiques sont plus faciles que la réalité (polices propres, coque unie) : c'est la courbe selon la taille qui compte, pas le niveau absolu.
 
+**PP-OCRv6 et en_PP-OCRv5 contre l'OCR actuel** (16/11/2026, Mac M4, mêmes images). PP-OCRv6 (juin 2026, Apache 2.0) est annoncé nettement meilleur par Paddle, sur ses propres bancs seulement. Fichiers ONNX de RapidOCR 3.10 (dictionnaire inclus) dans `modeles/ocr_candidats/`, essayés avec `mesurer_ocr.py --detection … --lecture …`. « Erreurs » compte les lectures fausses au bon format qui ne sont pas l'immatriculation d'un autre navire de la photo (vérifié photo par photo pour les trois premières lignes).
+
+| Localisation + lecture | Photos lues, 1920 px | Photos lues, 1280 px | Erreurs, 1920 / 1280 px | Synthétique 8 px : 1 image / vote | Temps par photo, 1280 / 1920 px |
+|---|---|---|---|---|---|
+| PP-OCRv4 mobile + PP-OCRv3 anglais (actuel) | 20 / 26 | 16 / 26 | 0 / 2 | 78 % / 97 % | 124 / 298 ms |
+| PP-OCRv6 small + PP-OCRv6 small | 20 | 19 | 2 / 1 | 68 % / 97 % | 152 / 352 ms |
+| PP-OCRv6 small + en_PP-OCRv5 mobile | 21 | 18 | 1 / 2 | 60 % / 95 % | 156 / 343 ms |
+| PP-OCRv6 small + PP-OCRv3 anglais | 17 | 18 | non comptées | 57 % / 95 % | 150 / 342 ms |
+| PP-OCRv6 tiny + en_PP-OCRv5 mobile | 18 | 18 | non comptées | 68 % / 97 % | 90 / 206 ms |
+
+Rien ne justifie de changer de modèle : à 1920 px, les nouveaux lisent autant de photos à une près, font plus d'erreurs franches (« BL 341133 » lu « BL 347733 » aux deux tailles par PP-OCRv6, une erreur constante que le vote laisserait passer) et coûtent 15 à 20 % de temps en plus. Seule piste : à 1280 px, PP-OCRv6 lit 19 photos contre 16, en deux fois moins de temps que l'actuel à 1920 px. À remesurer sur le Pi et sur des images de l'IMX500 ; avec 26 photos, un écart d'une à trois photos reste dans le bruit.
+
 **Expert type** (`modeles/tete_type_*.json`) : 722 photos de Commons, étiquettes tirées des catégories donc bruitées. Mêmes recadrages et même partage pour les deux réseaux, 147 photos de test :
 
 | Réseau figé | Bons types | Vrai type dans l'ensemble (90 % visés) | Un seul type proposé | À 48 px de large | Temps |
@@ -108,6 +120,35 @@ Vote faux : 0 sur 480 navires en conditions normales, 1 sur 360 avec dégradatio
 | DINOv3 ViT-S/16 | 83 % | 94 % | 57 % | 71 % | 15 ms |
 
 L'écart (6 photos sur 147) est dans le bruit de la mesure : un autre tirage du partage avait donné 82 % à DINOv2. Les deux se valent ici ; DINOv2 reste le défaut, `--reseau-type dinov3` bascule. Ce qui limite l'expert, ce sont les données, pas le réseau.
+
+**Classe « pas un navire »** (16/11/2026, tête DINOv2 seulement ; la tête DINOv3 a toujours six types). Sans elle, une fausse détection recevait toujours un type et pouvait déclencher une approche puis une alerte. Négatifs : 628 recadrages sans navire tirés par `outils/extraire_negatifs.py` de la scène Blender, de la vidéo Dingle (fausses détections de YOLO à faible confiance et rectangles au hasard, loin des navires) et des photos Commons (rectangles au hasard, sans les cargos ni les ferries, où l'on tombe sur un morceau de navire ; huit recadrages retirés à l'œil). Partage par tranche de temps dans les vidéos, pour que deux images voisines ne soient pas l'une en entraînement et l'autre en test. Seuil conforme calculé sur les navires seuls.
+
+```
+python3 -m chaine.outils.extraire_negatifs                                  # 1 min, écrit data/pas_navire/
+python3 -m chaine.outils.entrainer_tete_type --negatifs ../data/pas_navire  # la tête par défaut
+python3 -m chaine.outils.entrainer_tete_type --negatifs ../data/pas_navire --tester-source dingle --sortie essai
+```
+
+Mêmes 147 photos de navires qu'avant :
+
+| | Sans la classe | Avec |
+|---|---|---|
+| Bons types | 87,1 % | 87,8 % |
+| Vrai type dans l'ensemble | 94,6 % | 94,6 % |
+| Types proposés en moyenne | 1,53 | 1,58 |
+| Navires écartés à tort, 64 px et plus | impossible | 0 % |
+| Navires écartés à tort, 48 px / 32 px | impossible | 2 % / 9 % |
+
+Négatifs de test écartés. La ligne qui compte est celle de la source jamais vue : les autres négatifs de la même vidéo se ressemblent trop (le phare de Dingle revient des dizaines de fois).
+
+| Négatifs de test | Nombre | Écartés |
+|---|---|---|
+| Mêmes sources, dernière tranche de temps | 106 | 100 % |
+| Scène Blender jamais vue à l'entraînement | 151 | 100 % |
+| Vidéo Dingle jamais vue | 284 | 96 % (fausses détections de YOLO : 94 %) |
+| Photos Commons jamais vues | 193 | 81 % |
+
+Ce qui passe encore : le phare et les vagues déferlantes de Dingle quand la vidéo n'a pas été vue, une bouée rouge, et des objets de terre (bâtiments, parasol) qu'on ne croisera pas en mer. Sur les deux vidéos, la chaîne complète donne exactement les mêmes alertes qu'avant (8 sur Blender avec le suivi de remplacement, dont « GV 642410 » à 20,5 s ; 1 sur Dingle) : aucun vrai navire écarté.
 
 **Sur la vidéo Dingle** (1080p, 960 images) : une piste stable ; le type donné est « vedette », à tort (c'est un petit bateau de pêche vu de l'arrière, au crépuscule) ; approche, six lectures sans immatriculation française, alerte partielle. Avec une immatriculation incrustée (`outils/incruster_immatriculation.py`) : alerte complète après deux lectures concordantes.
 
@@ -121,6 +162,19 @@ python3 -m chaine --video ../data/scene-blender-01.mp4 --sans-zoom --seuil-ocr 3
 - Image par image, quand le navire fait 300 px et plus : immatriculation lue juste sur 78 % des images, lue fausse sur 2 % (« GM 642410 », « GV 642440 »).
 - Navire lointain (250 m, 60 px de large) : détecté sur 168 images sur 450 seulement, sous 15 numéros de piste différents. La chaîne envoie **sept alertes partielles pour ce seul navire**. C'est le défaut principal révélé par la scène.
 - Choix de l'image la plus nette : pas de gain non plus (17 intervalles lus sur 21, contre 18 avec l'image du moment).
+
+**Petits modèles vision-langage (2B paramètres au plus) contre les experts** (16/11/2026, Mac M4, `outils/banc_vlm.py`, llama.cpp, versions Q4, raisonnement désactivé, réponse JSON imposée). Une seule invite par image : navire ou non, type, immatriculation. Mêmes images que ci-dessus : les 147 navires du test de l'expert type, les recadrages sans navire de `data/pas_navire`, les 86 photos de `immatriculations_commons` (photo entière, comme l'OCR la reçoit). Modèles retenus d'après leurs scores publiés et leur licence au 16/11/2026.
+
+| | Navires acceptés : taille réelle / 64 px / 48 px | Sans navire écartés | Bons types | Immatriculations lues | Lectures fausses au bon format | Temps, GPU du Mac | Temps, processeur du Mac (4 fils), par recadrage |
+|---|---|---|---|---|---|---|---|
+| Experts actuels | 147 / 147 / 144 | 106 / 106 ; 580 / 628 sur une source jamais vue | 129 (88 %) | 20 / 26 | 0 | 15 ms (type), 300 ms (OCR) | idem (ils tournent déjà sur le processeur) |
+| Qwen3.5-0.8B (Apache 2.0) | 145 / 126 / 108 | 106 / 106 ; 628 / 628 | 100 (68 %) | 15 | 6 | 1,1 s | 1,5 à 5,7 s (image réduite à 448 px) |
+| MiniCPM-V 4.7 1B (Apache 2.0) | 145 / non mesuré | 106 / 106 | 107 (73 %) | 12 | 6 | 1,4 s | 49 à 160 s (1024 px) |
+| LFM3-VL-2B (licence LFM, seuil de revenu) | 145 / non mesuré | 106 / 106 | 108 (73 %) | 12 | 11 | 2,3 s | 6 à 46 s (1024 px) |
+
+- Aucun ne remplace un expert : moins bons sur le type et sur l'immatriculation, avec des erreurs de chiffres qui se répètent d'une photo à l'autre du même navire (« BL 341133 » lu « BL 341733 » trois fois par LFM3), donc que le vote laisserait passer.
+- Leur seul atout : « navire ou non » sur des images jamais vues. Qwen écarte les 628 recadrages sans navire, dont les 48 (phare, vagues déferlantes, bouée) que la classe `pas_navire` laisse passer quand elle n'a pas vu la source. Mais il refuse 14 % des vrais navires à 64 px et 27 % à 48 px : en second avis, il ne pourrait servir que sur des navires assez gros, avant une approche par exemple, et à condition que le temps sur le Pi le permette (non mesuré ; le Pi 4 est nettement plus lent que le M4).
+- Piège de méthode : avec un exemple d'immatriculation dans l'invite (« par exemple GV 642410 »), les trois modèles le recopiaient sur des photos sans immatriculation. Il n'y en a plus dans l'invite.
 
 ## Estimation pour le Raspberry Pi 4 (8 Go)
 
@@ -153,8 +207,8 @@ Ce que le calcul ne dit pas : pendant qu'un expert occupe les quatre cœurs, le 
 | `sources.py` | Scénario simulé, suivi de remplacement sur vidéo, observations rejouées |
 | `reglages.py` | Tous les seuils, et l'état du drone lu par le décideur |
 | `reidentification.py` | Mémoire des navires déjà signalés, reconnaissance par la signature visuelle (`REIDENTIFICATION.md`) |
-| `outils/` | Téléchargement des modèles et des photos, entraînement de la tête, mesures, incrustation |
-| `modeles/` | Modèles (non versionnés) et tête de l'expert type (versionnée) |
+| `outils/` | Téléchargement des modèles et des photos, négatifs et entraînement de la tête, mesures (OCR, temps, banc des modèles vision-langage), incrustation |
+| `modeles/` | Modèles (non versionnés, sauf les deux de l'OCR) et tête de l'expert type (versionnée) |
 
 ## Reste à faire pour passer sur le Pi
 
@@ -172,8 +226,9 @@ Ce que le calcul ne dit pas : pendant qu'un expert occupe les quatre cœurs, le 
 
 - Le choix de l'image la plus nette n'a montré de gain ni sur la vidéo Dingle (11 intervalles lus sur 48, avec ou sans) ni sur la scène Blender (17 sur 21 contre 18). La netteté mesurée ne prédit pas la lisibilité. Le mécanisme est en place et testé, mais rien ne prouve qu'il sert.
 
-- La liste des quartiers maritimes est écrite de mémoire : à vérifier. Un quartier inconnu n'est accepté que lu sans correction, avec une confiance réduite.
+- La liste des quartiers d'immatriculation suit la liste officielle de la préfecture du Morbihan (45 codes, mars 2010 ; vérifiée le 16/11/2026, seul « RO » manquait). Un quartier inconnu n'est accepté que lu sans correction, avec une confiance réduite.
 - L'expert type est entraîné sur des photos de Commons, pas sur des images du drone ni sur la scène Blender ; « peche » y veut surtout dire chalutier.
+- La classe « pas un navire » n'a vu que deux vidéos et des photos de port : rien de la rade de Brest, pas de nuit, pas de pluie. Ses chiffres sur une source jamais vue (81 à 100 %) sont la seule estimation honnête, à refaire sur les premières vidéos de l'IMX500. Sous 64 px, l'expert type n'est pas lancé : une petite fausse détection peut encore déclencher une approche (les garde-fous l'arrêtent quand la cible ne grossit pas, avec une alerte partielle).
 - La reprise de piste ne regarde que la position. Après une coupure de la vidéo ou un long masquage, le même navire revient comme un nouveau navire. Avec `--reid`, son alerte dit à quel navire déjà signalé il ressemble (`REIDENTIFICATION.md`), sans fusionner les fiches.
 - Deux navires dans la même boîte : l'OCR peut lire l'immatriculation du voisin.
 - La distance estimée suppose le navire vu de côté ; de face ou de l'arrière, elle est surestimée.

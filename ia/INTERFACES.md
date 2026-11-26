@@ -22,7 +22,7 @@ Le contrat 2 (la fiche navire) n'est pas un échange : c'est la mémoire interne
 | Rend | les observations et l'image (contrat 1) | les messages (contrat 3) | la page de l'opérateur |
 | Sa sortie, dans un fichier | `runs/observations.jsonl` | `runs/messages.jsonl` (et `runs/journal.jsonl`, qui reste à bord) | `station_sol/journaux/messages_<date>.jsonl` |
 | Lancer seule | `python3 -m suivi --video V` | `python3 -m chaine --video V --observations runs/observations.jsonl` | `python3 serveur.py` puis `python3 rejouer.py F` |
-| Tests | `python3 -m unittest discover -s suivi/tests -t .` (16) | `python3 -m unittest discover -s chaine/tests -t .` (127) | aucun |
+| Tests | `python3 -m unittest discover -s suivi/tests -t .` (16) | `python3 -m unittest discover -s chaine/tests -t .` (133) | aucun |
 
 Le code de `ia/suivi/` a été écrit par Reda le 12/10/2026 pour pouvoir tester l'ensemble : c'est la place de la partie de Guillaume, qui peut le reprendre ou le remplacer.
 

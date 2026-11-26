@@ -2,6 +2,8 @@
 
     python3 -m chaine.outils.mesurer_ocr --navires 60 --rapport runs/mesure_ocr.json
     python3 -m chaine.outils.mesurer_ocr --photos ../data/immatriculations_commons
+    python3 -m chaine.outils.mesurer_ocr --detection ocr_candidats/PP-OCRv6_det_small.onnx \
+                                         --lecture ocr_candidats/PP-OCRv6_rec_small.onnx   # autres modèles
 
 Pour chaque navire synthétique, l'expert reçoit jusqu'à `max_tentatives_ocr` images différentes de la même
 immatriculation, comme dans la chaîne. On compte :
@@ -23,9 +25,9 @@ from .immatriculations_synthetiques import dessiner, immatriculation_au_hasard
 
 
 def mesurer(navires: int, hauteurs: list[int], graine: int = 0, fils: int | None = None,
-            degradation: float = 1.0) -> dict:
+            degradation: float = 1.0, modeles: dict | None = None) -> dict:
     reglages = Reglages()
-    expert = ExpertOCR(reglages, fils=fils)
+    expert = ExpertOCR(reglages, fils=fils, **(modeles or {}))
     rng = random.Random(graine)
     lignes, durees = [], {"detection": [], "lecture": []}
     for hauteur in hauteurs:
@@ -63,10 +65,10 @@ def mesurer(navires: int, hauteurs: list[int], graine: int = 0, fils: int | None
             "degradation": degradation}
 
 
-def mesurer_photos(dossier: Path, cotes_max: list[int], fils: int | None = None) -> list[dict]:
+def mesurer_photos(dossier: Path, cotes_max: list[int], fils: int | None = None, modeles: dict | None = None) -> list[dict]:
     """Taux de lecture sur des photos réelles (une image par navire, donc sans vote), par taille d'analyse."""
     import cv2
-    expert = ExpertOCR(Reglages(), fils=fils)
+    expert = ExpertOCR(Reglages(), fils=fils, **(modeles or {}))
     with (dossier / "verites.csv").open(encoding="utf-8") as f:
         photos = list(csv.DictReader(f))
     lignes = []
@@ -105,10 +107,15 @@ if __name__ == "__main__":
     parser.add_argument("--cotes-max", type=int, nargs="+", default=[1280, 1920],
                         help="avec --photos : tailles d'analyse à comparer")
     parser.add_argument("--rapport", help="fichier JSON où écrire les chiffres")
+    parser.add_argument("--detection", default="ocr_detection.onnx", help="modèle de localisation, dans chaine/modeles/")
+    parser.add_argument("--lecture", default="ocr_lecture.onnx", help="modèle de lecture, dans chaine/modeles/")
     args = parser.parse_args()
-    rapport = mesurer(args.navires, args.hauteurs, fils=args.fils, degradation=args.degradation)
+    modeles = {"fichier_detection": args.detection, "fichier_lecture": args.lecture}
+    print("modèles :", modeles)
+    rapport = mesurer(args.navires, args.hauteurs, fils=args.fils, degradation=args.degradation, modeles=modeles)
+    rapport["modeles"] = modeles
     if args.photos:
-        rapport["photos_reelles"] = mesurer_photos(Path(args.photos), args.cotes_max, args.fils)
+        rapport["photos_reelles"] = mesurer_photos(Path(args.photos), args.cotes_max, args.fils, modeles)
     if args.rapport:
         Path(args.rapport).parent.mkdir(parents=True, exist_ok=True)
         Path(args.rapport).write_text(json.dumps(rapport, ensure_ascii=False, indent=2))

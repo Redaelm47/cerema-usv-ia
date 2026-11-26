@@ -21,6 +21,7 @@ class Reglages:
     seuil_ocr_essai_px: float = 120.0
     max_essais_ocr_precoces: int = 4    # budget à part : un échec sur un petit navire ne prive pas des essais à 600 px
     max_tentatives_type: int = 2
+    essais_pour_ecarter: int = 2        # essais de l'expert type qui doivent dire « pas un navire » avant d'écarter la piste
     max_tentatives_ocr: int = 6
     intervalle_essais_s: float = 0.4    # entre deux essais du même expert sur le même navire
     croissance_nouvel_essai_type: float = 1.5  # type hésitant : nouvel essai si le navire a grossi d'autant

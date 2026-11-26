@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from chaine.experts.ocr import MODELES
-from chaine.experts.type import COTE, ExpertType, Tete, preparer
+from chaine.experts.type import COTE, PAS_NAVIRE, ExpertType, Tete, preparer
 
 from .outils import fiche_confirmee
 
@@ -18,6 +18,14 @@ def tete(seuil=0.2):
     chemin = Path(dossier) / "tete_type.npz"
     np.savez(chemin, types=np.array(["peche", "voilier", "cargo"]), seuil=np.float32(seuil),
              poids=np.float32([[4, 0], [0, 4], [-4, -4]]), biais=np.zeros(3, np.float32))
+    return Tete(chemin)
+
+
+def tete_avec_pas_navire(seuil=0.2):
+    """Tête à deux types et la classe pas_navire, sur des signatures à trois nombres."""
+    chemin = Path(tempfile.mkdtemp()) / "tete_type.npz"
+    np.savez(chemin, types=np.array(["peche", "voilier", PAS_NAVIRE]), seuil=np.float32(seuil),
+             poids=np.float32([[6, 0, 0], [0, 6, 0], [0, 0, 6]]), biais=np.zeros(3, np.float32))
     return Tete(chemin)
 
 
@@ -34,6 +42,27 @@ class TestTete(unittest.TestCase):
     def test_plusieurs_types_quand_il_hesite(self):
         t = tete()
         self.assertEqual(t.ensemble(t.probabilites(np.float32([0.5, 0.45]))), ["peche", "voilier"])
+
+    def test_pas_un_navire_seulement_quand_aucun_type_ne_reste(self):
+        expert = ExpertType.__new__(ExpertType)  # sans réseau : la signature est donnée directement
+        expert.marge, expert.cumuls = 0.0, {}
+        expert.tete = tete_avec_pas_navire()
+
+        class SignatureDonnee:
+            vecteur = None
+
+            def calculer(self, recadrage):
+                return self.vecteur
+
+        expert.signature = SignatureDonnee()
+        image, fiche = np.zeros((100, 100, 3), np.uint8), fiche_confirmee(largeur=50.0)
+        fiche.suivi.boite = (10.0, 10.0, 50.0, 20.0)
+        expert.signature.vecteur = np.float32([0, 0, 1])  # net : pas un navire
+        valeurs = expert.lancer(fiche, image).valeurs
+        self.assertEqual((valeurs["types"], valeurs["navire"], valeurs["essais"]), ([], False, 1))
+        expert.signature.vecteur = np.float32([0.5, 0, 0.5])  # hésite entre pêche et pas un navire : on garde le navire
+        valeurs = expert.lancer(fiche, image).valeurs
+        self.assertEqual((valeurs["types"], valeurs["navire"], valeurs["essais"]), (["peche"], True, 2))
 
     def test_jamais_vide(self):
         t = tete(seuil=0.99)
@@ -73,11 +102,12 @@ class TestExpertType(unittest.TestCase):
         self.expert.cumuls.clear()
         resultat = self.expert.lancer(self.fiche(), self.image)
         self.assertTrue(resultat.reussi)
-        types = resultat.valeurs["types"]
-        self.assertGreaterEqual(len(types), 1)
-        self.assertTrue(set(types) <= set(self.expert.tete.types))
-        self.assertAlmostEqual(sum(resultat.valeurs["probabilites"].values()), 1.0, places=2)
-        self.assertEqual(resultat.valeurs["confiance"], max(resultat.valeurs["probabilites"].values()))
+        types, probabilites = resultat.valeurs["types"], resultat.valeurs["probabilites"]
+        self.assertEqual(resultat.valeurs["navire"], bool(types))  # une image de bruit peut ne pas être un navire
+        self.assertTrue(set(types) <= set(self.expert.tete.types) - {PAS_NAVIRE})
+        self.assertAlmostEqual(sum(probabilites.values()), 1.0, places=2)
+        self.assertEqual(resultat.valeurs["confiance"], max(p for t, p in probabilites.items() if t != PAS_NAVIRE))
+        self.assertEqual(resultat.valeurs["essais"], 1)
 
     def test_signature_de_norme_1(self):
         signature = self.expert.signature.calculer(self.image)

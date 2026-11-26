@@ -42,9 +42,12 @@ class LecteurDeTexte:
     """Localisation (DBNet) puis lecture (CRNN, décodage CTC) du texte d'une image."""
 
     def __init__(self, dossier: Path = MODELES, fils: int | None = None, cote_min: int = 736, cote_max: int = 1920,
-                 seuil_carte: float = 0.3, seuil_zone: float = 0.5, elargissement: float = 1.6, max_zones: int = 8):
-        self.detection = session(dossier / "ocr_detection.onnx", fils)
-        self.lecture = session(dossier / "ocr_lecture.onnx", fils)
+                 seuil_carte: float = 0.3, seuil_zone: float = 0.5, elargissement: float = 1.6, max_zones: int = 8,
+                 fichier_detection: str = "ocr_detection.onnx", fichier_lecture: str = "ocr_lecture.onnx"):
+        # Fichiers relatifs à `dossier`, ou chemins absolus : d'autres modèles PaddleOCR au même format
+        # (PP-OCRv5, PP-OCRv6, exports RapidOCR avec le dictionnaire dans les métadonnées) se branchent ici.
+        self.detection = session(dossier / fichier_detection, fils)
+        self.lecture = session(dossier / fichier_lecture, fils)
         self.cote_min, self.cote_max = cote_min, cote_max
         self.seuil_carte, self.seuil_zone = seuil_carte, seuil_zone
         self.elargissement = elargissement
@@ -52,6 +55,9 @@ class LecteurDeTexte:
         # Sortie du modèle de lecture : 0 = vide (CTC), puis les caractères du dictionnaire, puis l'espace.
         dictionnaire = self.lecture.get_modelmeta().custom_metadata_map["character"].rstrip("\n").split("\n")
         self.caracteres = [""] + dictionnaire + [" "]
+        sortie = self.lecture.get_outputs()[0].shape[-1]
+        if isinstance(sortie, int) and sortie != len(self.caracteres):
+            raise ValueError(f"{fichier_lecture} : {sortie} sorties pour {len(self.caracteres)} caractères")
         self.admis = np.array([i == 0 or c in CARACTERES_ADMIS for i, c in enumerate(self.caracteres)])
         self.durees_ms = {"detection": 0.0, "lecture": 0.0}
         self._prechauffer()
@@ -161,9 +167,11 @@ def assembler(textes: list[Texte]) -> list[tuple[str, float]]:
 class ExpertOCR:
     nom = "ocr"
 
-    def __init__(self, reglages: Reglages, dossier: Path = MODELES, fils: int | None = None, marge: float = 0.03):
+    def __init__(self, reglages: Reglages, dossier: Path = MODELES, fils: int | None = None, marge: float = 0.03,
+                 fichier_detection: str = "ocr_detection.onnx", fichier_lecture: str = "ocr_lecture.onnx"):
         self.reglages = reglages
-        self.lecteur = LecteurDeTexte(dossier, fils)
+        self.lecteur = LecteurDeTexte(dossier, fils, fichier_detection=fichier_detection,
+                                      fichier_lecture=fichier_lecture)
         self.marge = marge
         self.votes: dict[int, Vote] = {}
 

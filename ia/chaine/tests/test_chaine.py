@@ -353,6 +353,32 @@ class TestFiltreQualiteDansLaChaine(unittest.TestCase):
         self.assertEqual([(l["piste"], l["action"]) for l in chaine.journal.lignes],
                          [(1, "filtre_qualite"), (2, "expert_type")])
 
+    def test_pas_un_navire_deux_fois_piste_ecartee_sans_alerte(self):
+        pas_navire = {"types": [], "navire": False, "confiance": 0.05}
+        type_ = ExpertScripte("type", Resultat(True, {**pas_navire, "essais": 1}), Resultat(True, {**pas_navire, "essais": 2}))
+        chaine = chaine_factice(type=type_)
+        t = 0.0
+        while t < 30.0:
+            chaine.pas(observations(t, (1, 700.0)), self.IMAGE)
+            t += 0.5
+        chaine.cloturer(t)
+        self.assertEqual(type_.lancements, 2)
+        self.assertEqual(chaine.fiches[1].decision.etat, Etat.ECARTEE)
+        self.assertEqual(chaine.alertes, [])
+        self.assertEqual([l["action"] for l in chaine.journal.lignes], ["expert_type", "expert_type", "ecartee"])
+        self.assertEqual({m["genre"] for m in chaine.emetteur.messages}, {"decision", "etat"})
+        self.assertEqual(chaine.navires_suivis(t), 0)
+
+    def test_un_seul_avis_pas_un_navire_ne_suffit_pas(self):
+        type_ = ExpertScripte("type", Resultat(True, {"types": [], "navire": False, "confiance": 0.05, "essais": 1}),
+                              Resultat(True, {"types": ["chalutier"], "navire": True, "confiance": 0.6, "essais": 2}))
+        chaine = chaine_factice(type=type_)
+        for i in range(6):
+            chaine.pas(observations(i * 0.5, (1, 700.0)), self.IMAGE)
+        self.assertEqual(len(chaine.alertes), 1)
+        self.assertTrue(chaine.alertes[0]["complete"])
+        self.assertEqual(chaine.alertes[0]["types"], ["chalutier"])
+
     def test_images_toujours_floues_la_chaine_finit_par_alerter(self):
         reglages = Reglages(seuil_ocr_essai_px=float("inf"))
         qualite = ExpertScripte("qualite", Resultat(False, {"raison": "image floue", "nettete": 3.0}))

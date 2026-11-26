@@ -93,3 +93,21 @@ class FenetreDirecte:
         if self._ouverte:
             cv2.destroyWindow(self.NOM)
             self._ouverte = False
+
+
+class FluxAnnote(VideoAnnotee):
+    """Vue en direct : écrit chaque image annotée en JPEG sur un flux binaire (à lire avec `ffplay -f mjpeg`)."""
+
+    def __init__(self, flux, largeur: int = 1280, qualite: int = 75):
+        super().__init__("")
+        self.flux, self.largeur, self.qualite = flux, largeur, qualite
+
+    def ecrire(self, image, fiches: list[FicheNavire], t: float, drone=None) -> None:
+        image = annoter(image, fiches, t, drone)
+        if image.shape[1] > self.largeur:
+            echelle = self.largeur / image.shape[1]
+            image = cv2.resize(image, None, fx=echelle, fy=echelle, interpolation=cv2.INTER_AREA)
+        reussi, jpeg = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, self.qualite])
+        if reussi:
+            self.flux.write(jpeg.tobytes())
+            self.flux.flush()
