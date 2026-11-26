@@ -125,9 +125,11 @@ class EmetteurSimulateur:
 
     def __init__(self):
         self.nouveaux = []
+        self.tous = []
 
     def envoyer(self, message):
         self.nouveaux.append(message)
+        self.tous.append(message)
 
     def fermer(self):
         pass
@@ -148,36 +150,61 @@ class Pont:
         from suivi.detecteur import DetecteurYolo
         from suivi.suivi import Suivi
 
+        self.args = args
         self.cv2, self.np = cv2, np
+        self.Chaine, self.DroneSimule, self.ExpertApprocheSimulee = Chaine, DroneSimule, ExpertApprocheSimulee
+        self.Journal, self.Emetteurs, self.creer_emetteur, self.Suivi = Journal, Emetteurs, creer_emetteur, Suivi
         # le suivi du Pi, image par image : détecteur, détection sûre selon le modèle, associateur ByteTrack
-        detecteur = DetecteurYolo(modele_detecteur(args.detecteur, args.depot), taille=640)
-        self.suivi = Suivi(None, detecteur)
+        self.detecteur = DetecteurYolo(modele_detecteur(args.detecteur, args.depot), taille=640)
+        self.nom_detecteur = self.detecteur.nom
         self.reglages = Reglages()
-        self.reglages.confiance_confirmation = self.suivi.confiance_confirmation
-        print(f"détecteur : {detecteur.nom} (classes {detecteur.classes}), détection sûre à "
-              f"{detecteur.confiance:.0%}, experts après {self.reglages.images_confirmation} détections sûres "
+        self.reglages.confiance_confirmation = Suivi(None, self.detecteur).confiance_confirmation
+        print(f"détecteur : {self.detecteur.nom} (classes {self.detecteur.classes}), détection sûre à "
+              f"{self.detecteur.confiance:.0%}, experts après {self.reglages.images_confirmation} détections sûres "
               f"d'affilée", flush=True)
-        # le drone du simulateur va au plus à 5 nœuds ; sa distance au navire approché est mesurée
-        self.drone = classe_drone_simulateur(DroneSimule)(vitesse_m_s=2.5)
+        # experts chargés une fois (réseaux) ; l'approche dépend du drone, recréée à chaque épisode
+        self.experts_fixes = [FiltreQualite(self.reglages), ExpertType(fils=args.fils, reseau=args.reseau_type),
+                              ExpertOCR(self.reglages, fils=args.fils)]
+        self.dossier = Path(args.campagne) / "journaux" if args.campagne else ICI / "runs"
+        self.dossier.mkdir(parents=True, exist_ok=True)
         self.derniere_meta = {}
+        self.premiere = True
+        self.taille_image = None
+        self.mesures = None
+        self.journal = None
+        self.nouvel_episode()
+
+    def nouvel_episode(self, numero: int | None = None) -> None:
+        """Chaîne remise à zéro : suivi, fiches, drone, journal (un épisode de campagne, ou la session entière)."""
+        if self.journal is not None:
+            self.journal.fermer()
+            self.emetteurs.fermer()
+        self.suivi = self.Suivi(None, self.detecteur)
+        # le drone du simulateur va au plus à 5 nœuds ; sa distance au navire approché est mesurée
+        self.drone = classe_drone_simulateur(self.DroneSimule)(vitesse_m_s=2.5)
         self.drone.mesurer = self.distance_piste
         self.drone.distance_min_m = self.reglages.distance_min_m
-        experts = [ExpertApprocheSimulee(self.drone, self.reglages), FiltreQualite(self.reglages),
-                   ExpertType(fils=args.fils, reseau=args.reseau_type), ExpertOCR(self.reglages, fils=args.fils)]
-        runs = ICI / "runs"
-        runs.mkdir(exist_ok=True)
-        self.journal = Journal(runs / "journal.jsonl")
+        suffixe = "" if numero is None else f"_{numero:04d}"
+        self.journal = self.Journal(self.dossier / f"journal{suffixe}.jsonl")
         self.sortie = EmetteurSimulateur()
-        emetteurs = [creer_emetteur(str(runs / "messages.jsonl")), self.sortie]
-        if args.station:
-            emetteurs.append(creer_emetteur(args.station.rstrip("/") + "/message"))
-        self.chaine = Chaine(experts, self.reglages, self.journal, Emetteurs(emetteurs), self.drone)
+        emetteurs = [self.creer_emetteur(str(self.dossier / f"messages{suffixe}.jsonl")), self.sortie]
+        if self.args.station:
+            emetteurs.append(self.creer_emetteur(self.args.station.rstrip("/") + "/message"))
+        self.emetteurs = self.Emetteurs(emetteurs)
+        experts = [self.ExpertApprocheSimulee(self.drone, self.reglages)] + self.experts_fixes
+        self.chaine = self.Chaine(experts, self.reglages, self.journal, self.emetteurs, self.drone)
         self.cible_precedente = None
         self.t = 0.0
         self.images = 0
         self.debut = time.perf_counter()
-        self.premiere = True
-        self.taille_image = None
+
+    def fin_episode(self) -> dict:
+        """Clôt l'épisode (alertes partielles des navires en cours) et rend ses résultats."""
+        self.chaine.cloturer(self.t)
+        self.traduire_messages()
+        resultat = self.mesures.resumer(self.sortie.tous, list(self.journal.lignes), self.t)
+        self.mesures = None
+        return resultat
 
     def adapter_a_l_image(self, meta):
         """Les seuils de la chaîne sont pensés pour l'image de 4056 px de l'IMX500 : on garde la même part."""
@@ -213,14 +240,17 @@ class Pont:
         self.t = t
         self.chaine.pas(obs, image)
         self.images += 1
-        if self.images % 10 == 0:
+        if self.mesures is not None:
+            self.mesures.observer(meta, t, self.chaine)
+        elif self.images % 10 == 0:
             self.ecrire_apercu(image, t)
         sortie = [self.boites(t)]
         sortie += self.traduire_messages()
         sortie += self.piloter(meta, t, image.shape[1])
         if self.images % 50 == 0:
             ips = self.images / (time.perf_counter() - self.debut)
-            print(f"{self.images} images · {ips:.1f} img/s · {len(obs['pistes'])} pistes · mode {self.drone.mode}", flush=True)
+            if self.mesures is None:
+                print(f"{self.images} images · {ips:.1f} img/s · {len(obs['pistes'])} pistes · mode {self.drone.mode}", flush=True)
         return sortie
 
     def distance_piste(self, id_piste):
@@ -249,7 +279,7 @@ class Pont:
             cv2.rectangle(vue, (x, y), (x + w, y + h), (255, 200, 120), 2)
             txt = f"#{f.id_piste} {'/'.join(f.experts.types)} {f.experts.immatriculation or ''}"
             cv2.putText(vue, txt, (x, max(12, y - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 200, 120), 1, cv2.LINE_AA)
-        cv2.imwrite(str(ICI / "runs" / "apercu.jpg"), vue, [cv2.IMWRITE_JPEG_QUALITY, 85])
+        cv2.imwrite(str(self.dossier / "apercu.jpg"), vue, [cv2.IMWRITE_JPEG_QUALITY, 85])
 
     def boites(self, t):
         """Ce que voit la chaîne : pistes confirmées ou non, avec le type et l'immatriculation dès qu'ils sont connus."""
@@ -317,8 +347,27 @@ class Pont:
 async def servir(args):
     import websockets
     pont = Pont(args)
+    boucle = asyncio.get_running_loop()
+    arret = boucle.create_future()
+
+    async def connexion_campagne(ws):
+        """Mode campagne : toutes les images, dans l'ordre ; « pas » renvoyé après chacune."""
+        from campagne import Campagne
+        campagne = getattr(pont, "campagne", None) or Campagne(pont, Path(args.campagne))
+        pont.campagne = campagne
+        print("simulateur connecté (campagne)", flush=True)
+        async for m in ws:
+            if isinstance(m, str):
+                if await boucle.run_in_executor(None, campagne.message, json.loads(m)) and not arret.done():
+                    arret.set_result(True)
+                continue
+            for o in await boucle.run_in_executor(None, pont.traiter, m):
+                await ws.send(json.dumps(o, ensure_ascii=False))
+            await ws.send('{"type":"pas"}')
 
     async def connexion(ws):
+        if args.campagne:
+            return await connexion_campagne(ws)
         print("simulateur connecté", flush=True)
         derniere = {"m": None}
         nouvelle = asyncio.Event()
@@ -354,9 +403,10 @@ async def servir(args):
     async with websockets.serve(connexion, args.host, args.port, max_size=64 * 1024 * 1024):
         print(f"chaîne IA prête, en attente du simulateur sur ws://{args.host}:{args.port}", flush=True)
         try:
-            await asyncio.Future()
+            await arret      # en campagne : jusqu'au dernier épisode ; sinon jusqu'à Ctrl+C
         finally:
-            pont.cloturer()
+            if not args.campagne:
+                pont.cloturer()
 
 
 def main():
@@ -368,6 +418,9 @@ def main():
     ap.add_argument("--reseau-type", default="dinov2", choices=["dinov2", "dinov3"])
     ap.add_argument("--fils", type=int, default=None, help="fils d'ONNX Runtime")
     ap.add_argument("--station", help="adresse de la station sol, par exemple http://localhost:8000")
+    ap.add_argument("--campagne", metavar="DOSSIER",
+                    help="mode campagne (simulateur ouvert avec ?campagne=1) : résultats par épisode dans DOSSIER, "
+                         "arrêt après le dernier épisode")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8765)
     args = ap.parse_args()

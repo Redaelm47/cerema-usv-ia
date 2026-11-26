@@ -18,6 +18,7 @@ import { HUD } from './ui/HUD.js';
 import { MapView } from './ui/MapView.js';
 import { LensDrops } from './fx/LensDrops.js';
 import { Rain } from './fx/Rain.js';
+import { Campagne } from './sim/Campagne.js';
 
 const params = new URLSearchParams(location.search);
 const DEG = Math.PI / 180;
@@ -88,7 +89,9 @@ class App {
 
     this.usv = new USV(this.sampler);
     this.scene.add(this.usv.group);
-    this.view = params.get('view') || 'onboard';
+    // mode campagne (?campagne=1) : temps simulé, caméra embarquée, scénarios tirés au hasard (src/sim/Campagne.js)
+    this.campagne = params.get('campagne') === '1';
+    this.view = this.campagne ? 'onboard' : params.get('view') || 'onboard';
     this.gimbal = { yaw: (+(params.get('pan') ?? 0)) * DEG, pitch: -0.035 };
     this.orbit = { yaw: 0.6, pitch: 0.28, dist: 3.2 };
     this.free = { yaw: 0, pitch: 0, pos: new THREE.Vector3() };
@@ -156,7 +159,7 @@ class App {
     this.traffic = new Traffic(this.scene, this.sampler, this.terrain, places);
     this.traffic.density = this.settings.traffic;
     this.applySea(true);
-    if (params.get('ships') !== '0') this.traffic.populate({ x: start.x, z: start.z });
+    if (params.get('ships') !== '0' && !this.campagne) this.traffic.populate({ x: start.x, z: start.z });
     this.hud = new HUD(this);
     this.map = new MapView(this);
     if (params.get('map') === '1') this.map.toggle(true);
@@ -167,7 +170,7 @@ class App {
     if (params.get('gt') === '1') this.hud.toggleGT();
     if (params.get('ui') === '0') this.hud.toggleHidden();
     this.bridge.onStatus = () => this.resize();
-    if (params.get('bridge') === '1') this.bridge.enable(true);
+    if (params.get('bridge') === '1' || this.campagne) this.bridge.enable(true);
     if (params.get('scenario')) await this.loadScenario(params.get('scenario'));
     progress(0.9, 'Compilation des shaders');
     await tick();
@@ -335,8 +338,15 @@ class App {
 
   /** Scénario rejouable : public/scenarios/<nom>.json (météo, heure, drone et sa route, navires). */
   async loadScenario(name) {
-    const sc = await fetch(`/scenarios/${encodeURIComponent(name)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    const sc = await fetch(`scenarios/${encodeURIComponent(name)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (!sc) { console.warn(`scénario introuvable : ${name}`); return null; }
+    this.appliquerScenario(sc);
+    this.hud?.alert(sc.title || 'Scénario', sc.description || '', 6000);
+    return sc;
+  }
+
+  /** Applique un scénario (fichier ou tiré au hasard par le mode campagne). Navires en lat/lon ou en x/z. */
+  appliquerScenario(sc) {
     const s = this.settings;
     if (sc.weather && this.weatherPresets[sc.weather]) this.applyWeather(sc.weather);
     for (const k of ['hour', 'month', 'wind', 'windDir', 'swell', 'clouds', 'haze', 'rain', 'fog', 'tide']) if (sc[k] !== undefined) s[k] = sc[k];
@@ -347,12 +357,11 @@ class App {
     if (d.patrol_kn) this.usv.patrolSpeed = Math.min(d.patrol_kn / 1.944, this.usv.maxSpeed);
     if (d.route?.length) this.usv.startMission(d.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), d.loop !== false);
     for (const v of sc.ships || []) {
-      const p = this.fromLatLon(v.lat, v.lon);
+      const p = v.lat !== undefined ? this.fromLatLon(v.lat, v.lon) : { x: v.x, z: v.z };
       const ship = this.traffic.addUser(v.kind, p.x, p.z, (v.heading_deg ?? 0) * DEG, (v.speed_kn ?? 0) / 1.944);
       if (v.route?.length) ship.setRoute(v.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), !!v.loop);
     }
     this.hud?.syncSliders();
-    this.hud?.alert(sc.title || 'Scénario', sc.description || '', 6000);
     return sc;
   }
 
@@ -605,24 +614,39 @@ class App {
 
   frame(dt) {
     this.adaptResolution(dt);
+    this.avancerMer(dt);
+    this.simuler(dt);
+    this.dessiner(dt);
+  }
+
+  /** La mer (FFT sur le GPU) et sa lecture côté CPU pour faire flotter les coques : une fois par image dessinée. */
+  avancerMer(dt) {
+    this.fft.update(dt);
+    this.sampler.update(this.ocean.uniforms.uSeaLevel.value);
+  }
+
+  /** Physique et pilotage, sans rien dessiner : le mode campagne l'appelle à pas fixe. */
+  simuler(dt) {
     this.time += dt;
     this.simSeconds += dt;
-    const s = this.settings;
     this.pollGamepad(dt);
     this.manualControl(dt);
     this.autoDemo(dt);
-    this.fft.update(dt);
-    const sea = this.ocean.uniforms.uSeaLevel.value;
-    this.sampler.update(sea);
     this.usv.update(dt, this.terrain);
     for (const v of this.traffic.vessels) v.update(dt);
     this.traffic.update(dt, { x: this.usv.pos.x, z: this.usv.pos.y }, this.sunPos.elevation);
     this.usv.spec.lights.visible = this.sunPos.elevation < 2;
+  }
+
+  /** Dessine une image (et l'envoie à la chaîne hors campagne). Rend false si la carte cache la vue 3D. */
+  dessiner(dt) {
+    const s = this.settings;
+    const sea = this.ocean.uniforms.uSeaLevel.value;
     this.updateCamera(dt);
     // full-screen map: the simulation goes on, the 3D view is not drawn (unless the AI chain needs frames)
     if (this.map?.open) {
       this.map.draw(dt);
-      if (this.bridge.status !== 'connected') return;
+      if (this.bridge.status !== 'connected') return false;
     }
     this.terrain.update(this.camera, sea);
 
@@ -681,7 +705,8 @@ class App {
       a.click();
     }
     // la chaîne ne reçoit que l'image de la caméra embarquée : en vue poursuite ou libre, elle verrait le drone lui-même
-    if (this.view === 'onboard') this.bridge.maybeSend(this.canvas, performance.now(), () => this.frameMeta());
+    if (this.view === 'onboard' && !this.campagne) this.bridge.maybeSend(this.canvas, performance.now(), () => this.frameMeta());
+    return true;
   }
 
   frameMeta() {
@@ -722,6 +747,12 @@ const progress = (p, label) => { loading.querySelector('i').style.width = `${p *
 const app = new App();
 window.__sim = app;
 app.init(progress).then(() => {
+  if (app.campagne) {
+    // pas de boucle à l'horloge : la campagne avance image par image, au rythme de la chaîne
+    loading.classList.add('done');
+    new Campagne(app, params).lancer();
+    return;
+  }
   const timer = new THREE.Timer();
   timer.connect(document);
   let first = true;

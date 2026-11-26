@@ -14,6 +14,7 @@ export class Bridge {
     this._busy = false;
     this.onCommand = null;
     this.sent = 0;
+    this._attente = null;   // mode campagne : réponse « pas » attendue pour l'image envoyée
   }
 
   enable(on) {
@@ -31,11 +32,18 @@ export class Bridge {
     try { ws = new WebSocket(this.url); } catch { this._retry(); return; }
     ws.binaryType = 'arraybuffer';
     ws.onopen = () => { this.status = 'connected'; };
-    ws.onclose = () => { this.ws = null; this.status = this.enabled ? 'connecting' : 'off'; this._retry(); };
+    ws.onclose = () => {
+      this.ws = null; this.status = this.enabled ? 'connecting' : 'off';
+      if (this._attente) { this._attente(false); this._attente = null; }
+      this._retry();
+    };
     ws.onerror = () => {};
     ws.onmessage = (e) => {
       if (typeof e.data !== 'string') return;
-      try { const msg = JSON.parse(e.data); if (this.onCommand) this.onCommand(msg); } catch { /* ignore */ }
+      let msg;
+      try { msg = JSON.parse(e.data); } catch { return; }
+      if (msg.type === 'pas') { if (this._attente) { this._attente(true); this._attente = null; } return; }
+      if (this.onCommand) this.onCommand(msg);
     };
     this.ws = ws;
   }
@@ -44,6 +52,44 @@ export class Bridge {
     if (!this.enabled) return;
     clearTimeout(this._t);
     this._t = setTimeout(() => this.connect(), 2500);
+  }
+
+  /** Mode campagne : attend que la passerelle soit connectée. */
+  async attendreConnexion(delaiMs = 60000) {
+    const fin = performance.now() + delaiMs;
+    while (this.status !== 'connected') {
+      if (performance.now() > fin) return false;
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    return true;
+  }
+
+  /** Mode campagne : message texte vers la passerelle (début et fin d'épisode, fin de campagne). */
+  envoyerTexte(objet) {
+    if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(objet));
+  }
+
+  /**
+   * Mode campagne : envoie l'image qui vient d'être dessinée, puis attend la réponse « pas » de la passerelle
+   * (rendue après le traitement de l'image par la chaîne). À appeler juste après le dessin, comme maybeSend.
+   */
+  envoyerEtAttendre(canvas, meta, delaiMs = 30000) {
+    return new Promise((resolve) => {
+      if (!this.ws || this.ws.readyState !== 1) { resolve(false); return; }
+      const minuterie = setTimeout(() => { if (this._attente) { this._attente = null; resolve(false); } }, delaiMs);
+      this._attente = (ok) => { clearTimeout(minuterie); resolve(ok); };
+      canvas.toBlob(async (blob) => {
+        if (!blob || !this.ws || this.ws.readyState !== 1) { if (this._attente) { this._attente(false); this._attente = null; } return; }
+        const jpeg = new Uint8Array(await blob.arrayBuffer());
+        const json = new TextEncoder().encode(JSON.stringify(meta));
+        const buf = new Uint8Array(4 + json.length + jpeg.length);
+        new DataView(buf.buffer).setUint32(0, json.length, true);
+        buf.set(json, 4);
+        buf.set(jpeg, 4 + json.length);
+        this.ws.send(buf);
+        this.sent++;
+      }, 'image/jpeg', this.quality);
+    });
   }
 
   /** call right after the frame has been drawn to the canvas */

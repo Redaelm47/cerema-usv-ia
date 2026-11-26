@@ -25,7 +25,7 @@ npm run dev      # http://127.0.0.1:5173
 
 ## Monter un scénario de test
 
-Le plus simple pour un test reproductible : un fichier de scénario dans `public/scenarios/` (voir `demo-tuteur.json`), chargé par `?scenario=nom` : météo, heure, position et route du drone, navires, trafic automatique. Sinon, par l'URL : `?weather=Brume`, `?hour=20.5&month=6`, `?x=..&z=..` (position en mètres locaux), `?hdg=90&speed=1.5`, `?ships=0` (pas de trafic), `?bridge=1` (se connecte à la chaîne), `?gt=1` (boîtes de vérité terrain), `?ui=0` (image caméra seule), `?map=1`, `?dpr=1` (résolution fixe), `?drops=0`, `?models=0`. La liste complète est dans le README.
+Pour beaucoup d'heures de patrouille : le mode campagne (`?campagne=1&graine=&episodes=&duree=`, passerelle avec `--campagne DOSSIER`, bilan avec `bridge/bilan.py`), décrit dans le README ; épisodes tirés au hasard dans `src/sim/Campagne.js`, mesures dans `bridge/campagne.py`. Pour un seul test reproductible : un fichier de scénario dans `public/scenarios/` (voir `demo-tuteur.json`), chargé par `?scenario=nom` : météo, heure, position et route du drone, navires, trafic automatique. Sinon, par l'URL : `?weather=Brume`, `?hour=20.5&month=6`, `?x=..&z=..` (position en mètres locaux), `?hdg=90&speed=1.5`, `?ships=0` (pas de trafic), `?bridge=1` (se connecte à la chaîne), `?gt=1` (boîtes de vérité terrain), `?ui=0` (image caméra seule), `?map=1`, `?dpr=1` (résolution fixe), `?drops=0`, `?models=0`. La liste complète est dans le README.
 
 À la main :
 
@@ -62,6 +62,8 @@ Toute évolution du protocole se fait des deux côtés à la fois : `src/bridge/
 | `src/post/CameraFX.js` | modèle de caméra : exposition, halo, distorsion, aberration chromatique, bruit, gouttes et buée sur l'objectif |
 | `src/fx/` | pluie qui tombe et impacts sur la mer (`Rain`), gouttes projetées sur le dôme (`LensDrops`), sillages (`Wake`) |
 | `src/sim/GroundTruth.js` | boîtes de vérité terrain, avec masquage par le relief et la courbure de la Terre |
+| `src/sim/Campagne.js` | mode campagne : épisodes tirés au hasard, temps simulé, état dans `window.campagne` |
+| `bridge/campagne.py`, `bridge/bilan.py` | mesures de chaque épisode contre la vérité terrain, bilan de plusieurs campagnes |
 | `src/bridge/Bridge.js` | client WebSocket, envoi des images, réception des commandes |
 | `src/ui/` | interface (`HUD`), carte plein écran et mini-carte (`MapView`), styles |
 | `public/data/` | relief (`dem_*.bin`, Int16 en décimètres), orthophotos, noms de lieux, métadonnées (`terrain.json`) : produits par `tools/` |

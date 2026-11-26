@@ -60,9 +60,26 @@ Tant que la carte est ouverte, la simulation continue mais la vue 3D n'est pas d
 - **Scénario rejouable** : `?scenario=nom` charge `public/scenarios/nom.json` (météo, heure, position et route du drone, navires avec type, cap, vitesse et route, trafic automatique coupé ou non). Le même fichier sert pour la démo et pour les essais en série.
 - **Démo pour le tuteur** : `?scenario=demo-tuteur&bridge=1`. Le drone patrouille devant Le Dellec, un chalutier croise sa route à 220 m ; la chaîne le détecte, s'approche, lit la plaque, envoie l'alerte complète à la station sol, puis le drone repart.
 
+### Campagnes : des centaines d'épisodes en temps simulé
+
+Pour mesurer la chaîne sur beaucoup d'heures de patrouille. Depuis la racine du dépôt :
+
+```bash
+.venv/bin/python ia/simulateur/bridge/chaine_cerema.py --campagne resultats/essai          # 1. la chaîne
+# 2. le simulateur : http://127.0.0.1:5173/?campagne=1&graine=1000&episodes=20&duree=180&img_s=5&ui=0&dpr=1
+.venv/bin/python ia/simulateur/bridge/bilan.py resultats/* --sortie bilan                   # 3. le bilan
+```
+
+- Chaque épisode est tiré au hasard à partir de sa graine (la même graine redonne le même épisode) : météo parmi les 8 préréglages, heure, vent, houle, 0 à 3 navires (un épisode sur cinq sans navire, pour compter les hallucinations), types et vitesses, position du drone sur l'une des 5 routes de patrouille vérifiées sur le relief.
+- Temps simulé : physique par pas de 1/30 s, une image toutes les 1/`img_s` s (5 par défaut, comme le Pi), et le simulateur attend la réponse de la chaîne avant d'avancer. Le résultat ne dépend pas de la machine, seule la durée en dépend.
+- La passerelle compare chaque image à la vérité terrain et écrit une ligne par épisode dans `episodes.jsonl` : navires vus, détectés, alertés, plaques lues (justes ou fausses), pistes et alertes sur des hallucinations, approches, boîtes vraies, fausses et manquées, délais et distances de détection. `bilan.json` donne le débit ; la passerelle s'arrête seule après le dernier épisode (`CAMPAGNE FINIE`).
+- `bilan.py` rassemble plusieurs campagnes : `bilan.md` (par météo, par nombre de navires), `episodes.csv` et des graphes.
+- L'état de la campagne est lisible dans la page (`window.campagne`) pour un lancement sans écran ; le lancement sur le cluster Slurm est dans `ia/simulateur/campagne/`.
+- Mesuré sur un Mac, dans un navigateur en arrière-plan : 0,28 h simulée par heure. Sur un GPU du cluster, à mesurer.
+
 ### Paramètres d'URL
 
-`?scenario=demo-tuteur`, `?weather=Couchant`, `?hour=20.5&month=6`, `?view=chase`, `?ui=0` (image seule), `?gt=1` (boîtes), `?bridge=1` (connexion au pipeline), `?demo=1`, `?fov=60`, `?pan=40` (tourelle en degrés), `?hdg=90&speed=3`, `?x=..&z=..` (position en mètres locaux), `?ships=0`, `?map=1` (ouvrir sur la carte), `?dpr=1` (résolution fixe au lieu de la résolution dynamique).
+`?scenario=demo-tuteur`, `?campagne=1` (voir plus haut), `?weather=Couchant`, `?hour=20.5&month=6`, `?view=chase`, `?ui=0` (image seule), `?gt=1` (boîtes), `?bridge=1` (connexion au pipeline), `?demo=1`, `?fov=60`, `?pan=40` (tourelle en degrés), `?hdg=90&speed=3`, `?x=..&z=..` (position en mètres locaux), `?ships=0`, `?map=1` (ouvrir sur la carte), `?dpr=1` (résolution fixe au lieu de la résolution dynamique).
 
 ## Brancher la chaîne IA du projet
 
