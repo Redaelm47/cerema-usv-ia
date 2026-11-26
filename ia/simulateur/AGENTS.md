@@ -25,11 +25,11 @@ npm run dev      # http://127.0.0.1:5173
 
 ## Monter un scénario de test
 
-Par l'URL, pour un test reproductible : `?weather=Brume`, `?hour=20.5&month=6`, `?x=..&z=..` (position en mètres locaux), `?hdg=90&speed=1.5`, `?ships=0` (pas de trafic), `?bridge=1` (se connecte à la chaîne), `?gt=1` (boîtes de vérité terrain), `?ui=0` (image caméra seule), `?map=1`, `?dpr=1` (résolution fixe), `?drops=0`, `?models=0`. La liste complète est dans le README.
+Le plus simple pour un test reproductible : un fichier de scénario dans `public/scenarios/` (voir `demo-tuteur.json`), chargé par `?scenario=nom` : météo, heure, position et route du drone, navires, trafic automatique. Sinon, par l'URL : `?weather=Brume`, `?hour=20.5&month=6`, `?x=..&z=..` (position en mètres locaux), `?hdg=90&speed=1.5`, `?ships=0` (pas de trafic), `?bridge=1` (se connecte à la chaîne), `?gt=1` (boîtes de vérité terrain), `?ui=0` (image caméra seule), `?map=1`, `?dpr=1` (résolution fixe), `?drops=0`, `?models=0`. La liste complète est dans le README.
 
 À la main :
 
-- `C` ouvre la carte satellite : chercher un lieu, téléporter le drone (glisser pour le cap), poser des navires (type, vitesse, cap, route en boucle), couper le trafic automatique. Les navires posés restent jusqu'à ce qu'on les supprime et figurent dans l'AIS envoyé à la chaîne.
+- `C` ouvre la carte satellite : chercher un lieu, téléporter le drone (glisser pour le cap), tracer la route du drone (il la suit en boucle et la reprend après chaque approche), poser des navires (type, vitesse, cap, route en boucle), couper le trafic automatique. Les navires posés restent jusqu'à ce qu'on les supprime et figurent dans l'AIS envoyé à la chaîne.
 - Le panneau Réglages donne l'heure, le mois, la météo (Clair, Nuageux, Couvert, Brume, Coup de vent, Couchant, Pluie, Grain), le vent, la houle, la marée, la pluie, la buée sur l'objectif, le trafic et la caméra.
 - `M` prend ou rend la main, `1` `2` `3` changent de vue, `B` affiche la vérité terrain, `H` masque l'interface, `P` fait une capture PNG.
 
@@ -39,10 +39,11 @@ Pour un test de robustesse (gouttes, buée, contre-jour, brume, houle), changer 
 
 Le simulateur est client WebSocket de `ws://127.0.0.1:8765` (`?ws=` pour une autre adresse).
 
+- Détecteur par défaut : `yolo11n`, celui de la caméra IMX500. `best4_2` voit des navires dans les nuages et sur la mer vide du simulateur : à mesurer avant de s'en servir.
 - `bridge/chaine_cerema.py` fait tourner la chaîne du projet (`ia/suivi`, `ia/chaine`) de cette copie du dépôt sur les images du simulateur. `--depot` sert seulement à tester une autre copie (un worktree d'une autre branche, par exemple). Ne jamais faire de checkout ni de stash dans la copie de travail de quelqu'un d'autre.
 - `bridge/pipeline_example.py` est un exemple minimal en boucle fermée, à copier pour brancher un autre pipeline.
 - Simulateur vers chaîne, environ 10 images/s : `[uint32 LE taille du JSON][JSON UTF-8][JPEG]`. Le JSON donne les intrinsèques de la caméra, sa pose, l'état du drone, la vérité terrain (boîtes en pixels, distance, relèvement, navire caché par la courbure ou le relief), l'AIS de tous les navires et l'environnement (soleil, vent, houle, nuages, brume, buée).
-- Chaîne vers simulateur, messages JSON : `heading`, `cmd`, `goto`, `approach`, `stop`, `alert`, `detections`. Les formats exacts sont dans le README.
+- Chaîne vers simulateur, messages JSON : `heading`, `cmd`, `goto`, `approach`, `stop`, `route` (nouvelle route du drone), `mission` (reprise de la route), `alert`, `detections`. Les formats exacts sont dans le README.
 - Une fois branchée, la caméra passe en 2028×1520, le mode par défaut de l'IMX500, et les boîtes de la chaîne s'affichent en bleu (la vérité terrain reste en doré).
 - Les journaux vont dans `bridge/runs/` (ignoré par git) ; `bridge/runs/apercu.jpg` montre la dernière image vue par la chaîne.
 

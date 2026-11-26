@@ -54,15 +54,21 @@ Dans la liste « Cibles AIS », un clic sur un navire lance l'approche automatiq
 
 Tant que la carte est ouverte, la simulation continue mais la vue 3D n'est pas dessinée (sauf si la chaîne IA est branchée et attend des images).
 
+### Mission et scénarios
+
+- **Route du drone** : dans la carte, outil « Route du drone », puis un clic par point de passage, Entrée ou double-clic pour la lancer. Le drone la suit en boucle à 3 nœuds (5 nœuds au plus), comme une mission ArduPilot. Quand la chaîne IA décide une approche, elle prend la main ; à la fin de l'approche, le drone reprend sa route. « Prendre la main » puis la rendre fait de même.
+- **Scénario rejouable** : `?scenario=nom` charge `public/scenarios/nom.json` (météo, heure, position et route du drone, navires avec type, cap, vitesse et route, trafic automatique coupé ou non). Le même fichier sert pour la démo et pour les essais en série.
+- **Démo pour le tuteur** : `?scenario=demo-tuteur&bridge=1`. Le drone patrouille devant Le Dellec, un chalutier croise sa route à 220 m ; la chaîne le détecte, s'approche, lit la plaque, envoie l'alerte complète à la station sol, puis le drone repart.
+
 ### Paramètres d'URL
 
-`?weather=Couchant`, `?hour=20.5&month=6`, `?view=chase`, `?ui=0` (image seule), `?gt=1` (boîtes), `?bridge=1` (connexion au pipeline), `?demo=1`, `?fov=60`, `?pan=40` (tourelle en degrés), `?hdg=90&speed=3`, `?x=..&z=..` (position en mètres locaux), `?ships=0`, `?map=1` (ouvrir sur la carte), `?dpr=1` (résolution fixe au lieu de la résolution dynamique).
+`?scenario=demo-tuteur`, `?weather=Couchant`, `?hour=20.5&month=6`, `?view=chase`, `?ui=0` (image seule), `?gt=1` (boîtes), `?bridge=1` (connexion au pipeline), `?demo=1`, `?fov=60`, `?pan=40` (tourelle en degrés), `?hdg=90&speed=3`, `?x=..&z=..` (position en mètres locaux), `?ships=0`, `?map=1` (ouvrir sur la carte), `?dpr=1` (résolution fixe au lieu de la résolution dynamique).
 
 ## Brancher la chaîne IA du projet
 
 `bridge/chaine_cerema.py` fait tourner la chaîne telle qu'elle est dans le dépôt, sur les images du simulateur, sans la modifier :
 
-- détection : `best4_2.pt` (le modèle robuste aux gouttes, `ia/detection/best4/`), ou `--detecteur yolo11n` (le modèle COCO de la caméra IMX500) ;
+- détection : `yolo11n.pt`, le modèle COCO qui tourne sur la caméra IMX500, ou `--detecteur best4_2` (le modèle entraîné sur images dégradées, `ia/detection/best4/` ; dans le simulateur, il voit des navires dans les nuages et sur la mer vide) ;
 - suivi : `ia/suivi` (associateur, numéros de pistes), contrat 1 ;
 - décision et experts : `ia/chaine` (filtre qualité, type DINOv2, OCR, approche, garde-fous), contrat 3.
 
@@ -74,7 +80,7 @@ cd station_sol && python3 serveur.py                                            
 .venv/bin/python ia/simulateur/bridge/chaine_cerema.py --station http://localhost:8000   # 3. la chaîne
 ```
 
-Après une modification de la chaîne, il suffit d'arrêter (Ctrl+C) et de relancer la commande 3 : le simulateur se reconnecte tout seul. `--depot` permet de tester la chaîne d'une autre copie du dépôt (un worktree d'une autre branche). Puis ouvrir le simulateur avec `/?bridge=1` (ou l'icône « lien »). Si `websockets` manque dans le Python de la chaîne, le script le prend dans `bridge/.venv` (voir plus bas). Options : `--station http://localhost:8000` pour alimenter aussi la page de la station sol, `--detecteur yolo11n`, `--reseau-type dinov3`.
+Après une modification de la chaîne, il suffit d'arrêter (Ctrl+C) et de relancer la commande 3 : le simulateur se reconnecte tout seul. `--depot` permet de tester la chaîne d'une autre copie du dépôt (un worktree d'une autre branche). Puis ouvrir le simulateur avec `/?bridge=1` (ou l'icône « lien »). Si `websockets` manque dans le Python de la chaîne, le script le prend dans `bridge/.venv` (voir plus bas). Options : `--station http://localhost:8000` pour alimenter aussi la page de la station sol, `--detecteur best4_2`, `--reseau-type dinov3`.
 
 Quand la chaîne est branchée :
 
@@ -84,6 +90,7 @@ Quand la chaîne est branchée :
 - les boîtes de la chaîne s'affichent en bleu avec le numéro de piste, le type et l'immatriculation lue ; la vérité terrain du simulateur (touche `B`) reste en doré ;
 - les alertes de la chaîne apparaissent dans le HUD, et quand elle décide une approche, elle pilote le drone vers le relèvement de la boîte. L'opérateur qui prend la main passe avant elle ;
 - les chalutiers portent une immatriculation française peinte sur l'avant (par exemple « GV 978805 »), lisible par l'expert OCR ;
+- pendant une approche, la chaîne reçoit la distance réelle au navire, mesurée dans le simulateur comme le ferait un AIS ou un télémètre ; à la fin de l'approche, le drone reprend sa route ;
 - journal des décisions et messages dans `bridge/runs/`, et `bridge/runs/apercu.jpg` montre la dernière image vue avec les boîtes de la chaîne.
 
 ## Brancher votre pipeline
@@ -118,6 +125,8 @@ Ensuite, cliquer sur l'icône « lien » du HUD, ou ouvrir `/?bridge=1`. L'exemp
 | `{"type":"goto","lat":48.34,"lon":-4.58,"speed_mps":4}` | ralliement d'un point |
 | `{"type":"approach","target_id":12,"standoff_m":60}` | approche d'un navire (id ou `mmsi`) |
 | `{"type":"stop"}` | arrêt |
+| `{"type":"route","points":[{"lat":48.346,"lon":-4.577}],"loop":true,"speed_mps":1.5}` | nouvelle route du drone, suivie en boucle |
+| `{"type":"mission"}` | reprise de la route (fin d'approche) |
 | `{"type":"alert","text":"Navire détecté","detail":"..."}` | bandeau d'alerte dans le HUD |
 | `{"type":"detections","boxes":[{"bbox":[x0,y0,x1,y1],"label":"bateau","score":0.8}]}` | affichage des détections |
 

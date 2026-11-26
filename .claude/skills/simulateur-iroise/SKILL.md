@@ -19,7 +19,7 @@ Puis ouvrir http://127.0.0.1:5173 (dans l'application Claude : aperçu `simulate
 
 1. Station sol : `cd station_sol && python3 serveur.py` (page sur http://localhost:8000).
 2. Chaîne, depuis la racine du dépôt : `.venv/bin/python ia/simulateur/bridge/chaine_cerema.py --station http://localhost:8000`. Après une modification de la chaîne, l'arrêter et la relancer : le simulateur se reconnecte seul. Pour tester une autre branche sans toucher à la copie de travail de la personne : un worktree, et `--depot` vers lui.
-3. Ouvrir le simulateur avec `?bridge=1`. Les boîtes de la chaîne s'affichent en bleu, la vérité terrain en doré (`B`).
+3. Ouvrir le simulateur avec `?bridge=1`, ou sur un scénario : `?scenario=demo-tuteur&bridge=1` (patrouille, approche d'un chalutier, plaque lue, alerte, reprise de la route). Les boîtes de la chaîne s'affichent en bleu, la vérité terrain en doré (`B`). Détecteur par défaut : `yolo11n`, comme sur l'IMX500.
 4. Monter le scénario (URL pour qu'il soit reproductible, ou carte `C` pour poser des navires), changer une condition à la fois, et relever ce que la chaîne a vu dans `ia/simulateur/bridge/runs/`.
 
 ## Rendre compte
