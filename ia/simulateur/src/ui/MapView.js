@@ -118,7 +118,8 @@ export class MapView {
     this.open = false;
     this.view = { x: 0, z: 0, ppm: 0.05 };
     this.goal = { x: 0, z: 0, ppm: 0.05 };
-    this.tool = 'explore';     // explore | teleport | ship | route
+    this.tool = 'explore';     // explore | teleport | ship | route | mission (route du drone)
+    this.missionPts = [];      // points de la route du drone en cours de tracé
     this.kind = 'trawler';
     this.speedKn = KIND_SPEED.trawler;
     this.selected = null;
@@ -149,6 +150,7 @@ export class MapView {
           <button data-tool="explore">Explorer</button>
           <button data-tool="teleport">Téléporter le drone</button>
           <button data-tool="ship">Ajouter un navire</button>
+          <button data-tool="mission">Route du drone</button>
         </div>
         <div class="map-right">
           <div class="glass search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input type="text" placeholder="Chercher un lieu" spellcheck="false"><div class="results"></div></div>
@@ -251,7 +253,10 @@ export class MapView {
     cv.addEventListener('pointermove', (e) => this.onMove(e));
     cv.addEventListener('pointerup', (e) => this.onUp(e));
     cv.addEventListener('pointerleave', () => { this.mouse = null; this.hover = null; });
-    cv.addEventListener('dblclick', (e) => { if (this.tool === 'route') { e.preventDefault(); this.setTool('explore'); } });
+    cv.addEventListener('dblclick', (e) => {
+      if (this.tool === 'route') { e.preventDefault(); this.setTool('explore'); }
+      if (this.tool === 'mission') { e.preventDefault(); this.finishMission(); }
+    });
     cv.addEventListener('wheel', (e) => {
       e.preventDefault();
       const k = Math.exp(-e.deltaY * (e.ctrlKey ? 0.012 : 0.0022));
@@ -275,6 +280,7 @@ export class MapView {
 
   setTool(t) {
     if (t === 'route' && !this.selected) t = 'explore';
+    if (t === 'mission' && this.tool !== 'mission') this.missionPts = [];
     this.tool = t;
     this.root.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.dataset.tool === t || (t === 'route' && b.dataset.tool === 'explore')));
     this.root.classList.toggle('tool-ship', t === 'ship');
@@ -284,11 +290,24 @@ export class MapView {
       teleport: 'Clique sur l’eau pour y placer le drone · garde le clic et glisse pour choisir son cap',
       ship: '',
       route: 'Clique pour ajouter des points de route · double-clic ou Entrée pour finir · Échap pour annuler',
+      mission: 'Clique pour poser les points de la route du drone · Entrée ou double-clic pour la lancer, en boucle · Échap pour annuler',
     };
     this.hintEl.textContent = hints[t];
     this.hintEl.classList.toggle('show', !!hints[t]);
     this.syncPanel();
     this.renderCard();
+  }
+
+  /** Lance la route tracée : le drone la suit en boucle, et la reprend après chaque approche. */
+  finishMission() {
+    const pts = this.missionPts;
+    this.missionPts = [];
+    this.setTool('explore');
+    if (pts.length < 2) return;
+    const u = this.app.usv;
+    if (u.mode === 'manual') this.app.setManual(false);
+    u.startMission(pts, true);
+    this.app.hud.alert('Route du drone', `${pts.length} points, en boucle à ${(u.patrolSpeed * 1.944).toFixed(0)} nœuds`, 3000);
   }
 
   toggle(on = !this.open) {
@@ -313,11 +332,13 @@ export class MapView {
     if (e.code === 'Escape') {
       if (this.menu.classList.contains('open')) this.menu.classList.remove('open');
       else if (this.tool === 'route') { if (this.selected) this.selected.setRoute(this._routeBackup || []); this.setTool('explore'); }
+      else if (this.tool === 'mission') { this.missionPts = []; this.setTool('explore'); }
       else if (this.tool !== 'explore') this.setTool('explore');
       else this.toggle(false);
       return true;
     }
     if (e.code === 'Enter' && this.tool === 'route') { this.setTool('explore'); return true; }
+    if (e.code === 'Enter' && this.tool === 'mission') { this.finishMission(); return true; }
     if (e.key === '+' || e.key === '=') { this.zoomAt(this.canvas.clientWidth / 2, this.canvas.clientHeight / 2, 1.6); return true; }
     if (e.key === '-' || e.key === '_') { this.zoomAt(this.canvas.clientWidth / 2, this.canvas.clientHeight / 2, 1 / 1.6); return true; }
     if ((e.code === 'Delete' || e.code === 'Backspace') && this.selected) { this.removeSelected(); return true; }
@@ -566,6 +587,9 @@ export class MapView {
       this.setTool('explore');
     } else if (this.tool === 'ship') {
       this.addShip(d.w0.x, d.w0.z, heading ?? this.app.usv.heading + Math.PI / 2);
+    } else if (this.tool === 'mission') {
+      const p = this.nearestWater(d.w0.x, d.w0.z, 1, 800);
+      if (p) this.missionPts.push({ x: p.x, z: p.z });
     } else if (this.tool === 'route' && this.selected) {
       const v = this.selected;
       const p = this.nearestWater(d.w0.x, d.w0.z, Math.min(KIND_DEPTH[v.spec.kind] || 2, 4), 800);
@@ -639,6 +663,27 @@ export class MapView {
 
     // ships
     for (const s of a.traffic.vessels) this.drawShip(ctx, s, S, ppm, dpr);
+
+    // route du drone : en cours de tracé (pointillés vers la souris) ou active (boucle)
+    const drawPath = (pts, loop, color, dash) => {
+      if (!pts.length) return;
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2 * dpr; ctx.setLineDash(dash);
+      ctx.beginPath();
+      pts.forEach((p, i) => { const [x, y] = S(p.x, p.z); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+      if (loop && pts.length > 2) { const [x, y] = S(pts[0].x, pts[0].z); ctx.lineTo(x, y); }
+      ctx.stroke(); ctx.setLineDash([]);
+      pts.forEach((p) => { const [x, y] = S(p.x, p.z); ctx.beginPath(); ctx.arc(x, y, 3.5 * dpr, 0, Math.PI * 2); ctx.fill(); });
+    };
+    if (this.tool === 'mission') {
+      drawPath(this.missionPts, false, '#f06a1d', []);
+      if (this.mouse && this.missionPts.length) {
+        const last = this.missionPts[this.missionPts.length - 1];
+        const [x0, y0] = S(last.x, last.z);
+        ctx.strokeStyle = 'rgba(240,106,29,0.6)'; ctx.lineWidth = 1.5 * dpr; ctx.setLineDash([4 * dpr, 4 * dpr]);
+        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(this.mouse.x * dpr, this.mouse.y * dpr); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    } else if (u.route.length) drawPath(u.route, u.loop, u.mode === 'mission' ? 'rgba(240,106,29,0.85)' : 'rgba(240,106,29,0.4)', [6 * dpr, 5 * dpr]);
 
     // drone: trail, field of view, arrow
     if (this.trail.length > 1) {

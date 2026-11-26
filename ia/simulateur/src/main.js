@@ -168,6 +168,7 @@ class App {
     if (params.get('ui') === '0') this.hud.toggleHidden();
     this.bridge.onStatus = () => this.resize();
     if (params.get('bridge') === '1') this.bridge.enable(true);
+    if (params.get('scenario')) await this.loadScenario(params.get('scenario'));
     progress(0.9, 'Compilation des shaders');
     await tick();
     this.updateCamera(0.016);
@@ -280,6 +281,8 @@ class App {
       if (u.mode !== 'manual') this._prevMode = u.mode;
       u.mode = 'manual'; u.target = null;
       this.hud?.alert('Pilotage manuel', 'Z S gaz · Q D cap · manette', 2500);
+    } else if (u.resumeMission()) {
+      this.hud?.alert('Pilote automatique', 'reprise de la route', 2500);
     } else {
       u.mode = 'heading'; u.cmdHeading = u.heading; u.cmdSpeed = Math.max(0, u.u);
       this.hud?.alert('Pilote automatique', 'maintien du cap et de la vitesse', 2500);
@@ -321,13 +324,36 @@ class App {
     u.heading = h; u.u = 0; u.r = 0; u.speed = 0; u.turnRate = 0; u.throttle = 0; u.rudder = 0;
     u.prevStern = null; u.grounded = false;
     for (const d of Object.values(u.dof)) { d.x = 0; d.v = 0; }
-    if (u.mode !== 'manual' && u.mode !== 'heading') { u.mode = 'heading'; u.target = null; }
+    if (u.mode !== 'manual' && u.mode !== 'heading' && u.mode !== 'mission') { u.mode = 'heading'; u.target = null; }
     u.cmdHeading = h;
     this.free.pos.x += dx; this.free.pos.z += dz;
     this._chaseInit = false;
     this.drops.drops.length = 0;
     this.demo.target = null;
     this.traffic.recentre({ x, z });
+  }
+
+  /** Scénario rejouable : public/scenarios/<nom>.json (météo, heure, drone et sa route, navires). */
+  async loadScenario(name) {
+    const sc = await fetch(`/scenarios/${encodeURIComponent(name)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (!sc) { console.warn(`scénario introuvable : ${name}`); return null; }
+    const s = this.settings;
+    if (sc.weather && this.weatherPresets[sc.weather]) this.applyWeather(sc.weather);
+    for (const k of ['hour', 'month', 'wind', 'windDir', 'swell', 'clouds', 'haze', 'rain', 'fog', 'tide']) if (sc[k] !== undefined) s[k] = sc[k];
+    this.applyAtmosphere(); this.applySea(); this.updateSun(); this.applyTide();
+    if (sc.auto_traffic === false) { this.traffic.auto = false; this.traffic.clearAuto(); }
+    const d = sc.drone || {};
+    if (d.lat !== undefined) { const p = this.fromLatLon(d.lat, d.lon); this.teleport(p.x, p.z, (d.heading_deg ?? 0) * DEG); }
+    if (d.patrol_kn) this.usv.patrolSpeed = Math.min(d.patrol_kn / 1.944, this.usv.maxSpeed);
+    if (d.route?.length) this.usv.startMission(d.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), d.loop !== false);
+    for (const v of sc.ships || []) {
+      const p = this.fromLatLon(v.lat, v.lon);
+      const ship = this.traffic.addUser(v.kind, p.x, p.z, (v.heading_deg ?? 0) * DEG, (v.speed_kn ?? 0) / 1.944);
+      if (v.route?.length) ship.setRoute(v.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), !!v.loop);
+    }
+    this.hud?.syncSliders();
+    this.hud?.alert(sc.title || 'Scénario', sc.description || '', 6000);
+    return sc;
   }
 
   approach(v) {
@@ -338,7 +364,7 @@ class App {
 
   onCommand(m) {
     const u = this.usv;
-    const pilotage = ['cmd', 'heading', 'goto', 'approach', 'stop'].includes(m.type);
+    const pilotage = ['cmd', 'heading', 'goto', 'approach', 'stop', 'mission', 'route'].includes(m.type);
     if (pilotage && this.operatorOverride) return;
     switch (m.type) {
       case 'cmd': u.mode = 'manual'; u.throttle = THREE.MathUtils.clamp(m.throttle ?? u.throttle, -0.4, 1); u.rudder = THREE.MathUtils.clamp(m.rudder ?? u.rudder, -1, 1); break;
@@ -350,6 +376,14 @@ class App {
         break;
       }
       case 'stop': u.mode = 'heading'; u.cmdHeading = u.heading; u.cmdSpeed = 0; break;
+      // reprise de la route (fin d'approche) ; sans route, le drone garde son cap
+      case 'mission': if (!u.resumeMission()) { u.mode = 'heading'; u.cmdHeading = u.heading; u.cmdSpeed = m.speed_mps ?? 1; } break;
+      case 'route': {
+        const pts = (m.points || []).map((p) => (p.lat !== undefined ? this.fromLatLon(p.lat, p.lon) : { x: p.x, z: p.z }));
+        if (m.speed_mps) u.patrolSpeed = Math.min(m.speed_mps, u.maxSpeed);
+        u.startMission(pts, m.loop !== false);
+        break;
+      }
       case 'manual': this.setManual(m.on !== false); break;
       case 'alert': this.hud.alert(m.text || 'Alerte', m.detail || '', m.duration_ms || 5000); break;
       case 'detections': this.detections = m.boxes || []; this.detT = performance.now(); break;

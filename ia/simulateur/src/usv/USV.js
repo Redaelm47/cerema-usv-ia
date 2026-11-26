@@ -77,7 +77,8 @@ export class USV extends Vessel {
     this.maxSpeed = 5 / 1.944; // m/s : 5 nœuds, la vitesse maximale retenue pour le drone
     this.u = 0;          // vitesse d'avance
     this.r = 0;          // vitesse de lacet
-    this.mode = 'manual'; // manual | heading | waypoint | approach | external
+    this.mode = 'manual'; // manual | heading | waypoint | mission | approach | external
+    this.patrolSpeed = 3 / 1.944; // m/s : 3 nœuds en patrouille sur la route
     this.cmdHeading = 0;
     this.cmdSpeed = 0;
     this.goal = null;
@@ -105,6 +106,22 @@ export class USV extends Vessel {
       wantU = Math.min(this.cmdSpeed || this.maxSpeed, d * 0.1);
       if (d < 3) { this.mode = 'heading'; this.cmdSpeed = 0; this.cmdHeading = this.heading; }
     }
+    if (this.mode === 'mission' && this.route.length) {
+      // route du drone (comme une mission ArduPilot) : points de passage suivis dans l'ordre, en boucle
+      let p = this.route[this.wp];
+      if (Math.hypot(p.x - this.pos.x, p.z - this.pos.y) < 12) {
+        this.wp++;
+        if (this.wp >= this.route.length) {
+          if (this.loop) this.wp = 0;
+          else { this.wp = this.route.length - 1; this.mode = 'heading'; this.cmdHeading = this.heading; this.cmdSpeed = 0; }
+        }
+        p = this.route[this.wp];
+      }
+      if (this.mode === 'mission') {
+        wantH = Math.atan2(p.x - this.pos.x, -(p.z - this.pos.y));
+        wantU = Math.min(this.patrolSpeed, this.maxSpeed);
+      }
+    }
     if (this.mode === 'approach' && this.target) {
       const t = this.target;
       const tf = t.forward;
@@ -123,6 +140,34 @@ export class USV extends Vessel {
     if (wantU !== null) {
       this.throttle = THREE.MathUtils.clamp(wantU / this.maxSpeed + (wantU - this.u) * 0.5, -0.5, 1);
     }
+  }
+
+  /** Route du drone : points {x, z} du monde, suivis dans l'ordre à partir du tronçon le plus proche. */
+  startMission(points, loop = true) {
+    this.route = points.slice();
+    this.loop = loop;
+    this.done = false;
+    // reprend la route sur le tronçon le plus proche, vers son point d'arrivée
+    const n = this.route.length;
+    let best = 0, bd = Infinity;
+    for (let i = 0; i < n; i++) {
+      const a = this.route[i], b = this.route[(i + 1) % n];
+      if (!loop && i === n - 1) { const d = Math.hypot(a.x - this.pos.x, a.z - this.pos.y); if (d < bd) { bd = d; best = i; } continue; }
+      const ex = b.x - a.x, ez = b.z - a.z, l2 = ex * ex + ez * ez || 1;
+      const t = Math.min(1, Math.max(0, ((this.pos.x - a.x) * ex + (this.pos.y - a.z) * ez) / l2));
+      const d = Math.hypot(a.x + ex * t - this.pos.x, a.z + ez * t - this.pos.y);
+      if (d < bd) { bd = d; best = (i + 1) % n; }
+    }
+    this.wp = n === 1 ? 0 : best;
+    if (this.route.length) { this.mode = 'mission'; this.target = null; }
+  }
+
+  /** Reprise de la route après une approche, au point de passage où le drone allait. */
+  resumeMission() {
+    if (!this.route.length) return false;
+    this.mode = 'mission';
+    this.target = null;
+    return true;
   }
 
   update(dt, terrain) {

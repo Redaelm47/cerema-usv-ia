@@ -1,0 +1,21 @@
+{
+  "title": "Démo : patrouille, approche, lecture, alerte",
+  "description": "Le drone patrouille devant Le Dellec ; un chalutier croise sa route",
+  "weather": "Clair",
+  "hour": 11,
+  "month": 6,
+  "wind": 4,
+  "swell": 0.35,
+  "auto_traffic": false,
+  "drone": {
+    "lat": 48.34770, "lon": -4.56944, "heading_deg": 240, "patrol_kn": 3,
+    "route": [[48.34878, -4.56607], [48.34608, -4.57754], [48.34293, -4.58698], [48.33942, -4.59642],
+              [48.33996, -4.58698], [48.34320, -4.57349]],
+    "loop": true
+  },
+  "ships": [
+    { "kind": "trawler", "lat": 48.34626, "lon": -4.57147, "heading_deg": 130, "speed_kn": 1.5 },
+    { "kind": "sailboat", "lat": 48.33511, "lon": -4.58024, "heading_deg": 80, "speed_kn": 4 },
+    { "kind": "container", "lat": 48.33466, "lon": -4.60722, "heading_deg": 250, "speed_kn": 9 }
+  ]
+}

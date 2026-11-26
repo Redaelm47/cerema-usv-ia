@@ -2,7 +2,7 @@
 Branche la chaîne IA du projet (ia/suivi et ia/chaine) sur le simulateur.
 
     simulateur (image de la caméra du drone, ~10 img/s)
-        -> détecteur YOLO (best4_2.pt de Guillaume par défaut, ou yolo11n.pt comme l'IMX500)
+        -> détecteur YOLO (yolo11n.pt par défaut, celui de la caméra IMX500, ou best4_2.pt de Guillaume)
         -> suivi : ia/suivi (associateur, numéros de pistes)            contrat 1
         -> décision et experts : ia/chaine (qualité, type DINOv2, OCR, approche, garde-fous)
         -> messages du contrat 3 : alertes, décisions, état              contrat 3
@@ -14,7 +14,7 @@ Lancer depuis la racine du dépôt, avec le Python du dépôt (ultralytics, Open
     .venv/bin/python ia/simulateur/bridge/chaine_cerema.py
     # option : --depot ../autre-copie        pour tester la chaîne d'une autre copie du dépôt (worktree)
     # option : --station http://localhost:8000  pour alimenter aussi la page de la station sol
-    # option : --detecteur yolo11n             pour le modèle COCO de la caméra IMX500
+    # option : --detecteur best4_2             pour le modèle entraîné sur images dégradées
 
 Puis ouvrir le simulateur avec /?bridge=1 (ou cliquer sur l'icône « lien »).
 """
@@ -70,6 +70,55 @@ def lacet_camera_deg(q) -> float:
     return (math.degrees(math.atan2(fx, -fz)) + 360) % 360
 
 
+def iou(a, b) -> float:
+    """Recouvrement de deux boîtes [x0, y0, x1, y1]."""
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
+
+
+def classe_drone_simulateur(DroneSimule):
+    """Le drone de la chaîne, branché sur le simulateur.
+
+    Même interface que DroneSimule (c'est lui que l'expert approche commande), mais la distance au navire
+    approché est mesurée dans le simulateur, comme le ferait un AIS ou un télémètre, au lieu d'être déduite
+    d'une longueur supposée. La position et le cap du drone sont ceux du simulateur.
+    """
+
+    class DroneSimulateur(DroneSimule):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.distance_mesuree_m = None
+            self.position_m = None
+            self.cap_deg = None
+            self.mesurer = None          # numéro de piste -> distance réelle en mètres (donné par le pont)
+            self.distance_min_m = 30.0
+
+        def approcher(self, id_piste, distance_m, distance_arret_m):
+            d = self.mesurer(id_piste) if self.mesurer else None
+            if d:
+                # la distance d'arrêt garde le même rapport à la distance, mais sur la distance mesurée
+                if distance_arret_m > self.distance_min_m:
+                    distance_arret_m = max(distance_arret_m * d / max(distance_m, 1e-6), self.distance_min_m)
+                distance_m = d
+            super().approcher(id_piste, distance_m, distance_arret_m)
+
+        def avancer(self, t):
+            super().avancer(t)
+            if self.cible is not None and self.distance_mesuree_m is not None:
+                self.distance_m = max(self.distance_mesuree_m, 0.1)
+
+        def contexte(self, t):
+            c = super().contexte(t)
+            c.position_m, c.cap_deg = self.position_m, self.cap_deg
+            c.distance_navire_m = self.distance_mesuree_m if self.cible is not None else None
+            return c
+
+    return DroneSimulateur
+
+
 class EmetteurSimulateur:
     """Garde les messages du contrat 3 pour les traduire en messages du simulateur."""
 
@@ -105,8 +154,11 @@ class Pont:
         self.detecteur = DetecteurYolo(poids, taille=640, classes=classes)
         self.associateur = Associateur()
         self.reglages = Reglages()
-        # le drone du simulateur va au plus à 5 nœuds : le drone simulé de la chaîne avance au même pas
-        self.drone = DroneSimule(vitesse_m_s=2.5)
+        # le drone du simulateur va au plus à 5 nœuds ; sa distance au navire approché est mesurée
+        self.drone = classe_drone_simulateur(DroneSimule)(vitesse_m_s=2.5)
+        self.derniere_meta = {}
+        self.drone.mesurer = self.distance_piste
+        self.drone.distance_min_m = self.reglages.distance_min_m
         experts = [ExpertApprocheSimulee(self.drone, self.reglages), FiltreQualite(self.reglages),
                    ExpertType(fils=args.fils, reseau=args.reseau_type), ExpertOCR(self.reglages, fils=args.fils)]
         runs = ICI / "runs"
@@ -146,6 +198,12 @@ class Pont:
             self.premiere = False
         t = float(meta["t"])
         self.t = t
+        own = meta.get("own", {})
+        if "x" in own:
+            self.drone.position_m = (own["x"], -own["z"])  # est, nord
+        self.drone.cap_deg = own.get("heading_deg")
+        self.derniere_meta = meta
+        self.drone.distance_mesuree_m = self.distance_piste(self.drone.cible)
         # contrat 1 : détection + suivi, puis un pas de la chaîne
         detections = self.detecteur.detecter(image)
         obs = self.observations(t, self.associateur.mettre_a_jour(detections, t))
@@ -162,6 +220,21 @@ class Pont:
             ips = self.images / (time.perf_counter() - self.debut)
             print(f"{self.images} images · {ips:.1f} img/s · {len(obs['pistes'])} pistes · mode {self.drone.mode}", flush=True)
         return sortie
+
+    def distance_piste(self, id_piste):
+        """Distance réelle au navire d'une piste : sa boîte rapprochée de la vérité terrain du simulateur."""
+        fiche = self.chaine.fiches.get(id_piste) if id_piste is not None else None
+        if fiche is None:
+            return None
+        meta = self.derniere_meta
+        x, y, w, h = fiche.suivi.boite
+        boite = [x, y, x + w, y + h]
+        meilleur, distance = 0.2, None
+        for v in meta.get("ground_truth", []):
+            r = iou(boite, v["bbox"])
+            if r > meilleur:
+                meilleur, distance = r, v.get("distance")
+        return distance
 
     def ecrire_apercu(self, image, t):
         """runs/apercu.jpg : la dernière image reçue, avec ce que voit la chaîne (pour contrôle)."""
@@ -217,8 +290,9 @@ class Pont:
         if cible is None:
             if self.cible_precedente is not None:
                 self.cible_precedente = None
-                # fin d'approche : reprise de la patrouille au cap actuel
-                return [{"type": "heading", "heading_deg": own["heading_deg"], "speed_mps": 1.0}]
+                # fin d'approche : le drone reprend sa route (ou garde son cap s'il n'en a pas)
+                print("fin d'approche : reprise de la route", flush=True)
+                return [{"type": "mission", "speed_mps": 1.0}]
             return []
         self.cible_precedente = cible
         fiche = self.chaine.fiches.get(cible)
@@ -227,8 +301,9 @@ class Pont:
         x, _, w, _ = fiche.suivi.boite
         fx = meta["intrinsics"]["fx"]
         releve = (lacet_camera_deg(meta["camera"]["quaternion"]) + math.degrees(math.atan((x + w / 2 - largeur / 2) / fx))) % 360
-        arrive = self.drone.distance_m is not None and self.drone.distance_m <= self.drone.distance_arret_m + 0.5
-        return [{"type": "heading", "heading_deg": releve, "speed_mps": 0.0 if arrive else 2.5}]
+        reste = None if self.drone.distance_m is None else self.drone.distance_m - self.drone.distance_arret_m
+        vitesse = 2.5 if reste is None else max(0.0, min(2.5, reste / 8.0))  # ralentit sur les 20 derniers mètres
+        return [{"type": "heading", "heading_deg": releve, "speed_mps": vitesse if reste is None or reste > 0.5 else 0.0}]
 
     def cloturer(self):
         self.chaine.cloturer(self.t)
@@ -286,7 +361,7 @@ def main():
     ap = argparse.ArgumentParser(description="Chaîne IA Cerema branchée sur le simulateur")
     ap.add_argument("--depot", type=Path, default=DEPOT,
                     help="copie du dépôt qui contient ia/chaine et ia/suivi (par défaut, celle-ci)")
-    ap.add_argument("--detecteur", default="best4_2", help="best4_2 (défaut), best4, yolo11n, ou un chemin .pt")
+    ap.add_argument("--detecteur", default="yolo11n", help="yolo11n (défaut, comme l'IMX500), best4_2, best4, ou un chemin .pt")
     ap.add_argument("--reseau-type", default="dinov2", choices=["dinov2", "dinov3"])
     ap.add_argument("--fils", type=int, default=None, help="fils d'ONNX Runtime")
     ap.add_argument("--station", help="adresse de la station sol, par exemple http://localhost:8000")

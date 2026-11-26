@@ -188,7 +188,7 @@ export class HUD {
     document.getElementById('t-lon').textContent = dm(ll.lon, 'E', 'O');
     document.getElementById('t-sea').innerHTML = `${fmt(a.seaHs, 1)}<small>m Hs</small>`;
     document.getElementById('t-wind').innerHTML = `${fmt(a.settings.wind * 1.944, 0)}<small>nd ${Math.round(a.settings.windDir)}°</small>`;
-    const modes = { manual: 'manuel', heading: 'cap', waypoint: 'point', approach: 'approche', external: 'pipeline' };
+    const modes = { manual: 'manuel', heading: 'cap', waypoint: 'point', mission: 'route', approach: 'approche', external: 'chaîne IA' };
     const manual = u.mode === 'manual';
     document.getElementById('t-mode').textContent = (u.grounded ? 'échoué · ' : '') + modes[u.mode];
     const take = document.getElementById('t-take');
