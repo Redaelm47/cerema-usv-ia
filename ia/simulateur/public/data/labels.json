@@ -1,0 +1,656 @@
+{
+ "source": "IGN Geoplateforme geocoding (BD TOPO toponyms), Licence Ouverte Etalab 2.0; sea areas placed by hand",
+ "frame": "x metres east, n metres north (see terrain.json)",
+ "labels": [
+  {
+   "name": "Brest",
+   "cls": "city",
+   "rank": 1,
+   "lon": -4.497735,
+   "lat": 48.406145,
+   "x": 4615.5,
+   "n": 6799.1
+  },
+  {
+   "name": "Plouzané",
+   "cls": "town",
+   "rank": 1,
+   "lon": -4.590115,
+   "lat": 48.371875,
+   "x": -2232.3,
+   "n": 2988.4
+  },
+  {
+   "name": "Locmaria-Plouzané",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.651104,
+   "lat": 48.372052,
+   "x": -6753.2,
+   "n": 3008.1
+  },
+  {
+   "name": "Plougonvelin",
+   "cls": "town",
+   "rank": 1,
+   "lon": -4.732475,
+   "lat": 48.353677,
+   "x": -12785.0,
+   "n": 964.9
+  },
+  {
+   "name": "Le Conquet",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.763963,
+   "lat": 48.356535,
+   "x": -15119.0,
+   "n": 1282.7
+  },
+  {
+   "name": "Camaret-sur-Mer",
+   "cls": "town",
+   "rank": 1,
+   "lon": -4.58517,
+   "lat": 48.271557,
+   "x": -1865.8,
+   "n": -8166.6
+  },
+  {
+   "name": "Roscanvel",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.553513,
+   "lat": 48.316725,
+   "x": 480.9,
+   "n": -3144.1
+  },
+  {
+   "name": "Lanvéoc",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.452772,
+   "lat": 48.275619,
+   "x": 7948.4,
+   "n": -7715.0
+  },
+  {
+   "name": "Plougastel-Daoulas",
+   "cls": "town",
+   "rank": 1,
+   "lon": -4.38843,
+   "lat": 48.36145,
+   "x": 12717.9,
+   "n": 1829.2
+  },
+  {
+   "name": "Le Relecq-Kerhuon",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.40117,
+   "lat": 48.40234,
+   "x": 11773.5,
+   "n": 6376.0
+  },
+  {
+   "name": "Guipavas",
+   "cls": "town",
+   "rank": 2,
+   "lon": -4.40045,
+   "lat": 48.42763,
+   "x": 11826.9,
+   "n": 9188.2
+  },
+  {
+   "name": "Logonna-Daoulas",
+   "cls": "town",
+   "rank": 3,
+   "lon": -4.295632,
+   "lat": 48.328001,
+   "x": 19596.7,
+   "n": -1890.2
+  },
+  {
+   "name": "Landévennec",
+   "cls": "town",
+   "rank": 3,
+   "lon": -4.303785,
+   "lat": 48.276453,
+   "x": 18992.3,
+   "n": -7622.2
+  },
+  {
+   "name": "Le Dellec",
+   "cls": "locality",
+   "rank": 1,
+   "lon": -4.571552,
+   "lat": 48.352733,
+   "x": -856.3,
+   "n": 859.9
+  },
+  {
+   "name": "Le Minou",
+   "cls": "locality",
+   "rank": 2,
+   "lon": -4.617154,
+   "lat": 48.340405,
+   "x": -4236.6,
+   "n": -511.0
+  },
+  {
+   "name": "Sainte-Anne-du-Portzic",
+   "cls": "locality",
+   "rank": 2,
+   "lon": -4.556358,
+   "lat": 48.36149,
+   "x": 270.0,
+   "n": 1833.6
+  },
+  {
+   "name": "Le Trez-Hir",
+   "cls": "locality",
+   "rank": 2,
+   "lon": -4.706477,
+   "lat": 48.347553,
+   "x": -10857.8,
+   "n": 283.9
+  },
+  {
+   "name": "Recouvrance",
+   "cls": "locality",
+   "rank": 3,
+   "lon": -4.499688,
+   "lat": 48.384217,
+   "x": 4470.7,
+   "n": 4360.8
+  },
+  {
+   "name": "Saint-Marc",
+   "cls": "locality",
+   "rank": 3,
+   "lon": -4.452533,
+   "lat": 48.393963,
+   "x": 7966.1,
+   "n": 5444.5
+  },
+  {
+   "name": "Le Fret",
+   "cls": "locality",
+   "rank": 3,
+   "lon": -4.508648,
+   "lat": 48.284598,
+   "x": 3806.5,
+   "n": -6716.5
+  },
+  {
+   "name": "Quélern",
+   "cls": "locality",
+   "rank": 3,
+   "lon": -4.557772,
+   "lat": 48.300731,
+   "x": 165.2,
+   "n": -4922.6
+  },
+  {
+   "name": "Pointe Saint-Mathieu",
+   "cls": "point",
+   "rank": 1,
+   "lon": -4.773727,
+   "lat": 48.330424,
+   "x": -15842.8,
+   "n": -1620.8
+  },
+  {
+   "name": "Pointe du Petit Minou",
+   "cls": "point",
+   "rank": 2,
+   "lon": -4.614374,
+   "lat": 48.336697,
+   "x": -4030.5,
+   "n": -923.3
+  },
+  {
+   "name": "Pointe du Grand Minou",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.628201,
+   "lat": 48.33735,
+   "x": -5055.5,
+   "n": -850.7
+  },
+  {
+   "name": "Pointe du Diable",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.558587,
+   "lat": 48.354559,
+   "x": 104.7,
+   "n": 1062.9
+  },
+  {
+   "name": "Pointe du Portzic",
+   "cls": "point",
+   "rank": 2,
+   "lon": -4.533534,
+   "lat": 48.35764,
+   "x": 1961.8,
+   "n": 1405.5
+  },
+  {
+   "name": "Pointe des Espagnols",
+   "cls": "point",
+   "rank": 1,
+   "lon": -4.533165,
+   "lat": 48.341715,
+   "x": 1989.2,
+   "n": -365.3
+  },
+  {
+   "name": "Pointe de Cornouaille",
+   "cls": "point",
+   "rank": 2,
+   "lon": -4.570842,
+   "lat": 48.330489,
+   "x": -803.7,
+   "n": -1613.6
+  },
+  {
+   "name": "Pointe des Capucins",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.582654,
+   "lat": 48.319108,
+   "x": -1679.3,
+   "n": -2879.1
+  },
+  {
+   "name": "Pointe du Toulinguet",
+   "cls": "point",
+   "rank": 2,
+   "lon": -4.630418,
+   "lat": 48.281362,
+   "x": -5219.8,
+   "n": -7076.4
+  },
+  {
+   "name": "Pointe de l'Armorique",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.457775,
+   "lat": 48.327378,
+   "x": 7577.6,
+   "n": -1959.5
+  },
+  {
+   "name": "Île Longue",
+   "cls": "point",
+   "rank": 2,
+   "lon": -4.50763,
+   "lat": 48.305451,
+   "x": 3882.0,
+   "n": -4397.7
+  },
+  {
+   "name": "Plateau des Fillettes",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.591379,
+   "lat": 48.329688,
+   "x": -2326.0,
+   "n": -1702.6
+  },
+  {
+   "name": "Roche Mengant",
+   "cls": "point",
+   "rank": 3,
+   "lon": -4.575681,
+   "lat": 48.339032,
+   "x": -1162.4,
+   "n": -663.6
+  },
+  {
+   "name": "Plage du Dellec",
+   "cls": "beach",
+   "rank": 2,
+   "lon": -4.564633,
+   "lat": 48.355629,
+   "x": -343.4,
+   "n": 1181.9
+  },
+  {
+   "name": "Plage du Minou",
+   "cls": "beach",
+   "rank": 3,
+   "lon": -4.615556,
+   "lat": 48.3397,
+   "x": -4118.2,
+   "n": -589.3
+  },
+  {
+   "name": "Port de Sainte-Anne",
+   "cls": "port",
+   "rank": 3,
+   "lon": -4.551475,
+   "lat": 48.360454,
+   "x": 631.9,
+   "n": 1718.4
+  },
+  {
+   "name": "Plage du Trez-Hir",
+   "cls": "beach",
+   "rank": 3,
+   "lon": -4.702001,
+   "lat": 48.346639,
+   "x": -10526.0,
+   "n": 182.3
+  },
+  {
+   "name": "Plage du Moulin Blanc",
+   "cls": "beach",
+   "rank": 3,
+   "lon": -4.43082,
+   "lat": 48.397014,
+   "x": 9575.7,
+   "n": 5783.8
+  },
+  {
+   "name": "Port du Moulin Blanc",
+   "cls": "port",
+   "rank": 2,
+   "lon": -4.433096,
+   "lat": 48.392171,
+   "x": 9406.9,
+   "n": 5245.3
+  },
+  {
+   "name": "Port du Conquet",
+   "cls": "port",
+   "rank": 3,
+   "lon": -4.776543,
+   "lat": 48.361835,
+   "x": -16051.6,
+   "n": 1872.0
+  },
+  {
+   "name": "IMT Atlantique",
+   "cls": "landmark",
+   "rank": 1,
+   "lon": -4.57053,
+   "lat": 48.36005,
+   "x": -780.6,
+   "n": 1673.5
+  },
+  {
+   "name": "Ifremer",
+   "cls": "landmark",
+   "rank": 2,
+   "lon": -4.56341,
+   "lat": 48.36205,
+   "x": -252.8,
+   "n": 1895.9
+  },
+  {
+   "name": "Océanopolis",
+   "cls": "landmark",
+   "rank": 2,
+   "lon": -4.43569,
+   "lat": 48.390123,
+   "x": 9214.7,
+   "n": 5017.5
+  },
+  {
+   "name": "Château de Brest",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.493858,
+   "lat": 48.381571,
+   "x": 4902.9,
+   "n": 4066.6
+  },
+  {
+   "name": "Phare du Petit Minou",
+   "cls": "landmark",
+   "rank": 2,
+   "lon": -4.614234,
+   "lat": 48.336639,
+   "x": -4020.2,
+   "n": -929.7
+  },
+  {
+   "name": "Fort du Portzic",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.534711,
+   "lat": 48.358525,
+   "x": 1874.6,
+   "n": 1503.9
+  },
+  {
+   "name": "Phare de Saint-Mathieu",
+   "cls": "landmark",
+   "rank": 2,
+   "lon": -4.770889,
+   "lat": 48.329879,
+   "x": -15632.4,
+   "n": -1681.4
+  },
+  {
+   "name": "Fort de Bertheaume",
+   "cls": "landmark",
+   "rank": 2,
+   "lon": -4.697429,
+   "lat": 48.337082,
+   "x": -10187.1,
+   "n": -880.5
+  },
+  {
+   "name": "Fort du Dellec",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.568194,
+   "lat": 48.352188,
+   "x": -607.4,
+   "n": 799.3
+  },
+  {
+   "name": "Fort du Mengant",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.587531,
+   "lat": 48.347733,
+   "x": -2040.8,
+   "n": 303.9
+  },
+  {
+   "name": "Fort de Cornouaille",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.57091,
+   "lat": 48.329822,
+   "x": -808.7,
+   "n": -1687.7
+  },
+  {
+   "name": "École navale",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.419305,
+   "lat": 48.279038,
+   "x": 10429.2,
+   "n": -7334.8
+  },
+  {
+   "name": "Base aéronavale",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.442835,
+   "lat": 48.282816,
+   "x": 8685.0,
+   "n": -6914.7
+  },
+  {
+   "name": "Pont de l'Iroise",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.399077,
+   "lat": 48.38863,
+   "x": 11928.6,
+   "n": 4851.5
+  },
+  {
+   "name": "Pont Albert-Louppe",
+   "cls": "landmark",
+   "rank": 3,
+   "lon": -4.399129,
+   "lat": 48.386699,
+   "x": 11924.8,
+   "n": 4636.8
+  },
+  {
+   "name": "Port de commerce",
+   "cls": "port",
+   "rank": 1,
+   "lon": -4.466,
+   "lat": 48.3825,
+   "x": 6967.9,
+   "n": 4169.9
+  },
+  {
+   "name": "Base navale",
+   "cls": "port",
+   "rank": 2,
+   "lon": -4.505,
+   "lat": 48.376,
+   "x": 4077.0,
+   "n": 3447.1
+  },
+  {
+   "name": "Port du Château",
+   "cls": "port",
+   "rank": 3,
+   "lon": -4.4878,
+   "lat": 48.3797,
+   "x": 5351.9,
+   "n": 3858.5
+  },
+  {
+   "name": "Port de Camaret",
+   "cls": "port",
+   "rank": 3,
+   "lon": -4.5965,
+   "lat": 48.2785,
+   "x": -2705.6,
+   "n": -7394.6
+  },
+  {
+   "name": "Mer d'Iroise",
+   "cls": "water",
+   "rank": 1,
+   "lon": -4.735,
+   "lat": 48.3,
+   "x": -12972.1,
+   "n": -5003.9,
+   "angle": 0
+  },
+  {
+   "name": "Goulet de Brest",
+   "cls": "water",
+   "rank": 1,
+   "lon": -4.585,
+   "lat": 48.3415,
+   "x": -1853.2,
+   "n": -389.2,
+   "angle": 14
+  },
+  {
+   "name": "Rade de Brest",
+   "cls": "water",
+   "rank": 1,
+   "lon": -4.47,
+   "lat": 48.335,
+   "x": 6671.4,
+   "n": -1112.0,
+   "angle": 0
+  },
+  {
+   "name": "Anse de Bertheaume",
+   "cls": "water",
+   "rank": 2,
+   "lon": -4.69,
+   "lat": 48.338,
+   "x": -9636.4,
+   "n": -778.4,
+   "angle": 0
+  },
+  {
+   "name": "Anse de Camaret",
+   "cls": "water",
+   "rank": 2,
+   "lon": -4.592,
+   "lat": 48.286,
+   "x": -2372.0,
+   "n": -6560.6,
+   "angle": 0
+  },
+  {
+   "name": "Baie de Roscanvel",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.535,
+   "lat": 48.31,
+   "x": 1853.2,
+   "n": -3891.9,
+   "angle": 0
+  },
+  {
+   "name": "Anse du Fret",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.505,
+   "lat": 48.293,
+   "x": 4077.0,
+   "n": -5782.2,
+   "angle": 0
+  },
+  {
+   "name": "Anse de Poulmic",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.448,
+   "lat": 48.296,
+   "x": 8302.2,
+   "n": -5448.7,
+   "angle": 0
+  },
+  {
+   "name": "Élorn",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.395,
+   "lat": 48.4,
+   "x": 12230.9,
+   "n": 6115.8,
+   "angle": 20
+  },
+  {
+   "name": "Baie de Daoulas",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.33,
+   "lat": 48.34,
+   "x": 17049.1,
+   "n": -556.0,
+   "angle": 0
+  },
+  {
+   "name": "Anse de Dinan",
+   "cls": "water",
+   "rank": 3,
+   "lon": -4.61,
+   "lat": 48.25,
+   "x": -3706.3,
+   "n": -10563.7,
+   "angle": 0
+  }
+ ]
+}

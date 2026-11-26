@@ -5,6 +5,9 @@ Ce fichier répertorie les principales évolutions du projet.
 ## 2026-11-26
 
 - Boîte d'envoi SQLite (`ia/chaine/boite.py`, option `--boite`) : les messages vers la station sont gardés dans un fichier jusqu'à l'accusé de réception, même si la liaison coupe ou si le programme est relancé ; alertes d'abord, seul le dernier état compte pendant une coupure. Sans `--boite`, rien ne change.
+- Rangement des branches : la chaîne de vision embarquée (`ia/suivi`, `ia/chaine`, `ia/embarque`, scène Blender, contrats), la ré-identification et la boîte d'envoi sont dans `main` (pull request #2). Branches `ia/chaine-squelette`, `ia/reidentification` et `claude/loving-edison-apkb5o` supprimées, leur contenu étant entièrement dans `main`.
+- Ajout du simulateur 3D Iroise (`ia/simulateur/`) : Goulet et rade de Brest réels (relief LiDAR et orthophotos IGN, bathymétrie EMODnet), mer, ciel, trafic et modèles 3D de navires, caméra du drone à 45 cm de l'eau avec pluie, gouttes et buée sur l'objectif, carte pour téléporter le drone et poser des navires, passerelle vers la chaîne IA (`bridge/chaine_cerema.py`). Relief, images et modèles 3D (83 Mo) versionnés en exception à la règle des fichiers lourds, pour lancer le simulateur sans téléchargement.
+- Consignes pour les agents de code : `ia/simulateur/AGENTS.md`, skill Claude Code `simulateur-iroise` et aperçu `simulateur` dans `.claude/launch.json`.
 
 ## 2026-11-23
 

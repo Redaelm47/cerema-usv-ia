@@ -1,0 +1,16 @@
+# Dépendances et build (npm install, npm run build)
+node_modules/
+dist/
+
+# Téléchargements bruts des scripts de données (~860 Mo, regénérables avec tools/fetch.py)
+tools/cache/
+public/data/preview.png
+
+# Passerelle Python : environnement, poids copiés, journaux
+bridge/.venv
+bridge/modeles/
+bridge/runs/
+
+# Exception à la règle « data/ » de la racine : relief, orthophotos et noms de lieux (34 Mo, plus 49 Mo de modèles 3D),
+# sans lesquels le simulateur ne se lance pas
+!public/data/

@@ -107,7 +107,7 @@ Sources : [Fireflies](https://fireflies.ai/blog/tips-for-taking-meeting-minutes)
 
 ## Git
 
-- La copie locale `cerema-usv-ia` est souvent sur une autre branche (`ia/chaine-squelette`) avec des modifications non commitées : **ne jamais y toucher**. Travailler dans un worktree de `main` :
+- La copie locale `cerema-usv-ia` est souvent sur une branche de travail avec des modifications non commitées : **ne jamais y toucher**. Travailler dans un worktree de `main` :
   ```bash
   cd ~/Desktop/imt/cerema/cerema-usv-ia
   WT=<scratchpad>/wt-main

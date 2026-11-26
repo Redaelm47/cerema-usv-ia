@@ -1,0 +1,188 @@
+{
+  "name": "Goulet & Rade de Brest terrain",
+  "generated": "2026-11-26",
+  "origin": {
+    "lat0": 48.345,
+    "lon0": -4.56
+  },
+  "frame": "local north-aligned metric frame: x = (lon - lon0) * mx (metres east), n = (lat - lat0) * my (metres north); constant scale factors at lat0 (the grid is therefore regular in WGS84 lon/lat as well)",
+  "scale": {
+    "mx": 74126.41436976714,
+    "my": 111196.99446466274,
+    "mxFormula": "111412.84*cos(lat0) - 93.5*cos(3*lat0) + 0.118*cos(5*lat0)  [m per degree lon]",
+    "myFormula": "111132.92 - 559.82*cos(2*lat0) + 1.175*cos(4*lat0)  [m per degree lat]"
+  },
+  "verticalDatum": "NGF-IGN69 (French levelling, ~ mean sea level; at Brest MSL is ~ +0.4 m IGN69). Bathymetry converted from LAT with LAT = -3.64 m IGN69 (Brest chart datum).",
+  "layers": {
+    "demFar": {
+      "file": "dem_far.bin",
+      "width": 2472,
+      "height": 1344,
+      "metresPerPixel": 15.0,
+      "extent": {
+        "xWest": -16320.0,
+        "xEast": 20760.0,
+        "nSouth": -10680.0,
+        "nNorth": 9480.0
+      },
+      "lonLatExtent": {
+        "west": -4.780164433134327,
+        "south": 48.24895423858876,
+        "east": -4.279937890204128,
+        "north": 48.43025410282571
+      },
+      "encoding": "Int16 little-endian, row-major, row 0 = north edge, column 0 = west edge; height_m = value / 10 (decimetres). Heights relative to NGF/IGN69 (~ mean sea level; water plane at 0). No no-data values.",
+      "pixelRegistration": "area: extent = outer pixel edges; pixel (r,c) centre = (xWest + (c+0.5)*res, nNorth - (r+0.5)*res)",
+      "minHeight": -52.7,
+      "maxHeight": 194.3,
+      "landSource": "IGN LiDAR HD MNS (surface model incl. buildings/trees), sampled 5 m x 7.5 m and max-pooled 3x2; RGE ALTI where LiDAR is masked",
+      "lidarSamplingMetres": {
+        "x": 5.0,
+        "y": 7.5
+      }
+    },
+    "demNear": {
+      "file": "dem_near.bin",
+      "width": 4560,
+      "height": 2370,
+      "metresPerPixel": 4.0,
+      "extent": {
+        "xWest": -7440.0,
+        "xEast": 10800.0,
+        "nSouth": -3360.0,
+        "nNorth": 6120.0
+      },
+      "lonLatExtent": {
+        "west": -4.660369079811237,
+        "south": 48.31478335596051,
+        "east": -4.414302948661107,
+        "north": 48.400037458786215
+      },
+      "encoding": "Int16 little-endian, row-major, row 0 = north edge, column 0 = west edge; height_m = value / 10 (decimetres). Heights relative to NGF/IGN69 (~ mean sea level; water plane at 0). No no-data values.",
+      "pixelRegistration": "area: extent = outer pixel edges; pixel (r,c) centre = (xWest + (c+0.5)*res, nNorth - (r+0.5)*res)",
+      "minHeight": -52.7,
+      "maxHeight": 140.1,
+      "landSource": "IGN LiDAR HD MNS (surface model incl. buildings/trees), sampled 1.33 m x 2 m and max-pooled 3x2; RGE ALTI where LiDAR is masked",
+      "lidarSamplingMetres": {
+        "x": 1.3333,
+        "y": 2.0
+      }
+    },
+    "orthoFar": {
+      "file": "ortho_far.jpg",
+      "width": 4635,
+      "height": 2520,
+      "metresPerPixel": 8.0,
+      "extent": {
+        "xWest": -16320.0,
+        "xEast": 20760.0,
+        "nSouth": -10680.0,
+        "nNorth": 9480.0
+      },
+      "lonLatExtent": {
+        "west": -4.780164433134327,
+        "south": 48.24895423858876,
+        "east": -4.279937890204128,
+        "north": 48.43025410282571
+      },
+      "encoding": "JPEG quality 85 (progressive), sRGB, row 0 = north edge; exactly the same extent as the matching DEM (pixel edges coincide every 120 m)"
+    },
+    "orthoNear": {
+      "file": "ortho_near.jpg",
+      "width": 7296,
+      "height": 3792,
+      "metresPerPixel": 2.5,
+      "extent": {
+        "xWest": -7440.0,
+        "xEast": 10800.0,
+        "nSouth": -3360.0,
+        "nNorth": 6120.0
+      },
+      "lonLatExtent": {
+        "west": -4.660369079811237,
+        "south": 48.31478335596051,
+        "east": -4.414302948661107,
+        "north": 48.400037458786215
+      },
+      "encoding": "JPEG quality 85 (progressive), sRGB, row 0 = north edge; exactly the same extent as the matching DEM (pixel edges coincide every 120 m)"
+    }
+  },
+  "processing": {
+    "landSea": "Water = Plan IGN v2 water fill that is not firm RGE ALTI ground (>= 1 m), plus areas outside the RGE ALTI domain without a LiDAR-measured structure; only water 4-connected to the open sea becomes sea. RGE ALTI flattened water surfaces (constant -2.79 m sea band, flat estuaries) are ignored. Firm ground: LiDAR HD MNS (buildings, trees), RGE ALTI where the LiDAR is masked (military sites: Brest naval base, Ile Longue, Lanveoc-Poulmic, ...). Foreshore (RGE ALTI < 1 m) not mapped as water: min(LiDAR, RGE ALTI) i.e. ground only. Outside RGE ALTI and not water (recent port polder, breakwaters, rocks): LiDAR where the surface is measured (rough), long narrow high decks over water (bridges) excluded. Measured submerged foreshore (RGE ALTI < 0 m) is kept where shallower than the seabed blend.",
+    "removedFromLidar": "objects standing on water (moored/anchored ships, buoys, pontoons, bridge decks over water, TIN-interpolated water surfaces) are replaced by water/seabed",
+    "seaDepth": "smooth-min(max(EMODnet depth LAT->IGN69, shoreDepth*exp(-d/150)), shoreDepth + k * d), d = distance to the nearest non-sea pixel, blend width 3.0 m; shoreDepth = max(0.3 m, -elevation of the adjacent non-sea pixel) and k = 0.05..0.2 (gentle next to low shores, steep next to cliffs/quays >= 4.0 m), both smoothed 40 m along the shore; then a 30 m gaussian over sea pixels faded in from the shoreline. Seabed is ~-0.3 m at a dry shoreline.",
+    "lidarPooling": "the LiDAR HD WMS pyramid has degree-square pixels and nearest-neighbour resampling, so it is fetched with x step = res/3 and y step = res/2 (square in degrees) and max-pooled 3x2 into each output pixel; the far DEM is therefore a 15 m 'skyline' surface, slightly higher than an average of the near DEM",
+    "nearFarConsistency_m": {
+      "land_box16": {
+        "n": 5494042,
+        "mean": -1.43,
+        "median": -0.71,
+        "p05": -5.43,
+        "p95": 0.41
+      },
+      "sea_box16": {
+        "n": 4764854,
+        "mean": -0.0,
+        "median": -0.0,
+        "p05": -0.16,
+        "p95": 0.17
+      },
+      "land_max15": {
+        "n": 367633,
+        "mean": 1.44,
+        "median": 0.68,
+        "p05": -0.47,
+        "p95": 6.1
+      }
+    },
+    "tideNote": "LiDAR HD was flown at various tide states (water surface -2.6..-0.2 m IGN69, sometimes higher in port basins). The water plane of the simulator is 0 m IGN69 (~ mean sea level); foreshore above 0 m appears as land, as at mid tide."
+  },
+  "sources": [
+    {
+      "name": "IGN LiDAR HD - MNS (modele numerique de surface)",
+      "service": "https://data.geopf.fr/wms-r/wms",
+      "layer": "IGNF_LIDAR-HD_MNS_ELEVATION.ELEVATIONGRIDCOVERAGE.WGS84G",
+      "nativeResolution": "0.5 m",
+      "usedFor": "land heights (dem_far, dem_near)",
+      "licence": "Licence Ouverte / Open Licence Etalab 2.0",
+      "attribution": "IGN - LiDAR HD"
+    },
+    {
+      "name": "IGN RGE ALTI (MNT)",
+      "service": "https://data.geopf.fr/wms-r/wms",
+      "layer": "ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES",
+      "nativeResolution": "1 m (5 m in places)",
+      "usedFor": "foreshore ground, land/sea reference, filling LiDAR gaps (military sites are masked in LiDAR HD)",
+      "licence": "Licence Ouverte / Open Licence Etalab 2.0",
+      "attribution": "IGN - RGE ALTI"
+    },
+    {
+      "name": "IGN Plan IGN v2 (cartographic rendering of BD TOPO)",
+      "service": "https://data.geopf.fr/wms-r/wms",
+      "layer": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+      "nativeResolution": "rendered at 4-5 m",
+      "usedFor": "sea / water classification only (not shipped)",
+      "licence": "Licence Ouverte / Open Licence Etalab 2.0",
+      "attribution": "IGN - Plan IGN"
+    },
+    {
+      "name": "IGN orthophotographies (BD ORTHO mosaic, most recent campaign)",
+      "service": "https://data.geopf.fr/wms-r/wms",
+      "layer": "ORTHOIMAGERY.ORTHOPHOTOS",
+      "nativeResolution": "0.2-0.5 m",
+      "usedFor": "ortho_far.jpg, ortho_near.jpg",
+      "licence": "Licence Ouverte / Open Licence Etalab 2.0",
+      "attribution": "IGN - BD ORTHO"
+    },
+    {
+      "name": "EMODnet Digital Bathymetry (DTM 2024)",
+      "service": "https://ows.emodnet-bathymetry.eu/wcs",
+      "layer": "emodnet__mean",
+      "nativeResolution": "1/16 arc-minute (~115 m)",
+      "verticalReference": "LAT (Lowest Astronomical Tide)",
+      "usedFor": "sea floor",
+      "licence": "EMODnet data policy: free and open, re-use with attribution (CC BY 4.0). Not to be used for navigation.",
+      "attribution": "EMODnet Bathymetry Consortium (2024): EMODnet Digital Bathymetry (DTM 2024)"
+    }
+  ]
+}

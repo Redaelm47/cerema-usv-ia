@@ -1,0 +1,299 @@
+[
+  {
+    "kind": "trawler",
+    "file": "trawler-breton.glb",
+    "name": "Small coastal trawler (wooden, weathered)",
+    "source": "https://sketchfab.com/3d-models/fishing-boat-2f894eb760ca49eca14c38c2d49058a1",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 2f894eb760ca49eca14c38c2d49058a1",
+    "author": "Aurélien Duval (https://sketchfab.com/aurelien.d)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Fishing boat",
+    "lengthMetres": 12,
+    "bbox": [
+      1313.5352,
+      675.0286,
+      480.0919
+    ],
+    "bboxMin": [
+      -657.1687,
+      -337.5143,
+      -239.522
+    ],
+    "bboxMax": [
+      656.3665,
+      337.5143,
+      240.5699
+    ],
+    "forwardAxis": "+x",
+    "upAxis": "+y",
+    "waterlineY": -140,
+    "triangles": 14276,
+    "sizeMB": 5.71,
+    "notes": "bow +x high (pointed stem +x, gallows/trawl and propeller at -x); waterline medium (top of dark fouled bottom paint); length estimated from lifebuoy size (~0.75 m = 88 units)"
+  },
+  {
+    "kind": "trawler",
+    "file": "trawler-stern.glb",
+    "name": "Modern stern trawler",
+    "source": "https://sketchfab.com/3d-models/trawler-510e4b530c7d4e17842235d2fe018a49",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 510e4b530c7d4e17842235d2fe018a49",
+    "author": "Carlos.Maciel (https://sketchfab.com/Carlos.Maciel)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Trawler",
+    "lengthMetres": 80,
+    "bbox": [
+      123.548,
+      52.0095,
+      30.4379
+    ],
+    "bboxMin": [
+      -91.4108,
+      -1.6497,
+      -15.0212
+    ],
+    "bboxMax": [
+      32.1372,
+      50.3598,
+      15.4166
+    ],
+    "forwardAxis": "+x",
+    "upAxis": "+y",
+    "waterlineY": 6.3,
+    "triangles": 236105,
+    "sizeMB": 7.34,
+    "notes": "bow +x high (raked stem and bridge forward, trawl deck/gantry and propeller aft); waterline high (top of red antifouling); length estimated from deck heights (~4.3 units per deck), +-20 %"
+  },
+  {
+    "kind": "sailboat",
+    "file": "sailboat-sloop.glb",
+    "name": "Modern racing sloop (with mainsail and jib)",
+    "source": "https://sketchfab.com/3d-models/sailboat-1-048ca9ab42b0453ab344a0691fbd5058",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 048ca9ab42b0453ab344a0691fbd5058",
+    "author": "masterjack20 (https://sketchfab.com/masterjack20)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Sailboat 1",
+    "lengthMetres": 10,
+    "bbox": [
+      0.3092,
+      0.2918,
+      0.1078
+    ],
+    "bboxMin": [
+      -0.1229,
+      -0.1432,
+      0.2021
+    ],
+    "bboxMax": [
+      0.1863,
+      0.1486,
+      0.3099
+    ],
+    "forwardAxis": "+x",
+    "upAxis": "+y",
+    "waterlineY": -0.11,
+    "triangles": 36484,
+    "sizeMB": 1.04,
+    "notes": "bow +x high (forestay/pulpit +x, rudder -x); waterline medium (red boot stripe at hull bottom); generic yacht, length chosen in the 8-14 m range"
+  },
+  {
+    "kind": "motorboat",
+    "file": "motorboat-rescue-rib.glb",
+    "name": "Fast rescue craft Mako 655 (RIB-type)",
+    "source": "https://sketchfab.com/3d-models/fast-rescue-craft-mako-655-8ea6bfc85e5d43b881dec5d224583f19",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 8ea6bfc85e5d43b881dec5d224583f19",
+    "author": "Pixel (https://sketchfab.com/stefan.lengyel1)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Fast Rescue Craft Mako 655",
+    "lengthMetres": 6.55,
+    "bbox": [
+      2.2067,
+      1.9602,
+      5.4966
+    ],
+    "bboxMin": [
+      -1.1349,
+      0.1157,
+      -2.7286
+    ],
+    "bboxMax": [
+      1.0718,
+      2.0759,
+      2.768
+    ],
+    "forwardAxis": "+z",
+    "upAxis": "+y",
+    "waterlineY": 0.55,
+    "triangles": 30068,
+    "sizeMB": 5.62,
+    "notes": "bow +z high (outboard and A-frame at -z, pointed bow +z); waterline medium (lower edge of the collar)"
+  },
+  {
+    "kind": "motorboat",
+    "file": "motorboat-cruiser.glb",
+    "name": "Sport cruiser motor yacht (~10 m)",
+    "source": "https://sketchfab.com/3d-models/small-yacht-09a9fc4a0061464fba1bc3ba76848869",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 09a9fc4a0061464fba1bc3ba76848869",
+    "author": "Miguelangelo Rosario (https://sketchfab.com/miguelangelo2k)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Small Yacht",
+    "lengthMetres": 10.2,
+    "bbox": [
+      10162.416,
+      2700.6875,
+      2343.4746
+    ],
+    "bboxMin": [
+      -5253.3711,
+      -1350.347,
+      178.6064
+    ],
+    "bboxMax": [
+      4909.0449,
+      1350.3405,
+      2522.0811
+    ],
+    "forwardAxis": "-x",
+    "upAxis": "+y",
+    "waterlineY": -1000,
+    "triangles": 264333,
+    "sizeMB": 6.31,
+    "notes": "bow -x high (pointed bow -x, windscreen/arch/swim platform toward +x); waterline low confidence (planing hull, no boot-top; ~0.35 m above keel); file units are millimetres"
+  },
+  {
+    "kind": "cargo",
+    "file": "cargo-general.glb",
+    "name": "General cargo ship with two cranes",
+    "source": "https://sketchfab.com/3d-models/cargo-ship-b7c97df584824ca682d26daabf401f87",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid b7c97df584824ca682d26daabf401f87",
+    "author": "hungry_drifter (https://sketchfab.com/hungry_drifter)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Cargo ship",
+    "lengthMetres": 127,
+    "bbox": [
+      127.0717,
+      39.7471,
+      19.2567
+    ],
+    "bboxMin": [
+      -60.4219,
+      33.6561,
+      3.9209
+    ],
+    "bboxMax": [
+      66.6498,
+      73.4032,
+      23.1776
+    ],
+    "forwardAxis": "+x",
+    "upAxis": "+y",
+    "waterlineY": 39.6,
+    "triangles": 73448,
+    "sizeMB": 9.14,
+    "notes": "bow +x high (accommodation/funnel aft at -x, forecastle +x); waterline high (boot-top line between fouled bottom and red topsides); file units ~ metres (deck spacing 2.65)"
+  },
+  {
+    "kind": "cargo",
+    "file": "cargo-container-feeder.glb",
+    "name": "Small container feeder",
+    "source": "https://sketchfab.com/3d-models/small-cargo-ship-6362d3e9b11e4396aaafa854c3aa6f06",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 6362d3e9b11e4396aaafa854c3aa6f06",
+    "author": "Styx (https://sketchfab.com/588276)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Small Cargo Ship",
+    "lengthMetres": 64,
+    "bbox": [
+      2.0,
+      0.7404,
+      0.3277
+    ],
+    "bboxMin": [
+      -1.0,
+      -0.3702,
+      -0.1639
+    ],
+    "bboxMax": [
+      1.0,
+      0.3702,
+      0.1639
+    ],
+    "forwardAxis": "-x",
+    "upAxis": "+y",
+    "waterlineY": -0.21,
+    "triangles": 48018,
+    "sizeMB": 4.29,
+    "notes": "bow -x high (pointed bow -x in plan view, superstructure aft +x); waterline high (top of red bottom paint); length from 20 ft container size (0.19 units = 6.06 m)"
+  },
+  {
+    "kind": "tug",
+    "file": "tug-asd.glb",
+    "name": "Robert Allan RAstar 3200 ASD tug",
+    "source": "https://sketchfab.com/3d-models/rastar-3200-tugboat-1bbadbe4ab0a4b2599cd3f450942e6fe",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 1bbadbe4ab0a4b2599cd3f450942e6fe",
+    "author": "Brout (https://sketchfab.com/davidbroutian)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Rastar 3200 tugboat",
+    "lengthMetres": 32,
+    "bbox": [
+      13.5075,
+      23.0518,
+      32.8941
+    ],
+    "bboxMin": [
+      -6.7476,
+      -5.2847,
+      -17.328
+    ],
+    "bboxMax": [
+      6.7599,
+      17.7671,
+      15.5661
+    ],
+    "forwardAxis": "+z",
+    "upAxis": "+y",
+    "waterlineY": 0.0,
+    "triangles": 46880,
+    "sizeMB": 2.39,
+    "notes": "bow +z high (azimuth thrusters aft at -z, heavy bow fender +z); waterline medium (hull all black, no boot-top; y=0 gives ~5.3 m draft to thruster bottom, plausible); file units = metres"
+  },
+  {
+    "kind": "ferry",
+    "file": "ferry-star.glb",
+    "name": "Star Ferry (Hong Kong double-ended passenger ferry)",
+    "source": "https://sketchfab.com/3d-models/star-ferry-7b0f363137e94d688db63da2b4e0b376",
+    "download": "Objaverse 1.0 mirror (allenai/objaverse on Hugging Face), uid 7b0f363137e94d688db63da2b4e0b376",
+    "author": "chrisw225 (https://sketchfab.com/chrisw225)",
+    "licence": "CC-BY-4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "originalTitle": "Star Ferry",
+    "lengthMetres": 33.8,
+    "bbox": [
+      10.3058,
+      13.1847,
+      32.238
+    ],
+    "bboxMin": [
+      -5.1529,
+      -6.5923,
+      -16.119
+    ],
+    "bboxMax": [
+      5.1529,
+      6.5923,
+      16.119
+    ],
+    "forwardAxis": "+z",
+    "upAxis": "+y",
+    "waterlineY": -4.9,
+    "triangles": 167804,
+    "sizeMB": 9.92,
+    "notes": "double-ended and symmetric, so +z or -z are equally valid; waterline high (top of red antifouling); file units ~ metres"
+  }
+]
