@@ -1,6 +1,6 @@
 """Détecteur de navires sur ordinateur : YOLO par Ultralytics (PyTorch).
 
-Sert sur le Mac, pour les essais sur vidéo et dans le simulateur. Sur le Pi, c'est la caméra IMX500 qui détecte
+Sert sur le Mac, pour les essais sur vidéo et dans le simulateur, sur la carte graphique quand il y en a une. Sur le Pi, c'est la caméra IMX500 qui détecte
 (voir `camera_pi.py`) et ce fichier n'est pas chargé.
 """
 from dataclasses import dataclass
@@ -40,13 +40,26 @@ def profil(modele: str | Path) -> Profil:
     return Profil(chemin, connu.classes, connu.confiance) if connu else Profil(chemin, (0,), 0.55)
 
 
+def appareil_par_defaut() -> str:
+    """Carte graphique si possible : NVIDIA (cuda), Apple (mps), sinon le processeur."""
+    try:
+        import torch
+    except ImportError:
+        return "cpu"
+    if torch.cuda.is_available():
+        return "cuda:0"
+    mps = getattr(torch.backends, "mps", None)
+    return "mps" if mps is not None and mps.is_available() else "cpu"
+
+
 class DetecteurYolo:
     def __init__(self, modele: str | Path = PAR_DEFAUT, taille: int = 640, classes: tuple[int, ...] | None = None,
-                 confiance_min: float = 0.05):
+                 confiance_min: float = 0.05, appareil: str | None = None):
         from ultralytics import YOLO
         p = profil(modele)
         self.nom = Path(p.poids).stem
         self._modele = YOLO(str(p.poids))
+        self.appareil = appareil or appareil_par_defaut()  # cpu, mps ou cuda:0
         self.taille = taille                # côté de l'image vue par le réseau, comme l'entrée de l'IMX500
         self.classes = list(classes if classes is not None else p.classes)
         self.confiance = p.confiance        # détection sûre (voir PROFILS)
@@ -55,6 +68,6 @@ class DetecteurYolo:
     def detecter(self, image: Any) -> list[tuple[float, float, float, float, float]]:
         """Boîtes (x, y, largeur, hauteur, confiance) en pixels de l'image reçue."""
         boites = self._modele.predict(image, classes=self.classes, imgsz=self.taille, conf=self.confiance_min,
-                                      verbose=False)[0].boxes
+                                      device=self.appareil, verbose=False)[0].boxes
         return [(cx - l / 2, cy - h / 2, l, h, confiance)
                 for (cx, cy, l, h), confiance in zip(boites.xywh.tolist(), boites.conf.tolist())]

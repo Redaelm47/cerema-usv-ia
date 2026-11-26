@@ -12,7 +12,7 @@ python3 -m unittest discover -s suivi/tests -t .                                
 | Fichier | Rôle |
 |---|---|
 | `associateur.py` | donne les numéros : principe de ByteTrack réécrit en NumPy, sans PyTorch |
-| `detecteur.py` | YOLO par Ultralytics, pour le Mac, les vidéos et le simulateur : `best4_2` de Guillaume par défaut (détection sûre à 55 %), `yolo11n` (COCO) avec `--detecteur yolo11n` |
+| `detecteur.py` | YOLO par Ultralytics, pour le Mac, les vidéos et le simulateur : `best4_2` de Guillaume par défaut (détection sûre à 55 %), `yolo11n` (COCO) avec `--detecteur yolo11n`. Tourne sur la carte graphique quand il y en a une (NVIDIA ou Apple), sinon sur le processeur : mêmes boîtes, 12 ms par image au lieu de 34 sur un Mac |
 | `camera_pi.py` | caméra IMX500 : la détection tourne dans le capteur. **Non essayé** |
 | `images.py` | fichier vidéo (image par image, ou en temps réel) et webcam |
 | `suivi.py` | assemble le tout et écrit le message du contrat 1 ; `Suivi.pas` traite une image à la fois (simulateur) |

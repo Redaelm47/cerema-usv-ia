@@ -6,6 +6,11 @@
 // route de patrouille sont tirés au hasard, de façon reproductible. Puis le simulateur avance à pas fixe : physique
 // par pas de 1/30 s, une image toutes les 1/img_s s envoyée à la chaîne, et il attend sa réponse avant de continuer.
 // Le temps simulé ne dépend donc pas de la machine : une machine rapide finit plus tôt, avec le même résultat.
+//
+// Chevauchement (par défaut) : le simulateur dessine l'image k pendant que la chaîne traite l'image k - 1, puis
+// attend sa réponse avant d'envoyer k. Les commandes de la chaîne s'appliquent donc avec une image de retard (0,2 s à
+// 5 images/s, l'ordre de grandeur du Pi), toujours au même moment : le résultat reste reproductible. 30 % plus rapide
+// sur un Mac, plus quand la chaîne est lente. ?chevauchement=0 revient à une image à la fois.
 // L'état est lisible dans window.campagne (lanceur sans écran, ia/simulateur/campagne/).
 
 const DEG = Math.PI / 180;
@@ -93,10 +98,24 @@ export class Campagne {
     this.episodes = +(params.get('episodes') ?? 10);
     this.duree = +(params.get('duree') ?? 180);
     this.imgS = +(params.get('img_s') ?? 5);
+    this.chevauchement = params.get('chevauchement') !== '0';
     this.pas = 1 / 30;
     this.etat = window.campagne = {
       etat: 'attente', episode: 0, episodes: this.episodes, images: 0, t_simule_s: 0, sans_reponse: 0, message: '',
+      chevauchement: this.chevauchement, debut_ms: 0, images_par_s: 0,
     };
+    this._enVol = null; // réponse attendue de la chaîne pour l'image déjà envoyée
+  }
+
+  /** Attend que la chaîne ait fini l'image envoyée : ses commandes sont alors appliquées. */
+  async attendreChaine() {
+    if (!this._enVol) return;
+    const ok = await this._enVol;
+    this._enVol = null;
+    if (ok) return;
+    const pont = this.app.bridge;
+    this.etat.sans_reponse++;
+    if (pont.status !== 'connected' && !(await pont.attendreConnexion(60000))) throw new Error('passerelle perdue');
   }
 
   async lancer() {
@@ -105,6 +124,7 @@ export class Campagne {
     try {
       if (!(await pont.attendreConnexion(120000))) throw new Error('passerelle injoignable');
       etat.etat = 'en_cours';
+      etat.debut_ms = performance.now();
       const dtImage = 1 / this.imgS;
       const n = Math.max(1, Math.round(dtImage / this.pas));
       for (let k = 0; k < this.episodes; k++) {
@@ -124,14 +144,17 @@ export class Campagne {
           app.avancerMer(dtImage);
           for (let i = 0; i < n; i++) app.simuler(dtImage / n);
           app.dessiner(dtImage);
-          const ok = await pont.envoyerEtAttendre(app.canvas, app.frameMeta());
-          if (!ok) {
-            etat.sans_reponse++;
-            if (pont.status !== 'connected' && !(await pont.attendreConnexion(60000))) throw new Error('passerelle perdue');
-          }
+          const capture = pont.capturer(app.canvas); // tout de suite après le dessin, avant que le canevas soit effacé
+          const meta = app.frameMeta();
+          const jpeg = await capture;
+          await this.attendreChaine();                // la chaîne a fini l'image précédente
+          this._enVol = pont.envoyerImage(jpeg, meta);
+          if (!this.chevauchement) await this.attendreChaine();
           etat.images++;
           etat.t_simule_s += dtImage;
+          etat.images_par_s = etat.images / ((performance.now() - etat.debut_ms) / 1000);
         }
+        await this.attendreChaine();
         pont.envoyerTexte({ type: 'episode_fin', numero: k });
       }
       pont.envoyerTexte({ type: 'campagne_fin' });

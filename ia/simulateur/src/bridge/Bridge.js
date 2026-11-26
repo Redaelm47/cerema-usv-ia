@@ -69,27 +69,36 @@ export class Bridge {
     if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(objet));
   }
 
+  /** Mode campagne : l'image qui vient d'être dessinée, en JPEG. À appeler juste après le dessin, comme maybeSend. */
+  capturer(canvas) {
+    return new Promise((resolve) => canvas.toBlob(async (blob) => {
+      resolve(blob ? new Uint8Array(await blob.arrayBuffer()) : null);
+    }, 'image/jpeg', this.quality));
+  }
+
   /**
-   * Mode campagne : envoie l'image qui vient d'être dessinée, puis attend la réponse « pas » de la passerelle
-   * (rendue après le traitement de l'image par la chaîne). À appeler juste après le dessin, comme maybeSend.
+   * Mode campagne : envoie une image capturée et sa description. La promesse rendue se résout à la réponse « pas » de
+   * la passerelle, qui suit le traitement de l'image par la chaîne et ses commandes. Une seule image à la fois.
    */
-  envoyerEtAttendre(canvas, meta, delaiMs = 30000) {
-    return new Promise((resolve) => {
-      if (!this.ws || this.ws.readyState !== 1) { resolve(false); return; }
+  envoyerImage(jpeg, meta, delaiMs = 30000) {
+    if (!jpeg || !this.ws || this.ws.readyState !== 1) return Promise.resolve(false);
+    const reponse = new Promise((resolve) => {
       const minuterie = setTimeout(() => { if (this._attente) { this._attente = null; resolve(false); } }, delaiMs);
       this._attente = (ok) => { clearTimeout(minuterie); resolve(ok); };
-      canvas.toBlob(async (blob) => {
-        if (!blob || !this.ws || this.ws.readyState !== 1) { if (this._attente) { this._attente(false); this._attente = null; } return; }
-        const jpeg = new Uint8Array(await blob.arrayBuffer());
-        const json = new TextEncoder().encode(JSON.stringify(meta));
-        const buf = new Uint8Array(4 + json.length + jpeg.length);
-        new DataView(buf.buffer).setUint32(0, json.length, true);
-        buf.set(json, 4);
-        buf.set(jpeg, 4 + json.length);
-        this.ws.send(buf);
-        this.sent++;
-      }, 'image/jpeg', this.quality);
     });
+    this.ws.send(this._paquet(meta, jpeg));
+    this.sent++;
+    return reponse;
+  }
+
+  /** [uint32 LE taille du JSON][JSON UTF-8][JPEG] */
+  _paquet(meta, jpeg) {
+    const json = new TextEncoder().encode(JSON.stringify(meta));
+    const buf = new Uint8Array(4 + json.length + jpeg.length);
+    new DataView(buf.buffer).setUint32(0, json.length, true);
+    buf.set(json, 4);
+    buf.set(jpeg, 4 + json.length);
+    return buf;
   }
 
   /** call right after the frame has been drawn to the canvas */
@@ -103,12 +112,8 @@ export class Bridge {
       try {
         if (!blob || !this.ws || this.ws.readyState !== 1) return;
         const jpeg = new Uint8Array(await blob.arrayBuffer());
-        const json = new TextEncoder().encode(JSON.stringify(meta));
-        const buf = new Uint8Array(4 + json.length + jpeg.length);
-        new DataView(buf.buffer).setUint32(0, json.length, true);
-        buf.set(json, 4);
-        buf.set(jpeg, 4 + json.length);
-        this.ws.send(buf);
+        if (!this.ws || this.ws.readyState !== 1) return;
+        this.ws.send(this._paquet(meta, jpeg));
         this.sent++;
       } finally { this._busy = false; }
     }, 'image/jpeg', this.quality);
