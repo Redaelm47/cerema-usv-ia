@@ -46,6 +46,25 @@ class TestAssociateur(unittest.TestCase):
         vus = [numeros(a.mettre_a_jour([boite(cx, cy, 30, 15)], i / 15)) for i, (cx, cy) in enumerate(centres)]
         self.assertTrue(all(v == [1] for v in vus))
 
+    def test_le_tangage_de_la_camera_ne_change_pas_le_numero(self):
+        # caméra à ras de l'eau : le navire monte et descend de plus que sa hauteur d'une image à l'autre
+        hauts = [0, 90, -60, 120, -110, 40, -130, 80, 0, -90] * 3
+        for reglages, attendu in ((ReglagesSuivi(), 1), (ReglagesSuivi(poids_vertical=1.0, vitesse_verticale=True), None)):
+            a = Associateur(reglages)
+            ids = set()
+            for i, dy in enumerate(hauts):
+                ids |= set(numeros(a.mettre_a_jour([boite(800 + 2 * i, 600 + dy, l=120, h=40)], i / 10)))
+            if attendu:
+                self.assertEqual(len(ids), attendu)
+            else:
+                self.assertGreater(len(ids), 1)  # l'ancien réglage perdait le navire
+
+    def test_le_tangage_ne_fusionne_pas_deux_navires_cote_a_cote(self):
+        a = Associateur()
+        for i, dy in enumerate([0, 80, -80, 60, -60, 0] * 3):
+            pistes = a.mettre_a_jour([boite(600, 500 + dy, l=100, h=40), boite(900, 500 + dy, l=100, h=40)], i / 10)
+        self.assertEqual(numeros(pistes), [1, 2])
+
     def test_un_navire_oublie_apres_la_memoire_recoit_un_nouveau_numero(self):
         a = Associateur(ReglagesSuivi(memoire_s=4.0))
         a.mettre_a_jour([boite(500, 300)], 0.0)

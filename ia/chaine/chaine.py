@@ -228,7 +228,7 @@ class Chaine:
         elif nom == "approche" and resultat.reussi:
             decision.etat = Etat.EN_APPROCHE
             decision.debut_approche = t
-            interne.largeur_debut_approche = fiche.largeur_px
+            interne.largeur_debut_approche = fiche.largeur_lissee_px
             interne.batterie_debut_approche = contexte.batterie
             interne.consigne = dict(valeurs)
 

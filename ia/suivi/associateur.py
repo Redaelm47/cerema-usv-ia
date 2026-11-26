@@ -32,6 +32,10 @@ class ReglagesSuivi:
     images_doublon: int = 5           # images d'affilée sous une piste plus sûre avant d'être supprimée
     duree_prediction_s: float = 0.5   # durée pendant laquelle une piste perdue continue sur sa lancée
     lissage_vitesse: float = 0.3
+    # À ras de l'eau, le tangage et le pilonnement de la caméra déplacent les navires surtout verticalement dans
+    # l'image (simulateur, caméra à 45 cm : 62 px d'une image à l'autre en médiane contre 6 px horizontalement).
+    poids_vertical: float = 0.3       # l'écart vertical compte moins que l'écart horizontal (1 : autant)
+    vitesse_verticale: bool = False   # la vitesse verticale d'une boîte vient du tangage : on ne la prolonge pas
 
 
 @dataclass
@@ -135,8 +139,13 @@ class Associateur:
                 rapport = np.hypot(l, h) / max(piste.taille, 1e-6)
                 if not 1 / r.rapport_taille_max <= rapport <= r.rapport_taille_max:
                     continue
-                commun = recouvrement(predite, (x, y, l, h))
-                ecart = np.linalg.norm(np.array([x + l / 2, y + h / 2]) - piste.centre_predit)
+                dx, dy = np.array([x + l / 2, y + h / 2]) - piste.centre_predit
+                if r.poids_vertical < 1 and abs(dy) <= portee:
+                    # recouvrement mesuré à la même hauteur : le tangage seul ne sépare pas deux boîtes
+                    commun = recouvrement((predite[0], y + h / 2 - h0 / 2, l0, h0), (x, y, l, h))
+                else:
+                    commun = recouvrement(predite, (x, y, l, h))
+                ecart = float(np.hypot(dx, dy * r.poids_vertical))
                 if commun >= r.recouvrement_min:
                     couts[i, j] = 1 - commun
                 elif ecart <= portee:
@@ -177,6 +186,8 @@ class Associateur:
         if duree > 0:
             vitesse = (centre - piste.centre) / duree
             piste.vitesse = (1 - r.lissage_vitesse) * piste.vitesse + r.lissage_vitesse * vitesse
+            if not r.vitesse_verticale:
+                piste.vitesse[1] = 0.0
         piste.boite, piste.confiance, piste.vue, piste.centre_predit = (x, y, l, h), confiance, t, centre
 
 

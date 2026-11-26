@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-11-27
+
+- Démo du tuteur fiable : la plaque est lue et l'alerte complète envoyée dans 5 essais en temps réel sur 5 (de 38 à 78 s), contre 1 sur 3 avant. Trois causes corrigées. Le suivi (`ia/suivi`) tient compte du tangage de la caméra à ras de l'eau : l'écart vertical compte moins et la vitesse verticale n'est plus prolongée (changements de numéro sur le chalutier de 104 à 16, rien ne change sur Dingle ni sur la scène Blender 01). La chaîne (`ia/chaine`) n'abandonne plus une approche sur une seule boîte plus petite : la largeur est lissée sur une demi-seconde. Le scénario fixe son chalutier : le modèle 3D était tiré au hasard, et une fois sur quatre c'était un chalutier hauturier de 80 m, jugé assez gros pour lire de 200 m alors que ses lettres font 11 px. Scénarios : modèle 3D et immatriculation fixables par navire, et `?campagne=1&scenario=nom` pour rejouer un scénario à l'identique.
+
 ## 2026-11-26
 
 - Simulateur, campagnes plus rapides : le simulateur dessine l'image suivante pendant que la chaîne traite la précédente (`?chevauchement=0` pour revenir à une image à la fois), le détecteur YOLO tourne sur la carte graphique quand il y en a une (NVIDIA ou Apple, mêmes boîtes, `--appareil cpu` pour le processeur), et la campagne se lance dans Chrome sans écran : une page cachée était ralentie dix fois par le navigateur. Sur un Mac : 4,5 h simulées par heure au lieu de 0,28. Le lien `ia/chaine/modeles/dinov3_vits16`, versionné par erreur vers un chemin du Mac, est retiré (dossier ignoré par git).

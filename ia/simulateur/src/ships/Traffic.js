@@ -57,8 +57,8 @@ export class Traffic {
     return true;
   }
 
-  add(kind) {
-    const v = new Vessel(createShip(kind), this.sampler);
+  add(kind, options) {
+    const v = new Vessel(createShip(kind, options), this.sampler);
     this.scene.add(v.group);
     this.vessels.push(v);
     return v;
@@ -129,8 +129,8 @@ export class Traffic {
   targetCount() { return Math.round(4 + this.density * 18); }
 
   /** a ship placed by the operator on the map: straight course, or its own route */
-  addUser(kind, x, z, heading, speed) {
-    const v = this.add(kind);
+  addUser(kind, x, z, heading, speed, options) {
+    const v = this.add(kind, options);
     v.role = 'user';
     v.userSpeed = speed;
     v.targetSpeed = speed;

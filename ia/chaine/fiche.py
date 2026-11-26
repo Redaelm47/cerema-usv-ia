@@ -2,6 +2,7 @@
 
 Chacun n'écrit que dans son bloc : `suivi` pour le suivi, `experts` et `decision` pour la chaîne.
 """
+import math
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -16,6 +17,9 @@ class Etat(str, Enum):
     ALERTEE = "alertee"          # alerte envoyée, plus rien à faire
     PERDUE = "perdue"            # plus vue depuis trop longtemps
     ECARTEE = "ecartee"          # pas un navire selon l'expert type (vague, reflet, côte) : ni alerte ni approche
+
+
+DUREE_LISSAGE_LARGEUR_S = 0.5
 
 
 @dataclass
@@ -62,6 +66,7 @@ class Interne:
     textes_lus: dict[str, int] = field(default_factory=dict)  # textes lus sur la coque, et combien de fois
     lecture_candidate: str | None = None      # immatriculation lue mais pas encore validée par le vote
     confiance_candidate: float = 0.0
+    largeur_lissee: float = 0.0               # largeur de la boîte lissée sur une demi-seconde (boîtes lointaines bruitées)
     largeur_debut_approche: float = 0.0
     batterie_debut_approche: float = 1.0
     consigne: dict[str, Any] | None = None    # dernière consigne d'approche
@@ -85,6 +90,11 @@ class FicheNavire:
         return self.suivi.boite[2]
 
     @property
+    def largeur_lissee_px(self) -> float:
+        """Largeur lissée : une boîte de loin varie de plus ou moins 20 % d'une image à l'autre."""
+        return self.interne.largeur_lissee or self.largeur_px
+
+    @property
     def type_connu(self) -> bool:
         return len(self.experts.types) == 1
 
@@ -96,6 +106,12 @@ class FicheNavire:
         """Bloc suivi : nouvelle observation de la piste. `seuil_sur` : confiance d'une détection sûre."""
         suivi = self.suivi
         dt = t - suivi.derniere_vue
+        largeur = float(obs.boite[2])
+        if self.interne.largeur_lissee <= 0:
+            self.interne.largeur_lissee = largeur
+        else:  # moyenne glissante d'une demi-seconde, quel que soit le nombre d'images par seconde
+            poids = 1 - math.exp(-max(dt, 0.0) / DUREE_LISSAGE_LARGEUR_S)
+            self.interne.largeur_lissee += poids * (largeur - self.interne.largeur_lissee)
         if dt > 0 and suivi.images_consecutives > 0:
             cx = obs.boite[0] + obs.boite[2] / 2
             cx_avant = suivi.boite[0] + suivi.boite[2] / 2

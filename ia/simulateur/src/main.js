@@ -358,7 +358,8 @@ class App {
     if (d.route?.length) this.usv.startMission(d.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), d.loop !== false);
     for (const v of sc.ships || []) {
       const p = v.lat !== undefined ? this.fromLatLon(v.lat, v.lon) : { x: v.x, z: v.z };
-      const ship = this.traffic.addUser(v.kind, p.x, p.z, (v.heading_deg ?? 0) * DEG, (v.speed_kn ?? 0) / 1.944);
+      const ship = this.traffic.addUser(v.kind, p.x, p.z, (v.heading_deg ?? 0) * DEG, (v.speed_kn ?? 0) / 1.944,
+        { model: v.model, name: v.name });
       if (v.route?.length) ship.setRoute(v.route.map(([lat, lon]) => this.fromLatLon(lat, lon)), !!v.loop);
     }
     this.hud?.syncSliders();

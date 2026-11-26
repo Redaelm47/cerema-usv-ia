@@ -57,8 +57,8 @@ Tant que la carte est ouverte, la simulation continue mais la vue 3D n'est pas d
 ### Mission et scénarios
 
 - **Route du drone** : dans la carte, outil « Route du drone », puis un clic par point de passage, Entrée ou double-clic pour la lancer. Le drone la suit en boucle à 3 nœuds (5 nœuds au plus), comme une mission ArduPilot. Quand la chaîne IA décide une approche, elle prend la main ; à la fin de l'approche, le drone reprend sa route. « Prendre la main » puis la rendre fait de même.
-- **Scénario rejouable** : `?scenario=nom` charge `public/scenarios/nom.json` (météo, heure, position et route du drone, navires avec type, cap, vitesse et route, trafic automatique coupé ou non). Le même fichier sert pour la démo et pour les essais en série.
-- **Démo pour le tuteur** : `?scenario=demo-tuteur&bridge=1`. Le drone patrouille devant Le Dellec, un chalutier croise sa route à 220 m ; la chaîne le détecte, s'approche, lit la plaque, envoie l'alerte complète à la station sol, puis le drone repart.
+- **Scénario rejouable** : `?scenario=nom` charge `public/scenarios/nom.json` (météo, heure, position et route du drone, navires avec type, cap, vitesse et route, trafic automatique coupé ou non). Un navire peut aussi fixer son modèle 3D (`"model": "trawler-breton.glb"`, ou `"procedural"`) et, pour un modèle 3D, son immatriculation ou son nom (`"name"`) ; sinon ils sont tirés au hasard. Le même fichier sert pour la démo et pour les essais en série : `?campagne=1&scenario=nom&episodes=4` le rejoue image par image, à l'identique, avec les mesures de la campagne.
+- **Démo pour le tuteur** : `?scenario=demo-tuteur&bridge=1`. Le drone patrouille devant Le Dellec, un petit chalutier breton (12 m, BR 521347) croise sa route à 160 m sur une mer calme ; la chaîne le détecte, s'approche, lit la plaque et envoie l'alerte complète à la station sol en 40 s environ (de 38 à 78 s sur cinq essais en temps réel sur un Mac), puis le drone repart.
 
 ### Campagnes : des centaines d'épisodes en temps simulé
 
@@ -199,5 +199,6 @@ python3 tools/fetch.py && python3 tools/build.py && python3 tools/places.py && p
 - Les sites militaires sont masqués par l'IGN : leurs bâtiments manquent.
 - Pas de nuit éclairée (les feux des navires s'allument au crépuscule, mais la côte reste noire), pas de vagues de sillage de Kelvin modélisées (seulement l'écume et la traînée lisse).
 - Le modèle de manœuvre du drone est simple (cavalement et lacet du premier ordre), et ses dimensions sont une hypothèse (moins d'un mètre, d'après le sujet 2025) : à ajuster quand la coque sera figée.
+- La caméra, à 45 cm de l'eau sur une coque de 0,92 m, tangue de 4 à 5° en écart type, même par mer calme : d'une image à l'autre, un navire lointain monte ou descend de plus que sa hauteur. Le suivi en tient compte (`ia/suivi`, `poids_vertical`), mais les numéros de piste changent encore de temps en temps, surtout de près quand le détecteur met deux boîtes sur un même navire.
 - En campagne, la chaîne reçoit l'image suivante pendant qu'elle répond à la précédente : ses commandes arrivent avec une image de retard (0,2 s à 5 images/s), comme sur un vrai drone. `?chevauchement=0` pour comparer sans ce retard.
 - Le trafic et l'AIS sont simulés, pas réels. Un flux AIS réel (par exemple aisstream.io, clé gratuite à créer) pourrait placer les vrais navires du moment dans la scène.
