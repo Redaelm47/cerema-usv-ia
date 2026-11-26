@@ -37,6 +37,8 @@ station_sol/journaux/
 
 # Poids de modèles à côté d'un fichier .onnx
 *.onnx_data
+# DINOv3 : un dossier téléchargé (chaine.outils.telecharger_modeles), pas un lien
+ia/chaine/modeles/dinov3_vits16
 
 # Résultat rapatrié du Pi par ia/raspberry_pi/run_program_on_pi.py (exemple gardé dans ia/raspberry_pi/)
 /detections.json

@@ -193,7 +193,7 @@ class Campagne:
             bilan = {"episodes": self.episodes, "heures_simulees": round(self.secondes / 3600, 3),
                      "images": self.images, "duree_reelle_s": round(duree, 1),
                      "heures_simulees_par_heure": round(self.secondes / max(duree, 1e-9), 2),
-                     "detecteur": self.pont.nom_detecteur}
+                     "detecteur": self.pont.nom_detecteur, "appareil": getattr(self.pont, "appareil", None)}
             (self.dossier / "bilan.json").write_text(json.dumps(bilan, ensure_ascii=False, indent=1))
             self.fichier.close()
             print(f"{self.episodes} épisodes, {bilan['heures_simulees']} h simulées en {duree / 60:.1f} min "

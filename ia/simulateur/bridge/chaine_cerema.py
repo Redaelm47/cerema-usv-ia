@@ -16,6 +16,7 @@ Lancer depuis la racine du dépôt, avec le Python du dépôt (ultralytics, Open
     # option : --depot ../autre-copie        pour tester la chaîne d'une autre copie du dépôt (worktree)
     # option : --station http://localhost:8000  pour alimenter aussi la page de la station sol
     # option : --detecteur yolo11n             pour le modèle COCO qui tourne aujourd'hui sur l'IMX500
+    # option : --appareil cpu                  détecteur sur le processeur (par défaut : la carte graphique si possible)
 
 Puis ouvrir le simulateur avec /?bridge=1 (ou cliquer sur l'icône « lien »).
 """
@@ -155,12 +156,14 @@ class Pont:
         self.Chaine, self.DroneSimule, self.ExpertApprocheSimulee = Chaine, DroneSimule, ExpertApprocheSimulee
         self.Journal, self.Emetteurs, self.creer_emetteur, self.Suivi = Journal, Emetteurs, creer_emetteur, Suivi
         # le suivi du Pi, image par image : détecteur, détection sûre selon le modèle, associateur ByteTrack
-        self.detecteur = DetecteurYolo(modele_detecteur(args.detecteur, args.depot), taille=640)
+        appareil = {} if args.appareil == "auto" else {"appareil": args.appareil}
+        self.detecteur = DetecteurYolo(modele_detecteur(args.detecteur, args.depot), taille=640, **appareil)
         self.nom_detecteur = self.detecteur.nom
+        self.appareil = getattr(self.detecteur, "appareil", "cpu")
         self.reglages = Reglages()
         self.reglages.confiance_confirmation = Suivi(None, self.detecteur).confiance_confirmation
-        print(f"détecteur : {self.detecteur.nom} (classes {self.detecteur.classes}), détection sûre à "
-              f"{self.detecteur.confiance:.0%}, experts après {self.reglages.images_confirmation} détections sûres "
+        print(f"détecteur : {self.detecteur.nom} sur {self.appareil} (classes {self.detecteur.classes}), "
+              f"détection sûre à {self.detecteur.confiance:.0%}, experts après {self.reglages.images_confirmation} détections sûres "
               f"d'affilée", flush=True)
         # experts chargés une fois (réseaux) ; l'approche dépend du drone, recréée à chaque épisode
         self.experts_fixes = [FiltreQualite(self.reglages), ExpertType(fils=args.fils, reseau=args.reseau_type),
@@ -415,6 +418,8 @@ def main():
                     help="copie du dépôt qui contient ia/chaine et ia/suivi (par défaut, celle-ci)")
     ap.add_argument("--detecteur", default="best4_2",
                     help="best4_2 (défaut, modèle de Guillaume), best4, yolo11n (COCO, celui de l'IMX500) ou un fichier .pt")
+    ap.add_argument("--appareil", default="auto",
+                    help="où tourne le détecteur : auto (carte graphique NVIDIA ou Apple si elle existe), cpu, mps, cuda:0")
     ap.add_argument("--reseau-type", default="dinov2", choices=["dinov2", "dinov3"])
     ap.add_argument("--fils", type=int, default=None, help="fils d'ONNX Runtime")
     ap.add_argument("--station", help="adresse de la station sol, par exemple http://localhost:8000")
