@@ -53,7 +53,7 @@ Quatre points à confirmer avec Adam-Sabri : le transport (HTTP POST et UDP sont
 3. Navire assez gros ? → expert OCR, jusqu'à six essais espacés de 0,4 s : c'est ce qui alimente le vote. Chaque essai lit l'image la plus nette de l'intervalle, pas celle qui tombe à ce moment-là.
 4. Approche permise par les garde-fous ? → approche ; sinon alerte partielle, avec ce que l'on sait.
 
-Une piste est confirmée après trois images d'affilée, 0,2 s d'existence et une confiance d'au moins 0,3 (à 50 images/s, trois images seules laissaient passer des reflets). Une piste perdue en cours d'identification, ou encore en cours à la fin de la mission, donne une alerte partielle. Si le suivi change le numéro d'un navire sans qu'il ait bougé, la fiche continue sous le nouveau numéro (`reprise_piste` dans le journal).
+Une piste est confirmée après cinq détections sûres d'affilée et 0,2 s d'existence (règle de Guillaume : une vague ou un reflet ne tient pas aussi longtemps). Une détection est sûre à partir de 55 % avec `best4_2`, de 30 % avec le modèle COCO de l'IMX500. Une piste perdue en cours d'identification, ou encore en cours à la fin de la mission, donne une alerte partielle. Si le suivi change le numéro d'un navire sans qu'il ait bougé, la fiche continue sous le nouveau numéro (`reprise_piste` dans le journal).
 
 `garde_fous.py`, règles fixes sans modèle : zone autorisée, batterie minimale, une seule approche par navire et une seule à la fois, durée et énergie maximales, navire qui ne grossit pas, distance minimale jamais franchie.
 

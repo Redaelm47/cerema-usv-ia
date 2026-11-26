@@ -57,7 +57,7 @@ Une fonction pure : une fiche et l'état du drone en entrée, une action et sa r
 
 Règles ajoutées autour de l'arbre :
 
-- **Confirmation** : trois images d'affilée, 0,2 s d'existence et une confiance de 0,3. À 50 images par seconde, trois images seules laissaient passer des reflets et des oiseaux.
+- **Confirmation** : cinq détections sûres d'affilée (règle de Guillaume ; sûre = 55 % avec `best4_2`, 30 % avec le modèle COCO de l'IMX500) et 0,2 s d'existence. Une vague, un caillou ou un reflet ne tient pas aussi longtemps.
 - **Essais comptés et espacés** : deux pour le type, six pour l'OCR, 0,4 s entre deux essais du même expert. Sans limite, un navire illisible bloquerait la chaîne ; sans espacement, on relirait la même image.
 - **Type hésitant** : nouvel essai seulement si le navire a grossi de moitié depuis le dernier.
 - **Piste perdue ou fin de mission** : alerte partielle avec ce que l'on sait. Aucune piste confirmée ne reste sans réponse.
@@ -129,7 +129,7 @@ La ré-identification (`reidentification.py`, option `--reid`) se sert de la sig
 | Fiche à plat dans le squelette | Trois blocs | Contrat 2 |
 | Type une fois par navire | Deux essais, plus un si le navire grossit | Un recadrage de 60 px classe mal |
 | OCR dès que le navire est assez gros | Six essais espacés, image la plus nette, vote | Une lecture seule se trompe |
-| Confirmation sur trois images | Trois images, 0,2 s, confiance 0,3 | Fausses pistes à cadence élevée |
+| Confirmation sur cinq détections sûres | Cinq images, 0,2 s, 55 % avec `best4_2` | Fausses pistes sur les vagues et les reflets |
 | DINO sans précision de version | DINOv2 par défaut, DINOv3 en option | Résultats égaux, licence plus simple |
 | Alerte sans texte libre | `textes_lus` si quelque chose a été lu | Navires étrangers, nom du navire |
 | Approche par MAVLink | Drone simulé | Hors périmètre pour l'instant |

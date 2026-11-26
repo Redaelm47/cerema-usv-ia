@@ -22,6 +22,8 @@ class CameraIMX500:
         self.images_par_s = images_par_s
         self.classes = set(classes) if classes else None   # None : toutes les classes (essais sans navire)
         self.confiance_min = confiance_min
+        # Détection sûre pour le modèle COCO du capteur : pas encore calibré comme best4_2 (55 %), on garde 30 %.
+        self.confiance = 0.3
         self.retourner = retourner        # la caméra est montée tête en bas
         self.duree_s = duree_s
 

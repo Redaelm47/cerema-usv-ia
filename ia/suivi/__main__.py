@@ -21,8 +21,11 @@ def creer_suivi(args, enregistrer: str | None = None):
     from .detecteur import DetecteurYolo
     from .images import ImagesCamera, ImagesVideo
     images = ImagesVideo(args.video, temps_reel=args.temps_reel) if args.video else ImagesCamera(args.camera, args.duree)
-    classes = tuple(range(80)) if args.toutes_classes else (8,)
-    return Suivi(images, DetecteurYolo(taille=args.taille_detection, classes=classes), enregistrer=enregistrer)
+    if args.toutes_classes:  # essais sans navire : le modèle COCO, toutes ses classes
+        detecteur = DetecteurYolo("yolo11n", taille=args.taille_detection, classes=tuple(range(80)))
+    else:
+        detecteur = DetecteurYolo(args.detecteur, taille=args.taille_detection)
+    return Suivi(images, detecteur, enregistrer=enregistrer)
 
 
 def ajouter_options(parser: argparse.ArgumentParser) -> None:
@@ -37,6 +40,9 @@ def ajouter_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--sans-retournement", action="store_true", help="avec --pi : caméra montée à l'endroit")
     parser.add_argument("--taille-detection", type=int, default=640, metavar="PX",
                         help="avec --video ou --camera : côté de l'image vue par le détecteur")
+    parser.add_argument("--detecteur", default="best4_2", metavar="MODELE",
+                        help="avec --video ou --camera : best4_2 (défaut, modèle de Guillaume, seuil 55 %%), best4, "
+                             "yolo11n (COCO, celui de l'IMX500) ou un fichier .pt")
     parser.add_argument("--toutes-classes", action="store_true",
                         help="suivre tous les objets, pas seulement les bateaux (essais sans navire)")
 

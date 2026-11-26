@@ -2,8 +2,9 @@
 Branche la chaîne IA du projet (ia/suivi et ia/chaine) sur le simulateur.
 
     simulateur (image de la caméra du drone, ~10 img/s)
-        -> détecteur YOLO (yolo11n.pt par défaut, celui de la caméra IMX500, ou best4_2.pt de Guillaume)
-        -> suivi : ia/suivi (associateur, numéros de pistes)            contrat 1
+        -> suivi : ia/suivi, le même que sur le Pi : détecteur (best4_2 de Guillaume par défaut, détection sûre à
+           55 %), associateur ByteTrack, numéros de pistes                                     contrat 1
+        -> confirmation : 5 détections sûres d'affilée avant de lancer un expert (règle de Guillaume)
         -> décision et experts : ia/chaine (qualité, type DINOv2, OCR, approche, garde-fous)
         -> messages du contrat 3 : alertes, décisions, état              contrat 3
     et en retour vers le simulateur : boîtes de la chaîne (en bleu), alertes, et consignes de cap et de
@@ -14,7 +15,7 @@ Lancer depuis la racine du dépôt, avec le Python du dépôt (ultralytics, Open
     .venv/bin/python ia/simulateur/bridge/chaine_cerema.py
     # option : --depot ../autre-copie        pour tester la chaîne d'une autre copie du dépôt (worktree)
     # option : --station http://localhost:8000  pour alimenter aussi la page de la station sol
-    # option : --detecteur best4_2             pour le modèle entraîné sur images dégradées
+    # option : --detecteur yolo11n             pour le modèle COCO qui tourne aujourd'hui sur l'IMX500
 
 Puis ouvrir le simulateur avec /?bridge=1 (ou cliquer sur l'icône « lien »).
 """
@@ -42,24 +43,24 @@ def preparer_chemins(depot: Path) -> None:
             sys.path.append(str(sp))
 
 
-def modele_detecteur(choix: str, depot: Path) -> tuple[Path, tuple[int, ...]]:
-    """Chemin des poids et classes à garder. best4_2 : une classe « boat ». yolo11n : COCO, classe 8."""
-    if choix == "yolo11n":
-        return depot / "ia" / "chaine" / "modeles" / "yolo11n.pt", (8,)
-    if choix in ("best4_2", "best4"):
-        for racine in (DEPOT, depot):
-            ici = racine / "ia" / "detection" / "best4" / f"{choix}.pt"
-            if ici.exists():
-                return ici, (0,)
-        dest = ICI / "modeles" / f"{choix}.pt"
-        if not dest.exists():
-            # les poids sont sur main : on les lit dans git sans toucher à la copie de travail
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            data = subprocess.run(["git", "-C", str(depot), "show", f"origin/main:ia/detection/best4/{choix}.pt"],
-                                  check=True, capture_output=True).stdout
-            dest.write_bytes(data)
-        return dest, (0,)
-    return Path(choix).expanduser(), (0,)
+def modele_detecteur(choix: str, depot: Path) -> str | Path:
+    """Modèle à charger : un nom de ia/suivi/detecteur.py (best4_2, best4, yolo11n) ou un fichier .pt.
+
+    Les poids de best4 et best4_2 sont dans ia/detection/best4 ; s'ils manquent dans la copie de travail, on les lit
+    dans git (origin/main) sans toucher à la copie.
+    """
+    from suivi.detecteur import PROFILS
+    if choix not in PROFILS:
+        return Path(choix).expanduser()
+    if PROFILS[choix].poids.exists():
+        return choix
+    dest = ICI / "modeles" / f"{choix}.pt"
+    if not dest.exists():
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        data = subprocess.run(["git", "-C", str(depot), "show", f"origin/main:ia/detection/best4/{choix}.pt"],
+                              check=True, capture_output=True).stdout
+        dest.write_bytes(data)
+    return dest
 
 
 def lacet_camera_deg(q) -> float:
@@ -144,16 +145,18 @@ class Pont:
         from chaine.journal import Journal
         from chaine.messages import Emetteurs, creer_emetteur
         from chaine.reglages import Reglages
-        from suivi.associateur import Associateur
         from suivi.detecteur import DetecteurYolo
-        from suivi.suivi import observations
+        from suivi.suivi import Suivi
 
-        self.cv2, self.np, self.observations = cv2, np, observations
-        poids, classes = modele_detecteur(args.detecteur, args.depot)
-        print(f"détecteur : {poids.name} (classes {list(classes)})", flush=True)
-        self.detecteur = DetecteurYolo(poids, taille=640, classes=classes)
-        self.associateur = Associateur()
+        self.cv2, self.np = cv2, np
+        # le suivi du Pi, image par image : détecteur, détection sûre selon le modèle, associateur ByteTrack
+        detecteur = DetecteurYolo(modele_detecteur(args.detecteur, args.depot), taille=640)
+        self.suivi = Suivi(None, detecteur)
         self.reglages = Reglages()
+        self.reglages.confiance_confirmation = self.suivi.confiance_confirmation
+        print(f"détecteur : {detecteur.nom} (classes {detecteur.classes}), détection sûre à "
+              f"{detecteur.confiance:.0%}, experts après {self.reglages.images_confirmation} détections sûres "
+              f"d'affilée", flush=True)
         # le drone du simulateur va au plus à 5 nœuds ; sa distance au navire approché est mesurée
         self.drone = classe_drone_simulateur(DroneSimule)(vitesse_m_s=2.5)
         self.derniere_meta = {}
@@ -205,8 +208,7 @@ class Pont:
         self.derniere_meta = meta
         self.drone.distance_mesuree_m = self.distance_piste(self.drone.cible)
         # contrat 1 : détection + suivi, puis un pas de la chaîne
-        detections = self.detecteur.detecter(image)
-        obs = self.observations(t, self.associateur.mettre_a_jour(detections, t))
+        obs = self.suivi.pas(t, image)
         t = obs["t"]  # le contrat 1 arrondit le temps : on compare avec la même valeur que les fiches
         self.t = t
         self.chaine.pas(obs, image)
@@ -361,7 +363,8 @@ def main():
     ap = argparse.ArgumentParser(description="Chaîne IA Cerema branchée sur le simulateur")
     ap.add_argument("--depot", type=Path, default=DEPOT,
                     help="copie du dépôt qui contient ia/chaine et ia/suivi (par défaut, celle-ci)")
-    ap.add_argument("--detecteur", default="yolo11n", help="yolo11n (défaut, comme l'IMX500), best4_2, best4, ou un chemin .pt")
+    ap.add_argument("--detecteur", default="best4_2",
+                    help="best4_2 (défaut, modèle de Guillaume), best4, yolo11n (COCO, celui de l'IMX500) ou un fichier .pt")
     ap.add_argument("--reseau-type", default="dinov2", choices=["dinov2", "dinov3"])
     ap.add_argument("--fils", type=int, default=None, help="fils d'ONNX Runtime")
     ap.add_argument("--station", help="adresse de la station sol, par exemple http://localhost:8000")

@@ -89,7 +89,7 @@ class Chaine:
             if fiche is None:
                 fiche = self._reprendre(t, obs, vues) or FicheNavire.creer(obs.id_piste, t)
                 self.fiches[obs.id_piste] = fiche
-            fiche.observer(t, obs)
+            fiche.observer(t, obs, self.reglages.confiance_confirmation)
         for id_piste, fiche in list(self.fiches.items()):
             if id_piste not in vues:
                 fiche.manquer()

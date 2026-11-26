@@ -31,6 +31,7 @@ class Suivi:
     premiere_vue: float
     derniere_vue: float
     images_consecutives: int = 0
+    images_sures: int = 0         # images d'affilée où la détection était sûre
     boite: Boite = (0.0, 0.0, 0.0, 0.0)
     confiance: float = 0.0
     vitesse_px_s: float = 0.0    # déplacement apparent du centre de la boîte
@@ -91,8 +92,8 @@ class FicheNavire:
     def immatriculation_connue(self) -> bool:
         return self.experts.immatriculation is not None
 
-    def observer(self, t: float, obs: Observation) -> None:
-        """Bloc suivi : nouvelle observation de la piste."""
+    def observer(self, t: float, obs: Observation, seuil_sur: float = 0.0) -> None:
+        """Bloc suivi : nouvelle observation de la piste. `seuil_sur` : confiance d'une détection sûre."""
         suivi = self.suivi
         dt = t - suivi.derniere_vue
         if dt > 0 and suivi.images_consecutives > 0:
@@ -103,10 +104,12 @@ class FicheNavire:
         suivi.confiance = float(obs.confiance)
         suivi.derniere_vue = t
         suivi.images_consecutives += 1
+        suivi.images_sures = suivi.images_sures + 1 if obs.confiance >= seuil_sur else 0
 
     def manquer(self) -> None:
         """Bloc suivi : la piste n'a pas été vue sur cette image."""
         self.suivi.images_consecutives = 0
+        self.suivi.images_sures = 0
 
     def contrat(self) -> dict[str, Any]:
         """La fiche au format du contrat 2."""
