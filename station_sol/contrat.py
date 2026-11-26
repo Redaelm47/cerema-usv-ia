@@ -35,7 +35,7 @@ CHAMPS = {
         "mode": TEXTE,
         "batterie": NOMBRE,
         "navires_suivis": ENTIER,
-        "temperature_pi": NOMBRE,
+        "temperature_pi": (NOMBRE,),  # null ailleurs que sur le Pi
     },
 }
 

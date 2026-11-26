@@ -112,6 +112,8 @@ main {
 .alerte-tete .t { font-weight: 400; color: var(--discret); font-size: .85rem; }
 .alerte p { margin: .2rem 0 0; }
 .alerte .raison { color: var(--discret); font-size: .85rem; }
+.alerte .deja-vu { color: var(--accent); }
+.alerte .deja-vu.incoherent { color: var(--attention); font-weight: 600; }
 .immat { font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
 .nouvelle { animation: eclat 1.2s ease-out; }
 @keyframes eclat { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
@@ -138,3 +140,27 @@ td .raison { display: block; color: var(--discret); font-size: .8rem; }
 .journal .genre.alerte { color: var(--ok); }
 .journal .genre.decision { color: var(--accent); }
 .journal .genre.etat { color: var(--discret); }
+
+/* Écran étroit (téléphone) : marges réduites, tuiles sur deux colonnes, tableau des navires en fiches. */
+@media (max-width: 600px) {
+  header { padding: .7rem 1rem; padding-top: max(.7rem, env(safe-area-inset-top)); position: sticky; top: 0; z-index: 1; }
+  h1 { font-size: 1.1rem; }
+  .sous-titre { display: none; }
+  main { padding: .75rem .75rem 1.5rem; gap: .75rem; }
+  .drone { grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .drone .tuile:last-child { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: baseline; }
+  .tuile { padding: .6rem .75rem; }
+  .valeur { font-size: 1.25rem; }
+  .colonnes { gap: .75rem; }
+  .carte { padding: .8rem; }
+  .alertes { max-height: none; }
+
+  thead { display: none; }
+  tr { display: block; padding: .5rem 0; border-bottom: 1px solid var(--bord); }
+  tr:last-child { border-bottom: 0; }
+  td { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1rem; padding: .15rem 0; border: 0; text-align: right; }
+  td::before { content: attr(data-titre); color: var(--discret); font-size: .8rem; text-align: left; flex-shrink: 0; }
+  td .raison { flex-basis: 100%; }
+
+  .journal { max-height: 200px; font-size: .72rem; }
+}

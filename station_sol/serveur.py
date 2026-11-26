@@ -6,6 +6,7 @@ Routes :
     POST /message        un objet JSON, ou plusieurs (un par ligne)
     POST /reinitialiser  vide l'historique
     GET  /flux           flux en direct pour la page (Server-Sent Events)
+    GET  /messages       messages reçus depuis ?depuis=N, quand le flux en direct ne passe pas
     GET  /               page opérateur
 """
 
@@ -17,7 +18,7 @@ import threading
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from contrat import verifier
 
@@ -35,6 +36,7 @@ class Station:
 
     def __init__(self, journal):
         self.messages = []
+        self.remises_a_zero = 0  # change quand l'historique est vidé : la page sait qu'elle doit repartir de zéro
         self.abonnes = []
         self.verrou = threading.Lock()
         self.journal = journal
@@ -51,6 +53,7 @@ class Station:
     def reinitialiser(self):
         with self.verrou:
             self.messages.clear()
+            self.remises_a_zero += 1
             for abonne in self.abonnes:
                 abonne.put(("reinit", None))
 
@@ -119,20 +122,50 @@ class Gestionnaire(BaseHTTPRequestHandler):
             print(f"reçu   : {json.dumps(message, ensure_ascii=False)}")
         return self._repondre(200, {"recus": len(messages)})
 
+    def do_OPTIONS(self):
+        # Demande préalable du navigateur quand la page vient d'un autre site que ce serveur.
+        self.send_response(204)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def do_GET(self):
         chemin = urlsplit(self.path).path
         if chemin == "/flux":
             return self._flux()
+        if chemin == "/messages":
+            return self._messages_depuis(urlsplit(self.path).query)
         nom = "index.html" if chemin == "/" else chemin.lstrip("/")
         fichier = (PAGE / nom).resolve()
         if fichier.parent != PAGE or not fichier.is_file() or fichier.suffix not in TYPES_FICHIERS:
             return self._repondre(404, {"erreur": "fichier introuvable"})
         self._repondre(200, fichier.read_bytes(), TYPES_FICHIERS[fichier.suffix])
 
+    def _messages_depuis(self, requete):
+        """Messages reçus à partir du numéro ?depuis=N. Sert à la page quand le flux en direct ne passe pas
+        (un tunnel qui retient les réponses, par exemple) : elle redemande alors chaque seconde."""
+        try:
+            depuis = max(int(parse_qs(requete).get("depuis", ["0"])[0]), 0)
+        except ValueError:
+            depuis = 0
+        with self.station.verrou:
+            contenu = {"remises_a_zero": self.station.remises_a_zero, "total": len(self.station.messages),
+                       "messages": self.station.messages[depuis:]}
+        contenu = json.dumps(contenu, ensure_ascii=False).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(contenu)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(contenu)
+
     def _flux(self):
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-cache")
+        self.send_header("Access-Control-Allow-Origin", "*")  # page hébergée ailleurs (GitHub Pages)
         self.end_headers()
 
         historique, abonne = self.station.abonner()
@@ -156,6 +189,18 @@ class Gestionnaire(BaseHTTPRequestHandler):
         texte = f"event: {nom}\ndata: {json.dumps(donnees, ensure_ascii=False)}\n\n"
         self.wfile.write(texte.encode("utf-8"))
         self.wfile.flush()
+
+
+def adresse_locale():
+    """Adresse de cette machine sur le réseau local, ou None sans réseau. Aucun paquet n'est envoyé."""
+    prise = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        prise.connect(("192.0.2.1", 9))
+        return prise.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        prise.close()
 
 
 class ServeurDoublePile(ThreadingHTTPServer):
@@ -190,6 +235,12 @@ def main():
         serveur = ThreadingHTTPServer((args.hote, args.port), Gestionnaire)
         serveur.daemon_threads = True
     print(f"Station sol : http://localhost:{args.port}  (Ctrl+C pour arrêter)")
+    nom = socket.gethostname()
+    nom = nom if nom.endswith(".local") else nom + ".local"
+    print(f"Depuis le Pi ou un téléphone, sur le même réseau : http://{nom}:{args.port}")
+    adresse = adresse_locale()
+    if adresse:
+        print(f"                                  ou, par son numéro : http://{adresse}:{args.port}")
     if journal:
         print(f"Journal     : {journal}")
     try:

@@ -1,0 +1,4 @@
+# En plus de requirements.txt, sur un ordinateur seulement : suivi de remplacement, entraînement, mesures.
+ultralytics   # YOLO + ByteTrack du suivi de remplacement (tire PyTorch) ; jamais chargé par les experts
+pillow        # images synthétiques d'immatriculations
+certifi       # téléchargements sur macOS

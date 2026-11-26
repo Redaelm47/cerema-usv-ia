@@ -1,0 +1,190 @@
+{
+  "reseau": "dinov2",
+  "types": [
+    "cargo",
+    "ferry",
+    "peche",
+    "pneumatique",
+    "vedette",
+    "voilier",
+    "pas_navire"
+  ],
+  "images": {
+    "cargo": 113,
+    "ferry": 119,
+    "peche": 128,
+    "pneumatique": 123,
+    "vedette": 127,
+    "voilier": 112,
+    "pas_navire": 628
+  },
+  "partage": {
+    "entrainement": 806,
+    "calibration": 291,
+    "test": 253
+  },
+  "regularisation": 0.0001,
+  "alpha": 0.1,
+  "seuil": 0.0917,
+  "negatifs_source_testee": null,
+  "test_natif": {
+    "exactitude": 0.878,
+    "couverture": 0.946,
+    "taille_ensemble": 1.58,
+    "un_seul_type": 0.612,
+    "ecartes_a_tort": 0.0
+  },
+  "test_par_largeur_px": {
+    "32": {
+      "exactitude": 0.565,
+      "couverture": 0.837,
+      "taille_ensemble": 1.96,
+      "un_seul_type": 0.299,
+      "ecartes_a_tort": 0.088
+    },
+    "48": {
+      "exactitude": 0.741,
+      "couverture": 0.905,
+      "taille_ensemble": 1.88,
+      "un_seul_type": 0.401,
+      "ecartes_a_tort": 0.02
+    },
+    "64": {
+      "exactitude": 0.748,
+      "couverture": 0.925,
+      "taille_ensemble": 1.8,
+      "un_seul_type": 0.503,
+      "ecartes_a_tort": 0.0
+    },
+    "96": {
+      "exactitude": 0.83,
+      "couverture": 0.939,
+      "taille_ensemble": 1.74,
+      "un_seul_type": 0.537,
+      "ecartes_a_tort": 0.0
+    },
+    "128": {
+      "exactitude": 0.837,
+      "couverture": 0.946,
+      "taille_ensemble": 1.63,
+      "un_seul_type": 0.571,
+      "ecartes_a_tort": 0.0
+    },
+    "224": {
+      "exactitude": 0.878,
+      "couverture": 0.946,
+      "taille_ensemble": 1.61,
+      "un_seul_type": 0.592,
+      "ecartes_a_tort": 0.0
+    }
+  },
+  "negatifs_test": {
+    "tous": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "blender": {
+      "ecartes": 1.0,
+      "nombre": 28
+    },
+    "commons": {
+      "ecartes": 1.0,
+      "nombre": 39
+    },
+    "dingle": {
+      "ecartes": 1.0,
+      "nombre": 39
+    }
+  },
+  "negatifs_test_par_largeur_px": {
+    "32": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "48": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "64": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "96": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "128": {
+      "ecartes": 1.0,
+      "nombre": 106
+    },
+    "224": {
+      "ecartes": 1.0,
+      "nombre": 106
+    }
+  },
+  "confusion_test": {
+    "cargo": [
+      21,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ferry": [
+      0,
+      23,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "peche": [
+      0,
+      0,
+      23,
+      3,
+      0,
+      0,
+      0
+    ],
+    "pneumatique": [
+      0,
+      1,
+      1,
+      20,
+      1,
+      2,
+      0
+    ],
+    "vedette": [
+      0,
+      0,
+      0,
+      2,
+      23,
+      1,
+      0
+    ],
+    "voilier": [
+      0,
+      0,
+      3,
+      1,
+      0,
+      19,
+      0
+    ],
+    "pas_navire": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      106
+    ]
+  }
+}
