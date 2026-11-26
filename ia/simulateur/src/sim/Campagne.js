@@ -1,6 +1,7 @@
 // Mode campagne : des centaines d'épisodes tirés au hasard, en temps simulé, pour mesurer la chaîne IA.
 //
 //   ?campagne=1&graine=1000&episodes=20&duree=180&img_s=5&ws=ws://127.0.0.1:8765&ui=0&dpr=1
+//   ?campagne=1&scenario=demo-tuteur&episodes=1&duree=120   le même scénario à chaque épisode, rejoué à l'identique
 //
 // Pour chaque épisode (graine G + k) : météo, heure, houle, pluie, buée, 0 à 3 navires et position du drone sur une
 // route de patrouille sont tirés au hasard, de façon reproductible. Puis le simulateur avance à pas fixe : physique
@@ -99,6 +100,7 @@ export class Campagne {
     this.duree = +(params.get('duree') ?? 180);
     this.imgS = +(params.get('img_s') ?? 5);
     this.chevauchement = params.get('chevauchement') !== '0';
+    this.nomScenario = params.get('scenario'); // sinon, un scénario tiré au hasard par épisode
     this.pas = 1 / 30;
     this.etat = window.campagne = {
       etat: 'attente', episode: 0, episodes: this.episodes, images: 0, t_simule_s: 0, sans_reponse: 0, message: '',
@@ -125,6 +127,10 @@ export class Campagne {
       if (!(await pont.attendreConnexion(120000))) throw new Error('passerelle injoignable');
       etat.etat = 'en_cours';
       etat.debut_ms = performance.now();
+      const fixe = this.nomScenario
+        ? await fetch(`scenarios/${encodeURIComponent(this.nomScenario)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        : null;
+      if (this.nomScenario && !fixe) throw new Error(`scénario introuvable : ${this.nomScenario}`);
       const dtImage = 1 / this.imgS;
       const n = Math.max(1, Math.round(dtImage / this.pas));
       for (let k = 0; k < this.episodes; k++) {
@@ -133,7 +139,7 @@ export class Campagne {
         // tout l'aléatoire de l'épisode (plaques, modèles 3D, sillages) part de la même graine : épisode reproductible
         Math.random = mulberry32(graine * 7919 + 17);
         for (const v of app.traffic.vessels.slice()) app.traffic.remove(v);
-        const sc = genererScenario(graine, app);
+        const sc = fixe ? { ...structuredClone(fixe), graine, zone: fixe.zone || this.nomScenario } : genererScenario(graine, app);
         app.appliquerScenario(sc);
         app.simSeconds = 0;
         pont.envoyerTexte({ type: 'episode_debut', numero: k, graine, scenario: sc });

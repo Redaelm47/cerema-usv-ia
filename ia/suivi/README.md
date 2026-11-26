@@ -6,7 +6,7 @@ Partie 1 de la chaîne (voir [INTERFACES.md](../INTERFACES.md)) : prend les imag
 python3 -m suivi --video ../data/scene-blender-01.mp4 --sortie runs/suivi.mp4    # sur le Mac
 python3 -m suivi --camera 0 --toutes-classes --duree 20                          # webcam, essai sans navire
 python3 -m suivi --pi --duree 20                                                 # caméra IMX500, sur le Pi
-python3 -m unittest discover -s suivi/tests -t .                                 # 21 tests
+python3 -m unittest discover -s suivi/tests -t .                                 # 23 tests
 ```
 
 | Fichier | Rôle |
@@ -24,6 +24,7 @@ python3 -m unittest discover -s suivi/tests -t .                                
 3. Les détections douteuses (entre 5 % et le seuil des détections sûres) ne peuvent que prolonger une piste existante. C'est ce qui garde le numéro d'un navire lointain, que le détecteur voit mal.
 4. Une détection sûre que rien n'explique ouvre une nouvelle piste, sauf si elle est posée sur un navire déjà suivi (le détecteur rend parfois une seconde boîte sur la cabine).
 5. Une piste qui n'est plus vue reste en mémoire 4 secondes et reprend son numéro si le navire réapparaît au même endroit, avec à peu près la même taille.
+6. La caméra est à ras de l'eau : son tangage déplace les navires surtout verticalement, de plus que leur hauteur d'une image à l'autre (simulateur : 62 px en médiane contre 6 px horizontalement). L'écart vertical compte donc trois fois moins que l'écart horizontal (`poids_vertical = 0.3`), le recouvrement est mesuré à la même hauteur, et la vitesse verticale d'une boîte n'est pas prolongée (`vitesse_verticale = False`). Sur la démo du simulateur, les changements de numéro sur le chalutier passent de 104 à 16 ; rien ne change sur la vidéo de Dingle ni sur la scène Blender 01. `poids_vertical=1.0, vitesse_verticale=True` redonne l'ancien comportement.
 
 L'associateur ne regarde que la position et la taille, jamais l'apparence. Dans le doute (deux pistes possibles pour une boîte, ou l'inverse), il n'associe pas : un numéro de plus vaut mieux que deux navires sous le même numéro.
 

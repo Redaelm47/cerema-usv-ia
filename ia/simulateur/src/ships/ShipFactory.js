@@ -586,14 +586,14 @@ function hullDecalSpots(e) {
   return spots;
 }
 
-function fromModel(kind, e) {
+function fromModel(kind, e, nom) {
   const group = e.tpl.clone(true);
   const lights = navLights(group, e.L, e.B, e.air * 0.95, e.air * 0.3);
   const names = { trawler: ['BR 521347', 'GV 384112', 'CC 902215'], sailboat: ['Ar Vag', 'Penn Kalet', 'Morgane', 'Sterenn'], motorboat: ['Gwalarn', 'Mor Braz'], container: ['IROISE TRADER', 'CELTIC STAR'], bulk: ['GOLDEN BRITTANY'], ferry: ['ENEZ EUSSA', 'FROMVEUR II'], tug: ['ABEILLE IROISE', 'VB TREBERON'], frigate: ['Frégate'] }[kind] || [kind];
   const cr = CRUISE[kind];
   let name = pick(names);
   if (kind === 'trawler') {
-    name = `${pick(QUARTIERS)} ${Math.floor(rnd(100000, 999999))}`;
+    name = nom ?? `${pick(QUARTIERS)} ${Math.floor(rnd(100000, 999999))}`;
     const h = Math.max(0.45, Math.min(1.4, e.L * 0.045));
     for (const s of hullDecalSpots(e)) {
       // white with a dark outline: readable on a dark hull as on a light band, like real markings
@@ -603,12 +603,19 @@ function fromModel(kind, e) {
       group.add(d);
     }
   }
-  return { group, L: e.L, B: e.B, T: e.T, type: TYPES[kind], label: LABELS[kind], name, cruise: rnd(cr[0], cr[1]), lights, air: e.air, model: e.meta.name };
+  return { group, L: e.L, B: e.B, T: e.T, type: TYPES[kind], label: LABELS[kind], name: nom ?? name, cruise: rnd(cr[0], cr[1]), lights, air: e.air, model: e.meta.name };
 }
 
-export function createShip(kind) {
-  const useModel = MODELS[kind] && MODELS[kind].length && Math.random() < 0.85;
-  const s = useModel ? fromModel(kind, pickModel(MODELS[kind])) : BUILDERS[kind]();
+/**
+ * Un navire du type demandé : modèle 3D tiré au hasard (85 %) ou coque procédurale. Un scénario peut fixer le modèle
+ * (`model` : nom du fichier de public/models/, ou « procedural ») et, pour un modèle 3D, l'immatriculation peinte
+ * sur un chalutier ou le nom des autres navires (`name`).
+ */
+export function createShip(kind, { model, name } = {}) {
+  const choisi = model && model !== 'procedural' ? (MODELS[kind] || []).find((e) => e.meta.file === model) : null;
+  if (model && model !== 'procedural' && !choisi) console.warn(`modèle ${model} absent pour ${kind} : tiré au hasard`);
+  const useModel = model === 'procedural' ? false : choisi ? true : MODELS[kind] && MODELS[kind].length && Math.random() < 0.85;
+  const s = useModel ? fromModel(kind, choisi || pickModel(MODELS[kind]), name) : BUILDERS[kind]();
   s.kind = kind;
   s.group.traverse((o) => { if (o.isMesh) o.frustumCulled = true; });
   return s;

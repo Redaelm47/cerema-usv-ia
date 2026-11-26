@@ -68,7 +68,7 @@ Règles ajoutées autour de l'arbre :
 Des règles fixes, sans modèle appris, parce que personne ne valide l'approche.
 
 - Avant : drone dans la zone, batterie au-dessus de 30 %, navire jamais approché.
-- Pendant : abandon après 120 s, après 10 % de batterie consommée, si le navire n'a pas grossi au bout de 20 s (il s'éloigne plus vite que le drone), si la zone est quittée, ou si la distance minimale de 30 m est atteinte sans pouvoir lire.
+- Pendant : abandon après 120 s, après 10 % de batterie consommée, si le navire n'a pas grossi au bout de 20 s (il s'éloigne plus vite que le drone ; largeur de boîte lissée sur une demi-seconde, une seule boîte plus petite ne suffit pas), si la zone est quittée, ou si la distance minimale de 30 m est atteinte sans pouvoir lire.
 
 ## Les experts (`experts/`)
 

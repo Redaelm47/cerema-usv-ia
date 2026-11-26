@@ -1,11 +1,11 @@
 {
   "title": "Démo : patrouille, approche, lecture, alerte",
-  "description": "Le drone patrouille devant Le Dellec ; un chalutier croise sa route",
+  "description": "Le drone patrouille devant Le Dellec ; un petit chalutier breton croise sa route à 160 m",
   "weather": "Clair",
   "hour": 11,
   "month": 6,
-  "wind": 4,
-  "swell": 0.35,
+  "wind": 2.5,
+  "swell": 0.15,
   "auto_traffic": false,
   "drone": {
     "lat": 48.34770, "lon": -4.56944, "heading_deg": 240, "patrol_kn": 3,
@@ -14,7 +14,8 @@
     "loop": true
   },
   "ships": [
-    { "kind": "trawler", "lat": 48.34626, "lon": -4.57147, "heading_deg": 130, "speed_kn": 1.5 },
+    { "kind": "trawler", "lat": 48.34702, "lon": -4.57135, "heading_deg": 340, "speed_kn": 1.5,
+      "model": "trawler-breton.glb", "name": "BR 521347" },
     { "kind": "sailboat", "lat": 48.33511, "lon": -4.58024, "heading_deg": 80, "speed_kn": 4 },
     { "kind": "container", "lat": 48.33466, "lon": -4.60722, "heading_deg": 250, "speed_kn": 9 }
   ]

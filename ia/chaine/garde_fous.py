@@ -25,7 +25,8 @@ def approche_a_abandonner(fiche: FicheNavire, t: float, contexte: Contexte, regl
     if debut is not None:
         if t - debut > reglages.duree_max_approche_s:
             return True, "durée maximale d'approche dépassée"
-        grossi = fiche.largeur_px >= reglages.croissance_min_approche * fiche.interne.largeur_debut_approche
+        # largeur lissée : une seule boîte plus petite (bruit du détecteur, de loin) ne fait pas abandonner
+        grossi = fiche.largeur_lissee_px >= reglages.croissance_min_approche * fiche.interne.largeur_debut_approche
         if t - debut > reglages.delai_eloignement_s and not grossi:
             return True, "le navire s'éloigne plus vite que le drone"
     if (contexte.distance_m is not None and contexte.distance_m <= reglages.distance_min_m

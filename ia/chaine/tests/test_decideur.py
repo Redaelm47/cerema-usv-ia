@@ -251,6 +251,25 @@ class TestGardeFous(unittest.TestCase):
             self.assertEqual(approche_a_abandonner(fiche, t, contexte, R), (True, raison))
             self.assertEqual(action(fiche, t, contexte), (Action.ALERTE_PARTIELLE, raison))
 
+    def approche_observee(self, largeurs):
+        """Approche commencée à T sur une boîte de 100 px, puis une boîte toutes les 0,1 s."""
+        fiche = fiche_en_approche(largeur=100.0, t=T)
+        fiche.interne.largeur_debut_approche = fiche.largeur_lissee_px
+        for k, largeur in enumerate(largeurs, start=1):
+            fiche.observer(T + k / 10, Observation(fiche.id_piste, (500.0, 400.0, largeur, 40.0), 0.8))
+        return fiche, T + len(largeurs) / 10
+
+    def test_une_boite_isolee_plus_petite_ne_fait_pas_abandonner(self):
+        # le navire grossit (100 -> 125 px en 21 s), mais le détecteur rend une boîte de 70 px sur la dernière image
+        largeurs = [100 + 25 * k / 210 for k in range(1, 210)] + [70.0]
+        fiche, t = self.approche_observee(largeurs)
+        self.assertGreater(t - T, R.delai_eloignement_s)
+        self.assertEqual(approche_a_abandonner(fiche, t, Contexte(), R), (False, ""))
+
+    def test_un_navire_qui_rapetisse_fait_abandonner(self):
+        fiche, t = self.approche_observee([100 - 10 * k / 210 for k in range(1, 211)])
+        self.assertEqual(approche_a_abandonner(fiche, t, Contexte(), R), (True, "le navire s'éloigne plus vite que le drone"))
+
     def test_approche_normale_non_abandonnee(self):
         fiche = fiche_en_approche(largeur=400.0, t=T + 30)
         self.assertEqual(approche_a_abandonner(fiche, T + 30, Contexte(batterie=0.95, distance_m=80.0), R), (False, ""))
