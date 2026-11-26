@@ -4,6 +4,7 @@ Ce qui tourne sur le Raspberry Pi : la caméra et le suivi (`ia/suivi`), puis la
 
 ```
 python3 -m embarque --pi --station http://<adresse-du-mac>:8000                  # sur le Pi
+# en mer, ajouter --boite runs/boite.db : les messages attendent la station au lieu d'être perdus si la liaison coupe
 python3 -m embarque --video ../data/scene-blender-01.mp4 --temps-reel --seuil-ocr 300 \
                     --station http://localhost:8000                              # répétition sur le Mac
 ```

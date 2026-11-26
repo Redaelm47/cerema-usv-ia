@@ -119,7 +119,11 @@ class Emetteurs:
             emetteur.fermer()
 
 
-def creer_emetteur(adresse: str) -> Emetteur:
+def creer_emetteur(adresse: str, boite: str | Path | None = None) -> Emetteur:
+    """`boite` : fichier SQLite de la boîte d'envoi (`boite.py`), utilisée pour les adresses http(s) seulement."""
+    if boite and adresse.startswith(("http://", "https://")):
+        from .boite import EmetteurBoite
+        return EmetteurBoite(boite, adresse)
     if "://" in adresse:
         return EmetteurReseau(adresse)
     return EmetteurFichier(adresse)

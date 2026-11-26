@@ -45,6 +45,9 @@ def main() -> None:
     parser.add_argument("--messages", action="append", metavar="ADRESSE",
                         help="où envoyer les messages du contrat 3 : fichier .jsonl, http://hôte:port/chemin ou "
                              "udp://hôte:port ; option répétable (défaut : runs/messages.jsonl)")
+    parser.add_argument("--boite", metavar="FICHIER",
+                        help="boîte d'envoi SQLite : les messages vers http(s) y attendent l'accusé de la station "
+                             "(liaison coupée, relance du programme) au lieu d'être perdus ; voir boite.py")
     args = parser.parse_args()
 
     reglages = Reglages()
@@ -62,7 +65,7 @@ def main() -> None:
         source = ScenarioSimule(drone)
 
     derouler(source, reglages, drone, vrais_experts=bool(args.video) and not args.factices, fils=args.fils,
-             reseau_type=args.reseau_type, journal=args.journal, messages=args.messages or ["runs/messages.jsonl"],
+             reseau_type=args.reseau_type, journal=args.journal, messages=args.messages or ["runs/messages.jsonl"], boite=args.boite,
              sortie=args.sortie if args.video else None, reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires,
              afficher_direct=args.afficher and bool(args.video))
 
@@ -96,11 +99,13 @@ def creer_reid(args: argparse.Namespace, reglages: Reglages):
 def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool, fils: int | None = None,
              reseau_type: str = "dinov2", journal: str = "runs/journal.jsonl", messages: list[str] | None = None,
              sortie: str | None = None, reid=None,
-             memoire_navires: str | None = None, afficher_direct: bool = False, direct=None) -> Chaine:
+             memoire_navires: str | None = None, afficher_direct: bool = False, direct=None,
+             boite: str | None = None) -> Chaine:
     """Fait tourner la chaîne sur une source d'observations (contrat 1) jusqu'à son épuisement.
 
     `reid` : mémoire des navires (ré-identification), sauvée dans `memoire_navires` à la fin si donné.
     Avec les experts factices, aucune signature n'est calculée : la ré-identification ne voit rien.
+    `boite` : fichier SQLite de la boîte d'envoi pour les messages vers http(s).
     `afficher_direct` : fenêtre OpenCV (ordinateur). `direct` : flux binaire où écrire les images annotées
     en JPEG ; sa fermeture par le lecteur arrête la chaîne.
     """
@@ -116,7 +121,7 @@ def derouler(source, reglages: Reglages, drone: DroneSimule, vrais_experts: bool
         experts += [ExpertTypeFactice(), ExpertOCRFactice(reglages)]
 
     chemin_journal, journal = journal, Journal(journal)
-    emetteur = Emetteurs([creer_emetteur(adresse) for adresse in messages])
+    emetteur = Emetteurs([creer_emetteur(adresse, boite) for adresse in messages])
     chaine = Chaine(experts, reglages, journal, emetteur, drone, reid=reid)
     video_annotee = fenetre = None
     if sortie:

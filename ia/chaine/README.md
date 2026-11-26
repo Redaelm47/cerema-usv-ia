@@ -24,6 +24,7 @@ Chaque lancement écrit le journal des décisions dans `runs/journal.jsonl` et l
 
 | Option | Effet |
 |---|---|
+| `--boite FICHIER` | boîte d'envoi SQLite : les messages vers `http(s)` y attendent l'accusé de la station au lieu d'être perdus si la liaison coupe ou si le programme est relancé (`boite.py`) |
 | `--messages ADRESSE` | destinataire des messages, répétable : fichier `.jsonl`, `http://hôte:port/chemin` (un POST JSON par message) ou `udp://hôte:port` |
 | `--enregistrer-observations F` | écrit les observations du contrat 1, une ligne JSON par image |
 | `--observations F` | rejoue des observations enregistrées au lieu de refaire détection et suivi |
@@ -204,6 +205,7 @@ Ce que le calcul ne dit pas : pendant qu'un expert occupe les quatre cœurs, le 
 | `chaine.py` | Boucle principale, un seul expert par image, alertes, reprise de piste |
 | `experts/` | Les quatre experts, et les experts factices |
 | `messages.py`, `journal.py` | Envoi des messages (fichier, HTTP, UDP) ; journal des décisions |
+| `boite.py` | Boîte d'envoi SQLite vers la station : écriture par lots, alertes d'abord, seul le dernier `etat` compte pendant une coupure, reprise après relance |
 | `sources.py` | Scénario simulé, suivi de remplacement sur vidéo, observations rejouées |
 | `reglages.py` | Tous les seuils, et l'état du drone lu par le décideur |
 | `reidentification.py` | Mémoire des navires déjà signalés, reconnaissance par la signature visuelle (`REIDENTIFICATION.md`) |

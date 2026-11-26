@@ -37,6 +37,9 @@ def main() -> None:
     parser.add_argument("--direct", action="store_true",
                         help="écrit les images annotées (boîtes, type, immatriculation) sur la sortie standard, en "
                              "MJPEG, pour ffplay à travers ssh ; fermer ffplay arrête le programme")
+    parser.add_argument("--boite", metavar="FICHIER",
+                        help="boîte d'envoi SQLite vers la station (--station) : rien n'est perdu si la liaison coupe "
+                             "ou si le programme est relancé ; conseillé en mer")
     ajouter_options_reid(parser)
     args = parser.parse_args()
 
@@ -60,7 +63,7 @@ def main() -> None:
     derouler(creer_suivi(args, enregistrer=args.observations), reglages, DroneSimule(), vrais_experts=True,
              fils=args.fils, journal=args.journal, messages=messages, sortie=args.sortie, direct=direct,
              reid=creer_reid(args, reglages), memoire_navires=args.memoire_navires,
-             afficher_direct=args.afficher)
+             afficher_direct=args.afficher, boite=args.boite)
 
 
 if __name__ == "__main__":

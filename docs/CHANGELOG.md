@@ -2,6 +2,10 @@
 
 Ce fichier répertorie les principales évolutions du projet.
 
+## 2026-11-26
+
+- Boîte d'envoi SQLite (`ia/chaine/boite.py`, option `--boite`) : les messages vers la station sont gardés dans un fichier jusqu'à l'accusé de réception, même si la liaison coupe ou si le programme est relancé ; alertes d'abord, seul le dernier état compte pendant une coupure. Sans `--boite`, rien ne change.
+
 ## 2026-11-23
 
 - Ré-identification (`ia/chaine`) : indices complémentaires (nom, fragment d'immatriculation, couleur par bandes, taille, trajet) en plus de la signature DINOv2, mémoire des navires en version 2, détail dans `ia/chaine/REIDENTIFICATION.md`.
