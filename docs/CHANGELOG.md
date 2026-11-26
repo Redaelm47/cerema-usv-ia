@@ -5,6 +5,7 @@ Ce fichier répertorie les principales évolutions du projet.
 ## 2026-11-23
 
 - Ré-identification (`ia/chaine`) : indices complémentaires (nom, fragment d'immatriculation, couleur par bandes, taille, trajet) en plus de la signature DINOv2, mémoire des navires en version 2, détail dans `ia/chaine/REIDENTIFICATION.md`.
+- Compte rendu du point de séance du 23/11 (`docs/comptes_rendus/2026-11-23_point-de-seance.pdf`) : GPS à une dizaine de mètres près, gouverne pas à pas et propulsion fonctionnelles, missions limitées à une zone, test de suivi de zone le 26/11, réunion du 26/11 avec le Cerema reportée. Sommaire des comptes rendus mis à jour.
 
 ## 2026-11-20
 
