@@ -20,7 +20,7 @@ Tous les documents : [docs](docs).
 
 ```
 docs/          documents : comptes rendus, livrables, guides
-ia/            vision embarquée : détection, OCR, suivi, Raspberry Pi
+ia/            vision embarquée : détection, OCR, suivi, Raspberry Pi, simulateur 3D
 station_sol/   serveur et page opérateur
 usv/           plateforme : assemblage, motorisation, missions
 ressources/    travail de l'équipe 2025

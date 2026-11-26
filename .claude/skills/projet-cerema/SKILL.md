@@ -40,7 +40,7 @@ Priorités décidées le 05/11/2026 : côté IA, une vision et des alertes parfa
 │   │   ├── revue_de_projet/
 │   │   ├── CHANGELOG.md    historique du dépôt
 │   │   └── *.pdf           sujet, synthèse, architecture, plan d'actions
-│   ├── ia/                 vision embarquée ; chaine/, suivi/, embarque/ et INTERFACES.md sont sur la branche ia/chaine-squelette
+│   ├── ia/                 vision embarquée : suivi/, chaine/, embarque/, INTERFACES.md, simulateur/ (simulateur 3D Iroise, skill simulateur-iroise)
 │   ├── station_sol/        serveur et page opérateur
 │   ├── usv/                assemblage, motorisation, missions, matériel
 │   ├── ressources/         travail de l'équipe 2025
@@ -61,7 +61,7 @@ Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ig
 
 - Ne pousser que quand Reda le demande.
 - Le client et le tuteur école lisent le dépôt : chaque fichier poussé doit pouvoir être lu par eux.
-- La copie locale est souvent sur une branche de travail (`ia/chaine-squelette`, non fusionnée) avec des modifications non commitées : ne jamais faire de checkout ni de stash dessus. Pour écrire sur `main`, passer par un worktree temporaire dans le scratchpad (commandes dans le skill `compte-rendu-reunion`), puis `git branch -f main origin/main`.
+- La copie locale est souvent sur une branche de travail avec des modifications non commitées : ne jamais faire de checkout ni de stash dessus. Pour écrire sur `main`, passer par un worktree temporaire dans le scratchpad (commandes dans le skill `compte-rendu-reunion`), puis `git branch -f main origin/main`.
 - Le README demande des branches et des pull requests pour le code. Les documents et les comptes rendus vont directement sur `main` quand Reda le demande.
 - `git fetch` juste avant de pousser : les autres poussent aussi.
 - Messages de commit en français, qui disent ce qui change. Noter les évolutions importantes dans `docs/CHANGELOG.md`, avec la date.
@@ -85,13 +85,13 @@ Le dossier parent `~/Desktop/imt/cerema` est un dépôt local sans remote qui ig
 
 - **Avant toute action sur le Pi** (connexion, installation, caméra) **et avant d'afficher quoi que ce soit en plein écran sur le Mac** : dire le plan en quelques lignes et attendre l'accord de Reda. Les lectures seules (état, fichiers) n'en demandent pas.
 - Le Pi est partagé avec Guillaume : vérifier que la caméra est libre (`ps` sur le Pi) avant de la prendre ; un seul programme à la fois peut tenir la caméra. Ne pas toucher à son dossier `~/Desktop/Yolo_test`.
-- Accès : `ssh pi@cerema-pi.local` (clé du Mac déjà installée), seulement quand le Mac et le Pi sont sur le même réseau. Déploiement : `sh ia/raspberry_pi/deployer.sh` vers `~/cerema`. Commandes de lancement : `ia/embarque/README.md` (ces deux fichiers sont sur la branche `ia/chaine-squelette`, pas encore sur `main`) et `docs/guides/raspberry_pi/use_raspberry_pi.md`.
+- Accès : `ssh pi@cerema-pi.local` (clé du Mac déjà installée), seulement quand le Mac et le Pi sont sur le même réseau. Déploiement : `sh ia/raspberry_pi/deployer.sh` vers `~/cerema`. Commandes de lancement : `ia/embarque/README.md` et `docs/guides/raspberry_pi/use_raspberry_pi.md`.
 - L'orientation de l'image dépend du montage : la vérifier à chaque séance (le 02/11, image droite, donc `--sans-retournement`).
 - Ne pas installer de logiciel sur le Mac ou le Pi sans l'accord de Reda.
 
 ## Choix déjà arrêtés pour la vision
 
-- Chaîne : caméra IMX500 (YOLO11n sur le capteur), suivi (un numéro par navire), décideur, experts (filtre qualité, type, OCR), alertes vers la station sol. Contrats JSON entre les parties : `docs/repartition_travail.pdf` et `ia/INTERFACES.md` (branche `ia/chaine-squelette`).
+- Chaîne : caméra IMX500 (YOLO11n sur le capteur), suivi (un numéro par navire), décideur, experts (filtre qualité, type, OCR), alertes vers la station sol. Contrats JSON entre les parties : `docs/repartition_travail.pdf` et `ia/INTERFACES.md`.
 - Décideur : règles en Python d'abord, puis régression logistique calibrée par expert, apprise sur les journaux.
 - Pas de service en ligne pour la démonstration (Supabase écarté) ; pas de MAVLink ni d'ArduPilot côté vision pour l'instant.
 - Le GPS se branche directement sur le Pixhawk, pas via le Raspberry Pi.
